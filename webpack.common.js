@@ -13,16 +13,6 @@ module.exports = {
         path: path.resolve(__dirname, "dist"),
     },
     optimization: {
-        // 提取公用代码块，优化打包大小必备
-        splitChunks: {
-            cacheGroups: {
-                commons: {
-                    name: "commons",//公用代码块名称
-                    chunks: "initial",
-                    minChunks: 1
-                }
-            }
-        }
     },
     plugins: [
         // 在打包后的文件头插入一些banner信息，官方插件：
