@@ -34,7 +34,6 @@ class ScriptHook {
                 const requestContext = RequestContext.parseRequestContext(newSrc);
                 const scriptContext = new ScriptContext(newSrc, requestContext, null);
 
-                debugger;
                 const requestAnalyzer = new RequestAnalyzer();
                 requestAnalyzer.analyze(requestContext);
 
