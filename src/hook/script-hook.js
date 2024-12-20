@@ -1,5 +1,5 @@
 const Debugger = require("../debugger/debugger");
-const {DebuggerManager} = require("../debugger/debugger-manager");
+const {DebuggerManager, debuggerManager} = require("../debugger/debugger-manager");
 const {JsonpCallbackFunctionAnalyzer} = require("../analyzer/response-analyzer");
 const {ScriptContext} = require("../context/script/script-context");
 const {RequestContext} = require("../context/request/request-context");
@@ -34,13 +34,12 @@ class ScriptHook {
                 const requestContext = RequestContext.parseRequestContext(newSrc);
                 const scriptContext = new ScriptContext(newSrc, requestContext, null);
 
-                debugger;
                 const requestAnalyzer = new RequestAnalyzer();
                 requestAnalyzer.analyze(requestContext);
 
                 // 在请求发送之前测试断点
 
-                DebuggerManager.testAll(scriptContext);
+                debuggerManager.testAll(scriptContext);
 
                 // 这里认为script不会被复用，所以添加的hook在设置src的时候就会被删除掉，会有script复用的情况吗？
                 delete _this.script.src;

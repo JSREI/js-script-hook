@@ -50,24 +50,22 @@ class RequestAnalyzer {
         if (typeof unsafeWindow[param.value] !== "function") {
             // 如果都没有对应的全局函数存在的话，则直接判定为0分
             return 0;
-
-            let jsonpScore = 100;
-
-            // 判断参数中的jsonp参数特征，参数名
-            const paramName = param.name.toLowerCase();
-            if (paramName.indexOf("callback") !== -1) {
-                jsonpScore += 10;
-            }
-
-            // 参数值，寻找时间戳特征
-            const timestampRegexp = /\b(\d{10}|\d{13})\b/g;
-            const match = timestampRegexp.exec(param.value);
-            if (match && this.isValidJsonpTimestamp(match)) {
-                jsonpScore += 50;
-            }
-
-            return jsonpScore;
         }
+        let jsonpScore = 100;
+
+        // 判断参数中的jsonp参数特征，参数名
+        const paramName = param.name.toLowerCase();
+        if (paramName.indexOf("callback") !== -1) {
+            jsonpScore += 10;
+        }
+
+        // 参数值，寻找时间戳特征
+        const match = new RegExp(/(\d{13}|\d{10})/).exec(param.value);
+        if (match && this.isValidJsonpTimestamp(match[0])) {
+            jsonpScore += 50;
+        }
+
+        return jsonpScore;
     }
 
     /**
