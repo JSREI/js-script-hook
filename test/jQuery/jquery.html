@@ -2,12 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Test jQuery jsonp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSONP Request Example</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #ff7e5f, #feb47b); /* 暖色系渐变背景 */
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #requestButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-<script src=""></script>
-<script type="text/javascript">
-    
+
+<button id="requestButton">发起JSONP请求</button>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('#requestButton').click(function(){
+            $.ajax({
+                url: 'http://localhost:10010/',
+                dataType: 'jsonp', // 指定预期的服务器响应数据类型
+                success: function(data) {
+                    // 处理返回的数据
+                    console.log(data);
+                },
+                error: function(err) {
+                    // 处理错误情况
+                    console.error(err);
+                }
+            });
+        });
+    });
 </script>
+
 </body>
 </html>

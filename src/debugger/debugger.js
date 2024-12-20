@@ -11,9 +11,9 @@ class Debugger {
      * 创建一个断点
      *
      * @param urlPattern {String | RegExp} 用于与script类型的请求的URL做匹配进入断点，只有这一个是必须指定的
-     * @param enableRequestDebugger {Boolean} 是否开启请求断点，开启请求断点会在请求发送之前进入断点，不指定的话默认开启
-     * @param enableResponseDebugger {Boolean} 是否开启响应断点，开启响应断点会在响应处理之前进入断点，不指定的话默认开启
-     * @param callbackFunctionParamName {String} 传递jsonp回调函数名字的参数，比如 "callback"，如果不指定的话会自动推测
+     * @param enableRequestDebugger {Boolean | null} 是否开启请求断点，开启请求断点会在请求发送之前进入断点，不指定的话默认开启
+     * @param enableResponseDebugger {Boolean | null} 是否开启响应断点，开启响应断点会在响应处理之前进入断点，不指定的话默认开启
+     * @param callbackFunctionParamName {String | null} 传递jsonp回调函数名字的参数，比如 "callback"，如果不指定的话会自动推测
      */
     constructor(urlPattern, enableRequestDebugger = true, enableResponseDebugger = true, callbackFunctionParamName) {
         this.urlPattern = urlPattern;
