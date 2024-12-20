@@ -1,4 +1,4 @@
-const {RequestContext} = require("../../../src/context/request/RequestContext");
+const {RequestContext} = require("../../../../src/context/request/request-context");
 const assert = require("assert")
 
 describe("TestRequestContext", function () {

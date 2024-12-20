@@ -9,7 +9,7 @@ class ResponseContext {
 
     /**
      *
-     * @param script
+     * @param script {HTMLScriptElement}
      */
     static parseResponseContext(script) {
         const responseJsCode = script.text;
@@ -18,10 +18,17 @@ class ResponseContext {
 
     /**
      * 尝试从响应体中抽取出jsonp的callback函数名字
+     *
      * @return {String}
      */
     parseJsonpCallbackFuncNameFromResponse() {
-        // TODO
+
+        // TODO 适配jQuery的callback，适配其它类型的callback函数
+
+    }
+
+    isJsonpResponse() {
+
     }
 
 }
