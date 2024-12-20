@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JSONP Hook</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #FFD700, #FF8C00); /* 暖色调渐变色背景 */
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        pre {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            color: black;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #FF8C00;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #FFA500;
+        }
+    </style>
+    <script>
+        // JSONP请求的回调函数
+        function jsonpCallback_1734635066(response) {
+            console.log('JSONP Response:', response);
+            // 这里可以将响应打印到页面上
+            document.getElementById('response').textContent = JSON.stringify(response, null, 4);
+        }
+
+        // 发起JSONP请求的函数
+        function sendJsonpRequest() {
+            // 创建一个script标签
+            var script = document.createElement('script');
+            // 设置JSONP请求的URL，这里的URL需要服务器支持JSONP
+            var url = 'http://localhost:10010/?jsonp_callback=jsonpCallback_1734635066';
+            // 设置script标签的src属性为JSONP请求的URL
+            script.src = url;
+            // 将script标签添加到document中
+            document.head.appendChild(script);
+        }
+
+        // 绑定按钮点击事件
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('sendRequestButton').addEventListener('click', sendJsonpRequest);
+        });
+    </script>
+</head>
+<body>
+<h1>JSONP Hook</h1>
+<button id="sendRequestButton">Send JSONP Request</button>
+<pre id="response"></pre>
+</body>
+</html>

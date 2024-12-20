@@ -1,7 +1,6 @@
-import {ScriptContext} from "../context/script/ScriptContext";
-import {ObjectFunctionHook} from "../hook/ObjectFunctionHook";
-import {Global} from "../global/Global";
-import {JsonpCallbackFunctionAnalyzer} from "../jsonp/JsonpCallbackFunctionAnalyzer";
+const {ObjectFunctionHook} = require("../hook/object-function-hook");
+const {getUnsafeWindow} = require("../utils/scope-util");
+const {JsonpCallbackFunctionAnalyzer} = require("../analyzer/response-analyzer");
 
 /**
  * 表示一个条件断点
@@ -50,11 +49,11 @@ class Debugger {
             }
             if (!this.callbackFunctionParamName) {
                 // TODO 2023-8-22 01:00:27 完善错误提示信息
-                throw new Error("must give me jsonp function param name, example: callback");
+                throw new Error("must give me analyzer function param name, example: callback");
             }
 
             // 为响应体中的回调函数增加hook
-            new ObjectFunctionHook(Global.getWindow(), this.callbackFunctionParamName).addHook();
+            new ObjectFunctionHook(getUnsafeWindow(), this.callbackFunctionParamName).addHook();
         }
 
     }

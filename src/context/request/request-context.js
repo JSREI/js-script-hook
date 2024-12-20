@@ -1,4 +1,4 @@
-import {Param} from "./Param";
+const {Param} = require("./param");
 
 /**
  * 用于封装请求的上下文
@@ -6,7 +6,7 @@ import {Param} from "./Param";
 class RequestContext {
 
     /**
-     * 从URL创建一个请求上下文
+     * 一个请求上下文是从一个script的src的url中解析出来的
      *
      * @param rawUrl {String} 要请求的URL的地址，到锚点这一层的
      * @param hostname {String}
@@ -37,7 +37,7 @@ class RequestContext {
 
         // 解析URL上的参数
         const params = [];
-        url.searchParams.forEach(function (key, value) {
+        url.searchParams.forEach(function (value, key) {
             const param = new Param(key, value);
             params.push(param);
         });

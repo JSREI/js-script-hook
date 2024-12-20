@@ -1,4 +1,4 @@
-const {Param} = require("../../../src/context/request/Param");
+const {Param} = require("../../../../src/context/request/param");
 const assert = require("assert")
 
 describe("TestRequestParam", function () {
