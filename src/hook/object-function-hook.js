@@ -17,8 +17,9 @@ class ObjectFunctionHook {
 
     /**
      *
+     * @param hookCallbackFunction
      */
-    addHook() {
+    addHook(hookCallbackFunction) {
 
         // 要Hook的函数必须存在
         const functionHolder = this.object[this.functionName];
@@ -38,9 +39,8 @@ class ObjectFunctionHook {
         this.object[this.functionName] = function () {
 
             // TODO 2023-8-21 22:15:09 在函数执行的时候尝试触发各种断点
+            hookCallbackFunction.apply(this)
 
-            // 这里是脚本的响应断点，已经拦截到响应，跟进去holder函数就行了
-            debugger;
             return functionHolder.apply(this, arguments);
         }
         // 设置标记位，防止重复Hook
