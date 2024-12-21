@@ -38,8 +38,12 @@ class ObjectFunctionHook {
         // 为函数添加Hook
         this.object[this.functionName] = function () {
 
-            // TODO 2023-8-21 22:15:09 在函数执行的时候尝试触发各种断点
-            hookCallbackFunction.apply(this)
+            try {
+                // TODO 2023-8-21 22:15:09 在函数执行的时候尝试触发各种断点
+                hookCallbackFunction.apply(this)
+            } catch (e) {
+                console.error(e);
+            }
 
             return functionHolder.apply(this, arguments);
         }

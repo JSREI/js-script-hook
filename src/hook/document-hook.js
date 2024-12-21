@@ -24,7 +24,11 @@ class DocumentHook {
         this.document.createElement = function () {
             const result = _this.documentCreateHolder.apply(this, arguments);
             if (arguments.length && arguments[0].toLowerCase() === "script") {
-                new ScriptHook(result).addHook();
+                try {
+                    new ScriptHook(result).addHook();
+                } catch (e) {
+                    console.error(e);
+                }
             }
             return result;
         }

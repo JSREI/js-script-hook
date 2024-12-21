@@ -30,16 +30,21 @@ class ScriptHook {
                 return srcHolder;
             }, set: function (newSrc) {
 
-                // 初始化请求上下文
-                const requestContext = RequestContext.parseRequestContext(newSrc);
-                const scriptContext = new ScriptContext(newSrc, requestContext, null);
+                // 尽量不要影响页面原有的流程
+                try {
+                    // 初始化请求上下文
+                    const requestContext = RequestContext.parseRequestContext(newSrc);
+                    const scriptContext = new ScriptContext(newSrc, requestContext, null);
 
-                const requestAnalyzer = new RequestAnalyzer();
-                requestAnalyzer.analyze(requestContext);
+                    const requestAnalyzer = new RequestAnalyzer();
+                    requestAnalyzer.analyze(requestContext);
 
-                // 在请求发送之前测试断点
+                    // 在请求发送之前测试断点
 
-                debuggerManager.testAll(scriptContext);
+                    debuggerManager.testAll(scriptContext);
+                } catch (e) {
+                    console.error(e);
+                }
 
                 // 这里认为script不会被复用，所以添加的hook在设置src的时候就会被删除掉，会有script复用的情况吗？
                 delete _this.script.src;

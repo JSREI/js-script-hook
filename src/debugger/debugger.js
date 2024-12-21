@@ -66,7 +66,9 @@ class Debugger {
             }
             if (!jsonpCallbackFunctionName) {
                 // TODO 2023-8-22 01:00:27 完善错误提示信息
-                throw new Error("must give me analyzer function param name, example: callback");
+                // throw new Error("must give me analyzer function param name, example: callback");
+                console.error("Could not parse jsonp callback function", jsonpCallbackFunctionName);
+                return;
             }
 
             // 为响应体中的回调函数增加hook
