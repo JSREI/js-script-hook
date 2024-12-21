@@ -16,7 +16,7 @@ class RequestAnalyzer {
         requestContext.params = this.computeParamsJsonpCallbackScore(requestContext.params);
 
         // 选出其中可能性最大的一个参数作为jsonp callback参数
-        if (requestContext.params && requestContext.params[0].jsonpCallbackScore > 0) {
+        if (requestContext.params && requestContext.params.length && requestContext.params[0].jsonpCallbackScore > 0) {
             requestContext.params[0].isJsonpCallback = true;
         }
 

@@ -8,8 +8,8 @@ const {Debugger} = require("./debugger/debugger");
     // 增加可视化的配置
 
     // 增加一个测试断点
-    const jsonpDebugger = new Debugger("http://localhost:10010/?jsonp_callback=jsonpCallback_1734635066");
-    debuggerManager.addDebugger(jsonpDebugger)
+    const jsonpDebugger = new Debugger(/.*/);
+    debuggerManager.addDebugger(jsonpDebugger);
 
     // 为document增加hook点
     const unsafeWindow = getUnsafeWindow();

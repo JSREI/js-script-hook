@@ -1,4 +1,5 @@
 const {Param} = require("./param");
+const {repeat} = require("../../utils/string-util");
 
 /**
  * 用于封装请求的上下文
@@ -22,7 +23,8 @@ class RequestContext {
         this.host = host;
         this.port = port;
         this.path = path;
-        this.params = params;
+        // 避免为空
+        this.params = params || [];
         this.hash = hash;
     }
 
@@ -83,6 +85,37 @@ class RequestContext {
             }
         }
         return null;
+    }
+
+    /**
+     *
+     * @return {""|boolean}
+     */
+    isJsSuffixRequest() {
+        return this.path && this.path.toLowerCase().endsWith(".js")
+    }
+
+    /**
+     * 转成方便阅读的格式
+     */
+    toHumanReadable(indent) {
+
+        const indentSpace = repeat(" ", indent);
+
+        const msgs = [];
+        msgs.push(`${indentSpace}hostname: ${this.hostname}`);
+        msgs.push(`${indentSpace}path: ${this.path}`);
+
+        msgs.push(`${indentSpace}params: `);
+        for (let param of this.params) {
+            msgs.push(param.toHumanReadable(indent + 4));
+        }
+
+        if (this.hash) {
+            msgs.push(`${indentSpace}hash: ${this.hash}`)
+        }
+
+        return msgs.join("\n\n");
     }
 
 }

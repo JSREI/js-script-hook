@@ -1,3 +1,5 @@
+const {repeat} = require("../../utils/string-util");
+
 /**
  * 表示url路径中的一个参数，对于script类型的请求来说，它只有query string类型的参数，因为它无法携带请求体
  */
@@ -21,6 +23,20 @@ class Param {
         // 此参数是jsonp的callback参数的可能性有多大
         this.jsonpCallbackScore = 0;
 
+    }
+
+    /**
+     * 把参数转为适合人类阅读的样式
+     *
+     * @return {string}
+     */
+    toHumanReadable(indent) {
+        const indentString = repeat(" ", indent);
+        if (this.isJsonpCallback) {
+            return `${indentString}${this.name} = ${this.value}    <---- this param is jsonp callback function name`
+        } else {
+            return `${indentString}${this.name} = ${this.value}`;
+        }
     }
 
 }

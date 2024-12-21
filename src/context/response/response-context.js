@@ -31,6 +31,10 @@ class ResponseContext {
 
     }
 
+    toHumanReadable() {
+        return "";
+    }
+
 }
 
 module.exports = {
