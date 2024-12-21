@@ -40,6 +40,10 @@ class RequestContext {
         // 示例："//statics.moonshot.cn/kimi-chat/shared-K0TvIN461soURJCs7nh6uxcQiCM_.04bc3959.async.js"
         if (requestUrl.startsWith("//")) {
             requestUrl = "https:" + requestUrl;
+        } else if (requestUrl.startsWith("/")) {
+            // 兼容省略域名的情况
+            // 数据样例："/logos/2024/moon/december-r4/december.js"
+            requestUrl = window.location.origin + requestUrl;
         }
 
         const url = new URL(requestUrl);
