@@ -35,6 +35,13 @@ class RequestContext {
      * @return {RequestContext} 返回解析好的请求上下文
      */
     static parseRequestContext(requestUrl) {
+
+        // 兼容CDN URL
+        // 示例："//statics.moonshot.cn/kimi-chat/shared-K0TvIN461soURJCs7nh6uxcQiCM_.04bc3959.async.js"
+        if (requestUrl.startsWith("//")) {
+            requestUrl = "https:" + requestUrl;
+        }
+
         const url = new URL(requestUrl);
 
         // 解析URL上的参数
