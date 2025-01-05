@@ -1,14 +1,16 @@
+const {DebuggerTester} = require("../debugger/debugger-tester");
+const {Debugger} = require("../debugger/debugger");
+const GM_config_name = "js-script-hook-config-name";
+
 /**
  * 支持的相关配置
  */
 class Config {
 
-    /**
-     *
-     * @param urlPattern {String | RegExp} 用于与script类型的请求的URL做匹配进入断点
-     * @param callbackFunctionParamName {String} 传递jsonp回调函数名字的参数，比如 "callback"
-     */
-    constructor(urlPattern, callbackFunctionParamName) {
+    constructor() {
+
+        // 默认为英文的操作界面
+        this.language = "english";
 
         // 让用户能够自己指定前缀，也许会有一些拥有感？之前ast hook好像就有个哥们喜欢这样干...
         this.prefix = "CC11001100";
@@ -18,13 +20,94 @@ class Config {
 
         // 是否忽略不是jsonp的请求
         this.isIgnoreNotJsonpRequest = true;
+
+        // 在打开配置页面的时候自动跳转到项目主页
+        this.autoJumpProjectSiteOnConfiguraion = true;
+
+        // 所有的断点
+        this.debuggers = [];
+    }
+
+    findDebuggerById(id) {
+        for (let debuggerInformation of this.debuggers) {
+            if (debuggerInformation.id === id) {
+                return debuggerInformation;
+            }
+        }
+        return null;
+    }
+
+    addDebugger(debuggerInformation) {
+        // TODO 2024-12-22 05:06:15 断点的有效性校验
+        this.debuggers.push(debuggerInformation);
+    }
+
+    removeDebuggerById(id) {
+        const newDebuggers = [];
+        for (let debuggerInformation of this.debuggers) {
+            if (debuggerInformation.id !== id) {
+                newDebuggers.push(debuggerInformation);
+            }
+        }
+        this.debuggers = newDebuggers;
+    }
+
+    load() {
+        const configJsonString = GM_getValue(GM_config_name);
+        if (!configJsonString) {
+            return this;
+        }
+        const o = JSON.parse(configJsonString);
+        this.language = o.language;
+        this.prefix = o.prefix;
+        this.isIgnoreJsSuffixRequest = o.isIgnoreJsSuffixRequest;
+        this.isIgnoreNotJsonpRequest = o.isIgnoreNotJsonpRequest;
+        this.autoJumpProjectSiteOnConfiguraion = o.autoJumpProjectSiteOnConfiguraion;
+        this.debuggers = [];
+        for (let debuggerInformationObject of o.debuggers) {
+            const debuggerInformation = new Debugger();
+            debuggerInformation.id = debuggerInformationObject.id;
+            debuggerInformation.enable = debuggerInformationObject.enable;
+            debuggerInformation.urlPattern = debuggerInformationObject.urlPattern;
+            debuggerInformation.enableRequestDebugger = debuggerInformationObject.enableRequestDebugger;
+            debuggerInformation.enableResponseDebugger = debuggerInformationObject.enableResponseDebugger;
+            debuggerInformation.callbackFunctionParamName = debuggerInformationObject.callbackFunctionParamName;
+            debuggerInformation.comment = debuggerInformationObject.comment;
+            this.debuggers.push(debuggerInformation);
+        }
+        return this;
+    }
+
+    persist() {
+        const configJsonString = JSON.stringify(this);
+        GM_setValue(GM_config_name, configJsonString);
+    }
+
+    /**
+     * 执行测试所有断点，看看是否有条件命中啥的
+     *
+     * @param scriptContext {ScriptContext}
+     */
+    testAll(scriptContext) {
+        for (let jsonpDebugger of this.debuggers) {
+            new DebuggerTester().test(this, jsonpDebugger, scriptContext);
+        }
     }
 
 }
 
-const globalConfig = new Config();
+let globalConfig = new Config();
+
+function initConfig() {
+    globalConfig.load();
+}
+
+function getGlobalConfig() {
+    return globalConfig;
+}
 
 module.exports = {
     Config,
-    globalConfig
+    initConfig,
+    getGlobalConfig
 }

@@ -36,6 +36,10 @@ class RequestContext {
      */
     static parseRequestContext(requestUrl) {
 
+        // 强制requestUrl是一个字符串
+        // 比如可能会是一个TrustedScriptURL
+        requestUrl = requestUrl + "";
+
         // 兼容CDN URL
         // 示例："//statics.moonshot.cn/kimi-chat/shared-K0TvIN461soURJCs7nh6uxcQiCM_.04bc3959.async.js"
         if (requestUrl.startsWith("//")) {

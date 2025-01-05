@@ -1,9 +1,9 @@
 const Debugger = require("../debugger/debugger");
-const {DebuggerManager, debuggerManager} = require("../debugger/debugger-manager");
 const {JsonpCallbackFunctionAnalyzer} = require("../analyzer/response-analyzer");
 const {ScriptContext} = require("../context/script/script-context");
 const {RequestContext} = require("../context/request/request-context");
 const {RequestAnalyzer} = require("../analyzer/request-analyzer");
+const {getGlobalConfig} = require("../config/config");
 
 /**
  * 用于给script添加Hook
@@ -41,7 +41,7 @@ class ScriptHook {
 
                     // 在请求发送之前测试断点
 
-                    debuggerManager.testAll(scriptContext);
+                    getGlobalConfig().testAll(scriptContext);
                 } catch (e) {
                     console.error(e);
                 }
