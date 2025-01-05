@@ -41,6 +41,8 @@ const chinese = {
 
         urlPatternTest: "测试",
         urlPatternTestTips: "你可以输入一个script url测试此断点对其命中情况",
+        urlPatternTestPrompt: "请输入要测试的URL：",
+        urlPatternTestResult: "测试结果：",
 
         enableRequestDebugger: "是否开启请求断点：",
         enableRequestDebuggerTips: "启动请求断点后，在script请求发出之前进入断点",

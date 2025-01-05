@@ -69,6 +69,7 @@ class Config {
             debuggerInformation.id = debuggerInformationObject.id;
             debuggerInformation.enable = debuggerInformationObject.enable;
             debuggerInformation.urlPattern = debuggerInformationObject.urlPattern;
+            debuggerInformation.urlPatternType = debuggerInformationObject.urlPatternType;
             debuggerInformation.enableRequestDebugger = debuggerInformationObject.enableRequestDebugger;
             debuggerInformation.enableResponseDebugger = debuggerInformationObject.enableResponseDebugger;
             debuggerInformation.callbackFunctionParamName = debuggerInformationObject.callbackFunctionParamName;
@@ -90,7 +91,9 @@ class Config {
      */
     testAll(scriptContext) {
         for (let jsonpDebugger of this.debuggers) {
-            new DebuggerTester().test(this, jsonpDebugger, scriptContext);
+            if (jsonpDebugger.enable) {
+                new DebuggerTester().test(this, jsonpDebugger, scriptContext);
+            }
         }
     }
 

@@ -30,7 +30,9 @@ class ObjectFunctionHook {
         }
 
         // 如果已经Hook过了则不重复hook，也就是说一次addHook只生效一次
-        const hookDoneFlag = getGlobalConfig().prefix + "_hookDoneFlag";
+        // const prefix = getGlobalConfig().prefix || "CC11001100_js_script_hook"
+        const prefix = "CC11001100_js_script_hook"
+        const hookDoneFlag = prefix + "_hookDoneFlag";
         if (functionHolder[hookDoneFlag]) {
             return;
         }
@@ -40,7 +42,7 @@ class ObjectFunctionHook {
 
             try {
                 // TODO 2023-8-21 22:15:09 在函数执行的时候尝试触发各种断点
-                hookCallbackFunction.apply(this)
+                hookCallbackFunction.apply(this, arguments)
             } catch (e) {
                 console.error(e);
             }
