@@ -53,6 +53,7 @@ class RequestAnalyzer {
         }
         let jsonpScore = 100;
 
+        // TODO 2024-12-22 01:32:28 如果是名称完全等于callback和包含callback，得到的分值是不是不应该一样？
         // 判断参数中的jsonp参数特征，参数名
         const paramName = param.name.toLowerCase();
         if (paramName.indexOf("callback") !== -1) {

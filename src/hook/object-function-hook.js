@@ -1,4 +1,4 @@
-const {globalConfig} = require("../config/config");
+const {getGlobalConfig} = require("../config/config");
 
 /**
  * 为全局的函数添加Hook，因为是要在新的script中调用，所以这些jsonp函数声明的都是全局作用域
@@ -30,7 +30,7 @@ class ObjectFunctionHook {
         }
 
         // 如果已经Hook过了则不重复hook，也就是说一次addHook只生效一次
-        const hookDoneFlag = globalConfig.prefix + "_hookDoneFlag";
+        const hookDoneFlag = getGlobalConfig().prefix + "_hookDoneFlag";
         if (functionHolder[hookDoneFlag]) {
             return;
         }
@@ -38,8 +38,12 @@ class ObjectFunctionHook {
         // 为函数添加Hook
         this.object[this.functionName] = function () {
 
-            // TODO 2023-8-21 22:15:09 在函数执行的时候尝试触发各种断点
-            hookCallbackFunction.apply(this)
+            try {
+                // TODO 2023-8-21 22:15:09 在函数执行的时候尝试触发各种断点
+                hookCallbackFunction.apply(this)
+            } catch (e) {
+                console.error(e);
+            }
 
             return functionHolder.apply(this, arguments);
         }
