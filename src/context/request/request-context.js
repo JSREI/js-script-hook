@@ -137,10 +137,15 @@ class RequestContext {
         msgs.push(`${indentSpace}hostname: ${this.hostname}`);
         msgs.push(`${indentSpace}path: ${this.path}`);
 
-        msgs.push(`${indentSpace}params: `);
+        let paramTitle = `${indentSpace}params(${this.params.length}): `;
+        if (!this.params.length) {
+            paramTitle += " do not have param.";
+        }
+        msgs.push(paramTitle);
         for (let param of this.params) {
             msgs.push(param.toHumanReadable(indent + 4));
         }
+
 
         if (this.hash) {
             msgs.push(`${indentSpace}hash: ${this.hash}`)
