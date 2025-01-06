@@ -4,6 +4,13 @@ const {ScriptContext} = require("../context/script/script-context");
 const {RequestContext} = require("../context/request/request-context");
 const {RequestAnalyzer} = require("../analyzer/request-analyzer");
 const {getGlobalConfig} = require("../config/config");
+const {RequestFormatter} = require("../formatter/request-formatter");
+const {getUnsafeWindow} = require("../utils/scope-util");
+const {ObjectFunctionHook} = require("./object-function-hook");
+const {ResponseContext} = require("../context/response/response-context");
+const {ResponseFormatter} = require("../formatter/response-formatter");
+const {JsonpCallbackHook} = require("./jsonp-callback-hook");
+const {formatScriptSrcToUrl} = require("../utils/url-util");
 
 /**
  * 用于给script添加Hook
@@ -32,16 +39,20 @@ class ScriptHook {
 
                 // 尽量不要影响页面原有的流程
                 try {
+                    const formattedScriptSrc = formatScriptSrcToUrl(newSrc);
                     // 初始化请求上下文
-                    const requestContext = RequestContext.parseRequestContext(newSrc);
-                    const scriptContext = new ScriptContext(newSrc, requestContext, null);
+                    const requestContext = RequestContext.parseRequestContext(formattedScriptSrc);
+                    const scriptContext = new ScriptContext(formattedScriptSrc, requestContext, null);
 
                     const requestAnalyzer = new RequestAnalyzer();
                     requestAnalyzer.analyze(requestContext);
 
                     // 在请求发送之前测试断点
+                    const requestFormatter = new RequestFormatter();
+                    console.log(requestFormatter.format(scriptContext));
 
-                    getGlobalConfig().testAll(scriptContext);
+                    const hitDebuggers = getGlobalConfig().testAll(scriptContext);
+                    new JsonpCallbackHook(scriptContext, hitDebuggers).addHook();
                 } catch (e) {
                     console.error(e);
                 }

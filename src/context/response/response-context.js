@@ -3,8 +3,14 @@
  */
 class ResponseContext {
 
-    constructor(responseJsCode) {
+    /**
+     *
+     * @param responseJsCode 脚本原始的响应代码是什么
+     * @param jsonpCallbackArguments 如果是jsonp类型的请求，捕捉到的响应是什么
+     */
+    constructor(responseJsCode, jsonpCallbackArguments) {
         this.responseJsCode = responseJsCode;
+        this.jsonpCallbackArguments = jsonpCallbackArguments;
     }
 
     /**
@@ -16,23 +22,20 @@ class ResponseContext {
         return new ResponseContext(responseJsCode);
     }
 
-    /**
-     * 尝试从响应体中抽取出jsonp的callback函数名字
-     *
-     * @return {String}
-     */
-    parseJsonpCallbackFuncNameFromResponse() {
-
-        // TODO 适配jQuery的callback，适配其它类型的callback函数
-
-    }
-
     isJsonpResponse() {
-
+        return !!this.jsonpCallbackArguments;
     }
 
     toHumanReadable() {
-        return "";
+        const msgs = [];
+        if (this.isJsonpResponse()) {
+            msgs.push("jsonp callback payload: ");
+            msgs.push(JSON.stringify(this.jsonpCallbackArguments, null, 4));
+        } else {
+            msgs.push("javascript code: ");
+            msgs.push(this.responseJsCode);
+        }
+        return msgs.join("\n");
     }
 
 }

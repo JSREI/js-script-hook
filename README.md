@@ -11,6 +11,15 @@ Chrome目前（2024-12-20）没有支持对script类型的请求打条件断点�
 
 ## 二、安装
 开发中，敬请期待！
+
+实战系列文章：
+- [潇湘书院登录](https://github.com/JSREP/www.xxsypro.com-RE)
+- [一淘网](https://github.com/JSREP/www.etao.com-RE)
+- [叮当快药sign逆向练习](https://github.com/JSREP/www.ddky.com-RE)
+- [365玩游戏平台](https://github.com/JSREP/minilogin.sgty.com-RE)
+- [G妹游戏登录](https://github.com/JSREP/www.gm99.com-RE)
+- [空中网登录](https://github.com/JSREP/passport.kongzhong.com-RE)
+
 ## 三、在script类型的请求发送之前打断点
 TODO 
 ## 四、在script类型的请求接收到响应之后打断点

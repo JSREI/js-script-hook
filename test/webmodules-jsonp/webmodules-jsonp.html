@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSONP Example</title>
+    <script src="https://unpkg.com/jsonp@0.2.1/lib/jsonp.min.js"></script>
+</head>
+<body>
+<script>
+    const weatherUrl = 'https://api.weather.com/data?callback=?';
+
+    jsonp(weatherUrl, { param: 'callback' }, (err, data) => {
+        if (err) {
+            console.error('Failed to fetch weather data:', err);
+        } else {
+            console.log('Weather data:', data);
+        }
+    });
+</script>
+</body>
+</html>

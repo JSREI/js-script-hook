@@ -3,6 +3,7 @@
  */
 const {RequestContext} = require("../request/request-context");
 const {ResponseContext} = require("../response/response-context");
+const {randomId} = require("../../utils/id-util");
 
 class ScriptContext {
 
@@ -14,6 +15,7 @@ class ScriptContext {
      * @param responseContext {ResponseContext}
      */
     constructor(url, requestContext, responseContext) {
+        this.requestId = "js-script-hook-" + randomId();
         this.url = url;
         this.requestContext = requestContext;
         this.responseContext = responseContext;

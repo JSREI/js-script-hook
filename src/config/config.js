@@ -88,13 +88,32 @@ class Config {
      * 执行测试所有断点，看看是否有条件命中啥的
      *
      * @param scriptContext {ScriptContext}
+     * @return {Array<Debugger>}
      */
     testAll(scriptContext) {
+        const hitDebuggers = [];
         for (let jsonpDebugger of this.debuggers) {
-            if (jsonpDebugger.enable) {
-                new DebuggerTester().test(this, jsonpDebugger, scriptContext);
+            if (jsonpDebugger.enable && new DebuggerTester().test(this, jsonpDebugger, scriptContext)) {
+                hitDebuggers.push(jsonpDebugger);
             }
         }
+        return hitDebuggers;
+    }
+
+    /**
+     * 测试是否能够命中响应内容
+     *
+     * @param scriptContext
+     * @return {*[]}
+     */
+    testAllForResponse(scriptContext) {
+        const hitDebuggers = [];
+        for (let debuggerConfig of this.debuggers) {
+            if (debuggerConfig.enable && new DebuggerTester().testForResponse(this, debuggerConfig, scriptContext)) {
+                hitDebuggers.push(debuggerConfig);
+            }
+        }
+        return hitDebuggers;
     }
 
 }
