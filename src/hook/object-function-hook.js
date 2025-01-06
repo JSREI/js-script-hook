@@ -18,8 +18,9 @@ class ObjectFunctionHook {
     /**
      *
      * @param hookCallbackFunction
+     * @param callByHookCallbackFunction {boolean}
      */
-    addHook(hookCallbackFunction) {
+    addHook(hookCallbackFunction, callByHookCallbackFunction = false) {
 
         // 要Hook的函数必须存在
         const functionHolder = this.object[this.functionName];
@@ -41,14 +42,26 @@ class ObjectFunctionHook {
         // 为函数添加Hook
         this.object[this.functionName] = function () {
 
-            try {
-                // TODO 2023-8-21 22:15:09 在函数执行的时候尝试触发各种断点
-                hookCallbackFunction.apply(this, arguments)
-            } catch (e) {
-                console.error(e);
+            if (callByHookCallbackFunction) {
+                // 由hook函数自行调用被hook函数
+                try {
+                    hookCallbackFunction.apply(this, [{
+                        "hookFunctionHolder": functionHolder,
+                        "args": arguments
+                    }]);
+                } catch (e) {
+                    console.error(e);
+                }
+            } else {
+                // 不干扰流程，hook函数只作为观测
+                try {
+                    // TODO 2023-8-21 22:15:09 在函数执行的时候尝试触发各种断点
+                    hookCallbackFunction.apply(this, arguments);
+                } catch (e) {
+                    console.error(e);
+                }
+                return functionHolder.apply(this, arguments);
             }
-
-            return functionHolder.apply(this, arguments);
         }
         // 设置标记位，防止重复Hook
         this.object[this.functionName][hookDoneFlag] = true;

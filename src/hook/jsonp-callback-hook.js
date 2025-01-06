@@ -45,7 +45,9 @@ class JsonpCallbackHook {
         const _this = this;
         new ObjectFunctionHook(getUnsafeWindow(), jsonpCallbackFunctionName).addHook(function () {
 
-            const responseContext = _this.scriptContext.responseContext = new ResponseContext("", arguments);
+            const {hookFunctionHolder, args} = arguments[0];
+
+            const responseContext = _this.scriptContext.responseContext = new ResponseContext("", args);
 
             // 只在有必要的情况下打印
             if (new DebuggerTester().isNeedPrintToConsole(getGlobalConfig(), _this.scriptContext)) {
@@ -54,7 +56,20 @@ class JsonpCallbackHook {
             }
 
             const hitDebuggers = getGlobalConfig().testAllForResponse(_this.scriptContext);
-        });
+            const isHitDebugger = hitDebuggers.length;
+
+            if (isHitDebugger) {
+                // 把一些相关的上下文赋值到变量方便断点命中这里的时候观察
+                // _scriptContext中存放的是与当前的script请求相关的一些上下文信息
+                // humanReadableScriptInformation 存放的是上下文格式化后的一些可读的信息
+                const humanReadableScriptInformation = _this.scriptContext.toHumanReadable()
+                debugger;
+            }
+
+            // 跟进去这个函数，就是jsonp的callback函数
+            hookFunctionHolder.apply(this, args);
+
+        }, true);
     }
 
     collectJsonpCallbackFunctionNameFromHitDebuggers() {

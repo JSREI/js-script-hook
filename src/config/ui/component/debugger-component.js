@@ -176,7 +176,6 @@ class DebuggerComponent {
 
         // URL匹配类型
         debuggerElt.find(`#${debuggerInformation.id}-url-pattern`).change(function () {
-            debugger;
             const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
             localDebuggerInformation.urlPatternType = $(this).val();
             getGlobalConfig().persist();

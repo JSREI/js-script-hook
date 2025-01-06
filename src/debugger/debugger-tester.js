@@ -153,16 +153,8 @@ class DebuggerTester {
             return false;
         }
 
-        // 请求断点
-        if (debuggerConfig.enableResponseDebugger) {
-            // 把一些相关的上下文赋值到变量方便断点命中这里的时候观察
-            // _scriptContext中存放的是与当前的script请求相关的一些上下文信息
-            const _scriptContext = scriptContext;
-            const humanReadableScriptInformation = scriptContext.toHumanReadable()
-            debugger;
-        }
-
-        return true;
+        // 响应断点是否开启
+        return debuggerConfig.enableResponseDebugger;
     }
 
     /**
