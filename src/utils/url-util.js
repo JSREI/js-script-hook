@@ -23,6 +23,11 @@ function formatScriptSrcToUrl(scriptSrc) {
     // 比如可能会是一个TrustedScriptURL
     scriptSrc = scriptSrc + "";
 
+    // 正常格式直接返回
+    if (scriptSrc.startsWith("http://") || scriptSrc.startsWith("https://")) {
+        return scriptSrc;
+    }
+
     // 兼容CDN URL
     // 示例："//statics.moonshot.cn/kimi-chat/shared-K0TvIN461soURJCs7nh6uxcQiCM_.04bc3959.async.js"
     if (scriptSrc.startsWith("//")) {
@@ -40,7 +45,9 @@ function formatScriptSrcToUrl(scriptSrc) {
         return window.location.origin + scriptSrc;
     }
 
-    return scriptSrc;
+    // 相对路径
+    // "static/js/chunk-19a101ae.45e69b5c.js"
+    return window.location.origin + "/" + scriptSrc;
 }
 
 module.exports = {

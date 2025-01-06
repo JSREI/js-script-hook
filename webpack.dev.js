@@ -7,7 +7,7 @@ module.exports = env => {
     return merge(common, {
         mode: "none",
         //开启这个可以在开发环境中调试代码
-        devtool: "source-map",
+        // devtool: "source-map",
         devServer: {
             static: false,
             allowedHosts: "all",
