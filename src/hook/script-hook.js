@@ -11,6 +11,7 @@ const {ResponseContext} = require("../context/response/response-context");
 const {ResponseFormatter} = require("../formatter/response-formatter");
 const {JsonpCallbackHook} = require("./jsonp-callback-hook");
 const {formatScriptSrcToUrl} = require("../utils/url-util");
+const {DebuggerTester} = require("../debugger/debugger-tester");
 
 /**
  * 用于给script添加Hook
@@ -48,8 +49,10 @@ class ScriptHook {
                     requestAnalyzer.analyze(requestContext);
 
                     // 在请求发送之前测试断点
-                    const requestFormatter = new RequestFormatter();
-                    console.log(requestFormatter.format(scriptContext));
+                    if (new DebuggerTester().isNeedPrintToConsole(getGlobalConfig(), scriptContext)) {
+                        const requestFormatter = new RequestFormatter();
+                        console.log(requestFormatter.format(scriptContext));
+                    }
 
                     const hitDebuggers = getGlobalConfig().testAll(scriptContext);
                     new JsonpCallbackHook(scriptContext, hitDebuggers).addHook();

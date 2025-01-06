@@ -148,7 +148,6 @@ class GlobalOptionsComponent {
 
         // 在打开配置页面的时候自动跳转项目主页
         component.find("#js-script-hook-global-config-autoJumpProjectSiteOnConfiguraion").on("change", function () {
-            debugger;
             getGlobalConfig().autoJumpProjectSiteOnConfiguraion = $(this).is(':checked');
             getGlobalConfig().persist();
         });

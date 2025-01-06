@@ -3,6 +3,8 @@ const {ObjectFunctionHook} = require("./object-function-hook");
 const {ResponseContext} = require("../context/response/response-context");
 const {ResponseFormatter} = require("../formatter/response-formatter");
 const {getGlobalConfig} = require("../config/config");
+const {DebuggerTester} = require("../debugger/debugger-tester");
+const {RequestFormatter} = require("../formatter/request-formatter");
 
 /**
  * 给JSONP的回调函数增加hook
@@ -44,8 +46,12 @@ class JsonpCallbackHook {
         new ObjectFunctionHook(getUnsafeWindow(), jsonpCallbackFunctionName).addHook(function () {
 
             const responseContext = _this.scriptContext.responseContext = new ResponseContext("", arguments);
-            const s = new ResponseFormatter().format(_this.scriptContext);
-            console.log(s);
+
+            // 只在有必要的情况下打印
+            if (new DebuggerTester().isNeedPrintToConsole(getGlobalConfig(), _this.scriptContext)) {
+                const s = new ResponseFormatter().format(_this.scriptContext);
+                console.log(s);
+            }
 
             const hitDebuggers = getGlobalConfig().testAllForResponse(_this.scriptContext);
         });

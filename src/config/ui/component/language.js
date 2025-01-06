@@ -12,10 +12,10 @@ const chinese = {
         flagPrefixPlaceholder: "可自定义全局前缀，未设置默认为 CC11001100_js_script_hook",
 
         isIgnoreJsSuffixRequest: "是否忽略.js后缀的请求：",
-        isIgnoreJsSuffixRequestTips: "大多数时候.js后缀的请求都是单纯的加载JavaScript资源文件，可以选择忽略掉这类请求",
+        isIgnoreJsSuffixRequestTips: "大多数时候.js后缀的请求都是单纯的加载JavaScript资源文件，可以选择忽略掉这类请求，当勾选的时候，控制台上也不会再打印.js请求",
 
         isIgnoreNotJsonpRequest: "是否忽略不是jsonp的请求：",
-        isIgnoreNotJsonpRequestTips: "如果只关注jsonp类型的请求，可以选择忽略掉其它请求",
+        isIgnoreNotJsonpRequestTips: "如果只关注jsonp类型的请求，可以选择忽略掉其它请求，当勾选的时候，控制台上也不会再打印非jsonp请求",
 
         autoJumpProjectSiteOnConfiguraion: "跳转到项目主页打开此界面以防样式错乱：",
         autoJumpProjectSiteOnConfiguraionTips: "油猴脚本注入的界面可能会跟网页中原有的样式发生冲突或者污染，从而导致样式错乱，跳转到经过测试的项目主页打开设置界面可以有效防止布局错乱",

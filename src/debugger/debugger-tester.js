@@ -165,6 +165,28 @@ class DebuggerTester {
         return true;
     }
 
+    /**
+     * 判断是否需要打印到控制台上
+     *
+     * @param globalConfig
+     * @param scriptContext
+     * @return {boolean}
+     */
+    isNeedPrintToConsole(globalConfig, scriptContext) {
+
+        // 忽略js文件请求
+        if (globalConfig.isIgnoreJsSuffixRequest && scriptContext.isJsSuffixRequest()) {
+            return false;
+        }
+
+        // 忽略不是jsonp的请求
+        if (globalConfig.isIgnoreNotJsonpRequest && !scriptContext.isJsonp()) {
+            return false;
+        }
+
+        return true;
+    }
+
 }
 
 module.exports = {
