@@ -70,24 +70,32 @@ class RequestFormatter {
 
         // 示例数据
         const data = [
-            ['名称', '值'],
-            [language.console.time, new Date().toLocaleString()],
-            [language.console.requestId, scriptContext.requestId],
-            [language.console.isJsonpRequest, scriptContext.isJsonp()],
-            [language.console.hostname, requestContext.hostname],
-            [language.console.path, requestContext.path],
-            [language.console.hash, requestContext.hash],
+            // TODO 2025-01-08 01:28:26 国际化
+            ["名称", "值", "备注"],
+            [language.console.time, new Date().toLocaleString(), ""],
+            [language.console.requestId, scriptContext.requestId, ""],
+            [language.console.isJsonpRequest, scriptContext.isJsonp(), ""],
+            [language.console.hostname, requestContext.hostname, ""],
+            [language.console.path, requestContext.path, ""],
+            [language.console.hash, requestContext.hash, ""],
             // [language.console.param, requestContext.params.length],
         ];
 
         let index = 1;
         for (let param of requestContext.params) {
+
             const name = `${language.console.param}(${index++}) ${param.name}`;
+
             let value = `${param.value}`;
+
+            let attribute = "";
             if (param.isJsonpCallback) {
-                value += "(jsonp callback)"
+                attribute = "jsonp callback";
+            } else if (param.encryptType) {
+                attribute = param.encryptType;
             }
-            data.push([name, value]);
+
+            data.push([name, value, attribute]);
         }
 
         // 示例样式

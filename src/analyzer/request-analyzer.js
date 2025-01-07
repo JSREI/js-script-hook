@@ -1,4 +1,5 @@
 const {getUnsafeWindow} = require("../utils/scope-util");
+const {ParamEncryptionAnalyzer} = require("./param-encryption-analyzer");
 
 /**
  * 分析请求中的jsonp情况，主要是看一下是否存在jsonp参数，并将其识别出来
@@ -10,14 +11,22 @@ class RequestAnalyzer {
      * @param requestContext {RequestContext}
      */
     analyze(requestContext) {
+
         if (!requestContext.params) {
             return null;
         }
-        requestContext.params = this.computeParamsJsonpCallbackScore(requestContext.params);
 
+        // 自动推断出jsonp参数
+        requestContext.params = this.computeParamsJsonpCallbackScore(requestContext.params);
         // 选出其中可能性最大的一个参数作为jsonp callback参数
         if (requestContext.params && requestContext.params.length && requestContext.params[0].jsonpCallbackScore > 0) {
             requestContext.params[0].isJsonpCallback = true;
+        }
+
+        // 推断参数加密方式
+        const paramEncryptionAnalyzer = new ParamEncryptionAnalyzer();
+        for (let param of requestContext.params) {
+            param.encryptType = paramEncryptionAnalyzer.analyze(param);
         }
 
     }

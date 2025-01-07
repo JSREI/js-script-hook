@@ -32,9 +32,8 @@ class ObjectFunctionHook {
     /**
      *
      * @param hookCallbackFunction
-     * @param callByHookCallbackFunction {boolean}
      */
-    addHook(hookCallbackFunction, callByHookCallbackFunction = false) {
+    addHook(hookCallbackFunction) {
 
         // 要Hook的函数必须存在
         const functionHolder = this.object[this.functionName];

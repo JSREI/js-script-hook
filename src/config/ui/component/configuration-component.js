@@ -4,7 +4,7 @@ const {getGlobalConfig} = require("../../config");
 const {getLanguage} = require("./language");
 
 /**
- * 使用之前要签署用户协议
+ * 配置组件
  */
 class ConfigurationComponent {
 
