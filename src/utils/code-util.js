@@ -1,9 +1,9 @@
 /**
+ * 获取函数的方法体代码。
  *
- * 获取函数的方法体代码
- *
- * @param fn
- * @return {string}
+ * @param {Function} fn - 要提取方法体的函数。
+ * @return {string} - 返回函数的方法体代码。
+ * @throws {TypeError} - 如果传入的参数不是函数，则抛出 TypeError。
  */
 function getFunctionBody(fn) {
     if (typeof fn !== 'function') {
@@ -22,10 +22,11 @@ function getFunctionBody(fn) {
 }
 
 /**
- * 获取函数的参数名
+ * 获取函数的参数名。
  *
- * @param fn
- * @return {string[]|*[]}
+ * @param {Function} fn - 要提取参数名的函数。
+ * @return {string[]} - 返回函数的参数名数组。如果没有参数，则返回空数组。
+ * @throws {TypeError} - 如果传入的参数不是函数，则抛出 TypeError。
  */
 function getParameterNames(fn) {
     if (typeof fn !== 'function') {
@@ -53,10 +54,10 @@ function getParameterNames(fn) {
 }
 
 /**
- * 生成一个随机的函数名
+ * 生成一个随机的函数名。
  *
- * @param length
- * @return {string}
+ * @param {number} [length=8] - 函数名的长度，默认为 8。
+ * @return {string} - 返回生成的随机函数名。
  */
 function generateRandomFunctionName(length = 8) {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -71,4 +72,4 @@ module.exports = {
     getFunctionBody,
     getParameterNames,
     generateRandomFunctionName,
-}
+};
