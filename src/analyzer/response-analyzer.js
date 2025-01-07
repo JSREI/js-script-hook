@@ -1,9 +1,9 @@
 /**
- * 用于解析jsonp
+ * 用于解析jsonp响应
  */
 class ResponseAnalyzer {
 
-    // 2025-01-07 21:44:27 似乎并不需要这部分逻辑了，仅从请求参数进行推测就已经足够用了
+    // TODO 2025-01-07 21:44:27 似乎并不需要这部分逻辑了，仅从请求参数进行推测就已经足够用了
 
     /**
      *
@@ -14,10 +14,9 @@ class ResponseAnalyzer {
     parseScriptContext(scriptContext) {
 
         const responseFunctionNameSymbolSet = this.extractResponseFunctionNameSymbol(scriptContext.responseContext);
-        for (let param of scriptContext.requestContext.params) {
-            if (responseFunctionNameSymbolSet.has(param.value)) {
-                param.isJsonpCallback = true;
-            }
+        const jsonpCallbackFuncName = scriptContext.requestContext.getJsonpCallbackFuncName();
+        if (!responseFunctionNameSymbolSet.has(jsonpCallbackFuncName)) {
+            // TODO 2025-01-08 00:59:45 完犊子了，发现了异常情况
         }
 
         // TODO 2024-12-20 01:52:49
@@ -60,6 +59,6 @@ class ResponseAnalyzer {
 }
 
 module.exports = {
-    JsonpCallbackFunctionAnalyzer: ResponseAnalyzer
+    ResponseAnalyzer
 }
 

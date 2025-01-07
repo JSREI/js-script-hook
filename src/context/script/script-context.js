@@ -1,20 +1,19 @@
 /**
- * 一次Script请求的上下文封装
+ * 封装一次 Script 请求的上下文，包含请求和响应的相关信息。
  */
-const {RequestContext} = require("../request/request-context");
-const {ResponseContext} = require("../response/response-context");
 const {randomId} = require("../../utils/id-util");
 
 class ScriptContext {
 
     /**
-     * script级别的上下文
+     * 构造函数，创建一个 ScriptContext 实例。
      *
-     * @param url {String}
-     * @param requestContext {RequestContext}
-     * @param responseContext {ResponseContext}
+     * @param {string} url - 请求的 URL。
+     * @param {RequestContext} requestContext - 请求上下文，包含请求的详细信息。
+     * @param {ResponseContext} responseContext - 响应上下文，包含响应的详细信息。
      */
     constructor(url, requestContext, responseContext) {
+        // 生成唯一的请求 ID
         this.requestId = "js-script-hook-" + randomId();
         this.url = url;
         this.requestContext = requestContext;
@@ -22,9 +21,9 @@ class ScriptContext {
     }
 
     /**
-     * 判断这个请求是否是jsonp请求
+     * 判断此请求是否是 JSONP 请求。
      *
-     * @returns {boolean}
+     * @returns {boolean} - 如果是 JSONP 请求则返回 true，否则返回 false。
      */
     isJsonp() {
         if (this.requestContext && this.requestContext.isJsonpRequest()) {
@@ -37,20 +36,20 @@ class ScriptContext {
     }
 
     /**
-     * 判断是否是请求的js文件
+     * 判断此请求是否是 .js 文件请求。
      *
-     * @return {""|boolean}
+     * @return {boolean} - 如果请求的路径以 .js 结尾则返回 true，否则返回 false。
      */
     isJsSuffixRequest() {
         return this.requestContext && this.requestContext.isJsSuffixRequest();
     }
 
     /**
+     * 将 Script 上下文转换为方便人类阅读的格式。
      *
-     * @return {string}
+     * @return {string} - 返回格式化后的字符串。
      */
     toHumanReadable() {
-
         const msgs = [];
 
         if (this.requestContext) {
@@ -61,8 +60,8 @@ class ScriptContext {
         msgs.push("\n\n");
 
         if (this.responseContext) {
-            msgs.push("Response Information: ")
-            msgs.push(this.responseContext.toHumanReadable(4));
+            msgs.push("Response Information: ");
+            msgs.push(this.responseContext.toHumanReadable());
         }
 
         return msgs.join("\n\n");
@@ -72,4 +71,4 @@ class ScriptContext {
 
 module.exports = {
     ScriptContext
-}
+};

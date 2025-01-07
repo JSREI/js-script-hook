@@ -1,31 +1,44 @@
 /**
- * 表示一个Script类型的请求的响应
+ * 表示一个 Script 类型请求的响应，包含响应的 JavaScript 代码或 JSONP 回调参数。
  */
 class ResponseContext {
 
     /**
+     * 构造函数，创建一个 ResponseContext 实例。
      *
-     * @param responseJsCode 脚本原始的响应代码是什么
-     * @param jsonpCallbackArguments 如果是jsonp类型的请求，捕捉到的响应是什么
+     * @param {string} responseJsCode - 脚本原始的响应代码。
+     * @param {Array|null} [jsonpCallbackArguments=null] - 如果是 JSONP 类型的请求，捕捉到的响应参数。
      */
-    constructor(responseJsCode, jsonpCallbackArguments) {
+    constructor(responseJsCode, jsonpCallbackArguments = null) {
         this.responseJsCode = responseJsCode;
         this.jsonpCallbackArguments = jsonpCallbackArguments;
     }
 
     /**
+     * 从 HTMLScriptElement 解析响应上下文。
      *
-     * @param script {HTMLScriptElement}
+     * @param {HTMLScriptElement} script - 包含响应代码的 script 元素。
+     * @return {ResponseContext} - 返回解析好的响应上下文。
      */
     static parseResponseContext(script) {
         const responseJsCode = script.text;
         return new ResponseContext(responseJsCode);
     }
 
+    /**
+     * 判断此响应是否是 JSONP 类型的响应。
+     *
+     * @return {boolean} - 如果是 JSONP 响应则返回 true，否则返回 false。
+     */
     isJsonpResponse() {
         return !!this.jsonpCallbackArguments;
     }
 
+    /**
+     * 将响应上下文转换为方便人类阅读的格式。
+     *
+     * @return {string} - 返回格式化后的字符串。
+     */
     toHumanReadable() {
         const msgs = [];
         if (this.isJsonpResponse()) {
@@ -42,4 +55,4 @@ class ResponseContext {
 
 module.exports = {
     ResponseContext
-}
+};
