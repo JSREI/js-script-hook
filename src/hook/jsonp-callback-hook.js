@@ -1,5 +1,5 @@
 const {getUnsafeWindow} = require("../utils/scope-util");
-const {ObjectFunctionHook} = require("./object-function-hook");
+const {ObjectFunctionHook, hookTypeUseDeclareFunction, hookTypeUseProxyFunction} = require("./object-function-hook");
 const {ResponseContext} = require("../context/response/response-context");
 const {ResponseFormatter} = require("../formatter/response-formatter");
 const {getGlobalConfig} = require("../config/config");
@@ -43,16 +43,39 @@ class JsonpCallbackHook {
         }
         // 跟进去这个 jsonpCallbackFunction 函数的代码位置就是jsonp的回调函数的逻辑，也是处理响应的逻辑
         const _this = this;
-        new ObjectFunctionHook(getUnsafeWindow(), jsonpCallbackFunctionName).addHook(function () {
+        const hook = new ObjectFunctionHook(getUnsafeWindow(), jsonpCallbackFunctionName);
+        if (getGlobalConfig().hookType === "use-redeclare-function") {
+            hook.hookType = hookTypeUseDeclareFunction;
+            hook.addHook(this.callbackForDeclareFunction(_this), true);
+        } else if (getGlobalConfig().hookType === "use-proxy-function") {
+            hook.hookType = hookTypeUseProxyFunction;
+            hook.addHook(this.callbackForProxyFunction(_this), true);
+        }
+    }
 
+    callbackForDeclareFunction(_this) {
+        return function () {
+            const responseContext = _this.scriptContext.responseContext = new ResponseContext("", arguments);
+
+            // 只在有必要的情况下打印
+            if (new DebuggerTester().isNeedPrintToConsole(getGlobalConfig(), _this.scriptContext)) {
+                new ResponseFormatter().format(_this.scriptContext);
+            }
+
+            const hitDebuggers = getGlobalConfig().testAllForResponse(_this.scriptContext);
+            return hitDebuggers.length;
+        }
+    }
+
+    callbackForProxyFunction(_this) {
+        return function () {
             const {hookFunctionHolder, args} = arguments[0];
 
             const responseContext = _this.scriptContext.responseContext = new ResponseContext("", args);
 
             // 只在有必要的情况下打印
             if (new DebuggerTester().isNeedPrintToConsole(getGlobalConfig(), _this.scriptContext)) {
-                const s = new ResponseFormatter().format(_this.scriptContext);
-                console.log(s);
+                new ResponseFormatter().format(_this.scriptContext);
             }
 
             const hitDebuggers = getGlobalConfig().testAllForResponse(_this.scriptContext);
@@ -68,8 +91,7 @@ class JsonpCallbackHook {
 
             // 跟进去这个函数，就是jsonp的callback函数
             hookFunctionHolder.apply(this, args);
-
-        }, true);
+        }
     }
 
     collectJsonpCallbackFunctionNameFromHitDebuggers() {

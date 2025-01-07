@@ -15,6 +15,8 @@ class Config {
         // 让用户能够自己指定前缀，也许会有一些拥有感？之前ast hook好像就有个哥们喜欢这样干...
         this.prefix = "CC11001100";
 
+        this.hookType = "use-proxy-function";
+
         // 是否忽略.js后缀的请求
         this.isIgnoreJsSuffixRequest = true;
 
@@ -60,6 +62,7 @@ class Config {
         const o = JSON.parse(configJsonString);
         this.language = o.language;
         this.prefix = o.prefix;
+        this.hookType = o.hookType;
         this.isIgnoreJsSuffixRequest = o.isIgnoreJsSuffixRequest;
         this.isIgnoreNotJsonpRequest = o.isIgnoreNotJsonpRequest;
         this.autoJumpProjectSiteOnConfiguraion = o.autoJumpProjectSiteOnConfiguraion;

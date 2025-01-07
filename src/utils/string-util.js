@@ -12,6 +12,21 @@ function repeat(s, times) {
     return msgs.join("");
 }
 
+/**
+ *
+ * @param s
+ * @param length
+ * @return {*|string}
+ */
+function fillToLength(s, length) {
+    if (s.length >= length) {
+        return s;
+    } else {
+        return s + repeat(" ", length - s.length);
+    }
+}
+
 module.exports = {
-    repeat
+    repeat,
+    fillToLength,
 }

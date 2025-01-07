@@ -210,6 +210,13 @@ class DebuggerComponent {
             getGlobalConfig().persist();
         });
 
+        // ${debuggerConfig.id}-hook-type
+        debuggerElt.find(`#${debuggerInformation.id}-hook-type`).change(function () {
+            const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
+            localDebuggerInformation.hookType = $(this).val();
+            getGlobalConfig().persist();
+        });
+
         // callbackFunctionParamName
         debuggerElt.find(`#${debuggerInformation.id}-callbackFunctionParamName-text`).on('input', function () {
             const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);

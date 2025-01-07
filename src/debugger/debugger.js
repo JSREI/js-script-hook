@@ -1,7 +1,3 @@
-const {ObjectFunctionHook} = require("../hook/object-function-hook");
-const {getUnsafeWindow} = require("../utils/scope-util");
-const {getGlobalConfig} = require("../config/config");
-
 /**
  * 表示一个jsonp的条件断点
  */

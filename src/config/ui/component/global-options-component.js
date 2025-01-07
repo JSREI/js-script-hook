@@ -41,6 +41,27 @@ class GlobalOptionsComponent {
         </tr>
         <tr>
             <td align="right">
+                <div class="js-script-hook-tips-icon" >
+                    ?
+                    <div class="js-script-hook-tooltip">
+                    ${language.global_settings.responseDebuggerHookTypeTips}
+                    </div>
+                </div>
+                <span>${language.global_settings.responseDebuggerHookType}</span>
+            </td>
+            <td align="left" style="padding: 10px;">
+                <div style="display: inline-block;">
+                    <div class="js-script-hook-select-container" style="width: 400px !important; ">
+                        <select id="js-script-hook-global-config-hook-type">
+                            <option value="use-proxy-function" >${language.global_settings.responseDebuggerHookTypeUseProxyFunction}</option>
+                            <option value="use-redeclare-function">${language.global_settings.responseDebuggerHookTypeUseRedeclareFunction}</option>
+                        </select>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td align="right">
                 <!-- 问号形式的 Tips 组件 -->
                 <div class="js-script-hook-tips-icon">
                     ?
@@ -121,6 +142,15 @@ class GlobalOptionsComponent {
      */
     render(language, oldConfig) {
         const component = $(this.template(oldConfig, language));
+
+        if (oldConfig.hookType) {
+            component.find(`#js-script-hook-global-config-hook-type`).val(oldConfig.hookType);
+        }
+
+        component.find("#js-script-hook-global-config-hook-type").change(function () {
+            getGlobalConfig().hookType = $(this).val();
+            getGlobalConfig().persist();
+        });
 
         // 切换语言选择
         component.find("#js-script-hook-global-config-language").change(function () {

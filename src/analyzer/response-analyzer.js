@@ -3,7 +3,10 @@
  */
 class ResponseAnalyzer {
 
+    // 2025-01-07 21:44:27 似乎并不需要这部分逻辑了，仅从请求参数进行推测就已经足够用了
+
     /**
+     *
      * 从一次完整的请求中分析
      *
      * @param scriptContext {ScriptContext}

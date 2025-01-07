@@ -11,6 +11,11 @@ const chinese = {
         flagPrefixTips: "在Hook的时候会设置一些全局唯一的标志位，你可以个性化修改为自定义的前缀",
         flagPrefixPlaceholder: "可自定义全局前缀，未设置默认为 CC11001100_js_script_hook",
 
+        responseDebuggerHookType: "响应断点Hook方式：",
+        responseDebuggerHookTypeTips: "此选项刷新页面后生效",
+        responseDebuggerHookTypeUseProxyFunction: "使用代理函数实现Hook",
+        responseDebuggerHookTypeUseRedeclareFunction: "直接修改网站callback函数体（注意可能会有作用域问题）",
+
         isIgnoreJsSuffixRequest: "是否忽略.js后缀的请求：",
         isIgnoreJsSuffixRequestTips: "大多数时候.js后缀的请求都是单纯的加载JavaScript资源文件，可以选择忽略掉这类请求，当勾选的时候，控制台上也不会再打印.js请求",
 
@@ -57,6 +62,18 @@ const chinese = {
         comment: "备注：",
         commentTips: "你可以输入一些备注，或者相关信息的一些上下文，以防止时间长了之后忘记。",
         commentPlaceholder: "好记性不如烂笔头",
+    },
+    console: {
+        time: "时间",
+        requestId: "请求ID",
+        isJsonpRequest: "是否是jsonp请求",
+        hostname: "请求域名",
+        path: "请求路径",
+        param: "请求参数",
+        hash: "请求#hash",
+        paramName: "参数名称",
+        paramValue: "参数值",
+        isJsonpCallback: "是否是jsonp回调函数",
     }
 };
 

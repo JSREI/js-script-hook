@@ -1,9 +1,3 @@
-const {getGlobalConfig} = require("../config/config");
-const {getUnsafeWindow} = require("../utils/scope-util");
-const {ObjectFunctionHook} = require("../hook/object-function-hook");
-const {ResponseFormatter} = require("../formatter/response-formatter");
-const {ResponseContext} = require("../context/response/response-context");
-
 class DebuggerTester {
 
     /**
