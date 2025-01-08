@@ -1,53 +1,88 @@
-# js-script-hook
+# Script Hook
 
-# 开发中，敬请期待！
+![Greasy Fork Downloads](https://img.shields.io/greasyfork/dt/523208)  ![Greasy Fork Rating](https://img.shields.io/greasyfork/rating-count/523208)  ![GitHub Created At](https://img.shields.io/github/created-at/JSREI/js-script-hook)  ![GitHub contributors](https://img.shields.io/github/contributors-anon/JSREI/js-script-hook)  ![GitHub top language](https://img.shields.io/github/languages/top/JSREI/js-script-hook)  ![GitHub commit activity](https://img.shields.io/github/commit-activity/t/JSREI/js-script-hook)  ![GitHub Release](https://img.shields.io/github/v/release/JSREI/js-script-hook)   ![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/JSREI/js-script-hook)  ![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-closed/JSREI/js-script-hook)  ![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/JSREI/js-script-hook)  ![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr-closed/JSREI/js-script-hook)  ![GitHub License](https://img.shields.io/github/license/JSREI/js-script-hook)  ![GitHub Repo stars](https://img.shields.io/github/stars/JSREI/js-script-hook)  ![GitHub forks](https://img.shields.io/github/forks/JSREI/js-script-hook)  ![GitHub watchers](https://img.shields.io/github/watchers/JSREI/js-script-hook)  
 
-## 一、脚本简介
+# 一、解决了什么问题？
 
-为什么有这个东西？
+我们在进行JS逆向的时候，经常碰到请求是JS类型的：
 
-在进行JS逆向的时候，经常碰到请求是JS类型的，实际上是使用script标签发出的请求，比如一些跨域的请求，一些jsonp请求，
-Chrome目前（2024-12-20）没有支持对script类型的请求打条件断点之类的，而这个脚本就是填补这块儿的空白的。
+![image-20250109023632545](./README.assets/image-20250109023632545.png)
 
-优势：
-- 支持对script类型的请求打断点
-  - script请求之前进入断点
-  - 直接把断点打到script jsonp回调函数里
+实际上是使用script标签发出的请求，比如一些跨域的请求，一些jsonp请求，Chrome目前（2024-12-20）没有支持对script类型的请求打条件断点之类的，而这个脚本就是填补这块儿的空白的。
 
-## 二、安装
-开发中，敬请期待！
+功能一栏：
 
-实战系列文章：
-- [潇湘书院登录](https://github.com/JSREP/www.xxsypro.com-RE)
-- [一淘网](https://github.com/JSREP/www.etao.com-RE)
-- [叮当快药sign逆向练习](https://github.com/JSREP/www.ddky.com-RE)
-- [365玩游戏平台](https://github.com/JSREP/minilogin.sgty.com-RE)
-- [G妹游戏登录](https://github.com/JSREP/www.gm99.com-RE)
-- [空中网登录](https://github.com/JSREP/passport.kongzhong.com-RE)
-
-## 三、在script类型的请求发送之前打断点
-TODO 
-## 四、在script类型的请求接收到响应之后打断点
-TODO 
-### 何为jsonp？
-
-在介绍本部分之前，希望读者能够对jsonp有几个基本的概念，
-说白了就是xhr发送请求时会涉及到跨域问题，但是script不会，
-于是
-
-### 打jsonp响应断点 
-TODO 
+![JSREI Script Hook](./README.assets/JSREI%20Script%20Hook.png)
 
 
 
+# 二、安装
+
+本项目为油猴脚本，要使用的话需要你先安装了Chrome的油猴插件：
+
+```
+https://chromewebstore.google.com/detail/dhdgffkkebhmkfjojejmpbldmpobfkfo
+```
+
+然后在油猴商店安装即可：
+
+```
+https://greasyfork.org/zh-CN/scripts/523208-js-script-hook
+```
+
+如果您对油猴脚本不信任，可Review本仓库下的代码自行编译：
+
+```bash
+yarn build
+```
+
+然后从`dist/index.js`文件创建一个新的油猴脚本即可：
+
+```
+dist/index.js
+```
+
+# 三、功能详细解释
+
+TODO
+
+# 四、问题反馈
+
+ 当您遇到了问题，可以在仓库新建一个issue反馈：
+
+```
+https://github.com/JSREI/js-script-hook/issues/new
+```
+
+建议您优先以新建issue的方式反馈问题，issue是可记录可追溯的，也方便后来者遇到同一个问题时有参考。
 
 
+# 五、感谢支持 
+暂无。
 
+当您提issue或者pr时，将您的GitHub账号放在此处感谢您为产品迭代做出的贡献！
 
+# 六、Contributors
 
+<img src="https://contrib.nn.ci/api?repo=JSREI/js-script-hook" />
 
+# 七、Star History
 
+<img src="https://starchart.cc/JSREI/js-script-hook.svg" />
 
+# 八、逆向技术交流群
+
+扫码加入逆向技术交流群：
+
+<img src="https://github.com/JSREI/.github/raw/main/profile/README.assets/image-20241016230653669.png" style="width: 200px">
+
+如群二维码过期，可以加我个人微信，发送【逆向群】拉你进群：
+
+<img src="https://github.com/JSREI/.github/raw/main/profile/README.assets/image-20231030132026541-7614065.png" style="width: 200px">
+
+[点此](https://t.me/jsreijsrei)或扫码加入TG交流群：
+
+<img src="https://github.com/JSREI/.github/raw/main/profile/README.assets/image-20241016231143315.png" style="width: 200px">
 
 
 
