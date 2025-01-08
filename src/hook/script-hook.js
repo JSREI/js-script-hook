@@ -1,14 +1,8 @@
-const Debugger = require("../debugger/debugger");
-const {JsonpCallbackFunctionAnalyzer} = require("../analyzer/response-analyzer");
 const {ScriptContext} = require("../context/script/script-context");
 const {RequestContext} = require("../context/request/request-context");
 const {RequestAnalyzer} = require("../analyzer/request-analyzer");
 const {getGlobalConfig} = require("../config/config");
 const {RequestFormatter} = require("../formatter/request-formatter");
-const {getUnsafeWindow} = require("../utils/scope-util");
-const {ObjectFunctionHook} = require("./object-function-hook");
-const {ResponseContext} = require("../context/response/response-context");
-const {ResponseFormatter} = require("../formatter/response-formatter");
 const {JsonpCallbackHook} = require("./jsonp-callback-hook");
 const {formatScriptSrcToUrl} = require("../utils/url-util");
 const {DebuggerTester} = require("../debugger/debugger-tester");
@@ -51,7 +45,7 @@ class ScriptHook {
                     // 在请求发送之前测试断点
                     if (new DebuggerTester().isNeedPrintToConsole(getGlobalConfig(), scriptContext)) {
                         const requestFormatter = new RequestFormatter();
-                        console.log(requestFormatter.format(scriptContext));
+                        requestFormatter.format(scriptContext)
                     }
 
                     const hitDebuggers = getGlobalConfig().testAll(scriptContext);

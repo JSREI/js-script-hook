@@ -13,15 +13,15 @@ class Config {
         this.language = "english";
 
         // 让用户能够自己指定前缀，也许会有一些拥有感？之前ast hook好像就有个哥们喜欢这样干...
-        this.prefix = "CC11001100";
+        this.prefix = "JSREI";
 
         this.hookType = "use-proxy-function";
 
         // 是否忽略.js后缀的请求
-        this.isIgnoreJsSuffixRequest = true;
+        this.isIgnoreJsSuffixRequest = false;
 
         // 是否忽略不是jsonp的请求
-        this.isIgnoreNotJsonpRequest = true;
+        this.isIgnoreNotJsonpRequest = false;
 
         // 在打开配置页面的时候自动跳转到项目主页
         this.autoJumpProjectSiteOnConfiguraion = true;

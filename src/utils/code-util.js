@@ -68,8 +68,30 @@ function generateRandomFunctionName(length = 8) {
     return result;
 }
 
+const tampermonkeyChromeExtensionId = "dhdgffkkebhmkfjojejmpbldmpobfkfo";
+
+/**
+ * 获取用户代码的位置，用户代码的定义就是调用栈里从用户的代码进入到插件代码的第一行代码
+ */
+function getUserCodeLocation() {
+
+    // 把调用栈一个栈帧一个栈帧的弹掉
+    const stack = new Error().stack.split("\n");
+    let index = stack.length - 1;
+    while (index >= 0) {
+        const frame = stack[index];
+        if (frame.includes(tampermonkeyChromeExtensionId) && index < stack.length) {
+            return stack[index + 1].trim();
+        } else {
+            index--;
+        }
+    }
+    return null;
+}
+
 module.exports = {
     getFunctionBody,
     getParameterNames,
     generateRandomFunctionName,
+    getUserCodeLocation,
 };

@@ -46,10 +46,11 @@ class JsonpCallbackHook {
         const hook = new ObjectFunctionHook(getUnsafeWindow(), jsonpCallbackFunctionName);
         if (getGlobalConfig().hookType === "use-redeclare-function") {
             hook.hookType = hookTypeUseDeclareFunction;
-            hook.addHook(this.callbackForDeclareFunction(_this), true);
+            hook.addHook(this.callbackForDeclareFunction(_this));
         } else if (getGlobalConfig().hookType === "use-proxy-function") {
             hook.hookType = hookTypeUseProxyFunction;
-            hook.addHook(this.callbackForProxyFunction(_this), true);
+            hook.callByHookCallbackFunction = true;
+            hook.addHook(this.callbackForProxyFunction(_this));
         }
     }
 

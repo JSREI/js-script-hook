@@ -1,8 +1,9 @@
 const {genFormatArray} = require("../utils/log-util");
 const {repeat, fillToLength} = require("../utils/string-util");
-const {getLanguage} = require("../config/ui/component/language");
+const {getLanguage, getLanguageByGlobalConfig} = require("../config/ui/component/language");
 const {getGlobalConfig} = require("../config/config");
 const {printStyledTable} = require("./table-formatter");
+const {getUserCodeLocation} = require("../utils/code-util");
 
 /**
  * 用于第请求进行格式化
@@ -15,79 +16,39 @@ class RequestFormatter {
      */
     format(scriptContext) {
 
+        const codeLocation = getUserCodeLocation();
+
         const requestContext = scriptContext.requestContext;
-        const language = getLanguage(getGlobalConfig().language);
+        const language = getLanguageByGlobalConfig();
 
-        // 提示词：
-        // 我需要写一些console.log的样式打印在控制台上，接下来会陆陆续续给你一些写样式的任务，球球你帮帮我
-
-        const valueStyle = `color: black; background: #E50000; font-size: 12px; font-weight: bold;`;
-        const normalStyle = `color: black; background: #FF6766; font-size: 12px;`;
-
-        const titleStyle = 'font-weight: bold; font-size: 16px; background: green; color: white; padding: 5px; border-radius: 3px;';
-
-        const length = 200;
-
-        const message = [
-            normalStyle, fillToLength(`-------------------------------------------------- Script Hook Captured Request --------------------------------------------------`, length) + "\n",
-            normalStyle, fillToLength(`${language.console.time}: ${new Date().toLocaleString()}`, length) + "\n",
-            normalStyle, fillToLength(`${language.console.requestId}: ${scriptContext.requestId}`, length) + "\n",
-            normalStyle, fillToLength(`${language.console.isJsonpRequest}: ${scriptContext.isJsonp()}`, length) + "\n",
-            normalStyle, fillToLength(`${language.console.hostname}: ${requestContext.hostname}`, length) + "\n",
-            normalStyle, fillToLength(`${language.console.path}: ${requestContext.path}`, length) + "\n",
-            normalStyle, fillToLength(`${language.console.hash}: ${requestContext.hash}`, length) + "\n",
-            normalStyle, fillToLength((() => {
-                const paramTitle = `${language.console.param}(${requestContext.params.length})`;
-                return paramTitle;
-            })(), length) + "\n",
-
-
-            // (() => {
-            //
-            //     let paramTitle = `${indentSpace}`;
-            //     if (!this.params.length) {
-            //         paramTitle += " do not have param.";
-            //     }
-            //     msgs.push(paramTitle);
-            //     for (let param of this.params) {
-            //         msgs.push(param.toHumanReadable(indent + 4));
-            //     }
-            //
-            //
-            //     if (this.hash) {
-            //         msgs.push()
-            //     }
-            //
-            //     return msgs.join("\n\n");
-            // })()
-
-        ];
-        console.log(genFormatArray(message), ...message);
-
-        // 把参数以表格的形式打印
-        // const data = this.convertParamsToTableData(language, requestContext.params);
-        // console.table(data);
-
-        // 示例数据
         const data = [
-            ['名称', '值'],
-            [language.console.time, new Date().toLocaleString()],
-            [language.console.requestId, scriptContext.requestId],
-            [language.console.isJsonpRequest, scriptContext.isJsonp()],
-            [language.console.hostname, requestContext.hostname],
-            [language.console.path, requestContext.path],
-            [language.console.hash, requestContext.hash],
+            // TODO 2025-01-08 01:28:26 国际化
+            [language.console.tableKey, language.console.tableValue, language.console.tableComment],
+            [language.console.time, new Date().toLocaleString(), ""],
+            [language.console.requestId, scriptContext.requestId, ""],
+            [language.console.isJsonpRequest, scriptContext.isJsonp(), ""],
+            [language.console.hostname, requestContext.hostname, ""],
+            [language.console.path, requestContext.path, ""],
+            [language.console.hash, requestContext.hash, ""],
+            [language.console.codeLocation, codeLocation, ""],
             // [language.console.param, requestContext.params.length],
         ];
 
         let index = 1;
         for (let param of requestContext.params) {
+
             const name = `${language.console.param}(${index++}) ${param.name}`;
+
             let value = `${param.value}`;
+
+            let attribute = "";
             if (param.isJsonpCallback) {
-                value += "(jsonp callback)"
+                attribute = "jsonp callback";
+            } else if (param.encryptType) {
+                attribute = param.encryptType;
             }
-            data.push([name, value]);
+
+            data.push([name, value, attribute]);
         }
 
         // 示例样式
@@ -99,7 +60,8 @@ class RequestFormatter {
         };
 
         // 打印表格
-        printStyledTable(data, styles);
+        const title = language.console.titleRequest;
+        printStyledTable(data, styles, title);
 
     }
 

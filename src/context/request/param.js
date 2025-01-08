@@ -24,6 +24,8 @@ class Param {
         // 此参数是 JSONP 的 callback 参数的可能性有多大（用于评分）
         this.jsonpCallbackScore = 0;
 
+        // 参数的加密类型
+        this.encryptType = null;
     }
 
     /**

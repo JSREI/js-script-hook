@@ -38,6 +38,7 @@ function currentInProjectRepo() {
 }
 
 module.exports = {
-    registerMenu
+    registerMenu,
+    show
 }
 

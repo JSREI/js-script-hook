@@ -1,105 +1,104 @@
 /**
- * 分析参数加密
+ * 参数加密分析器类，用于检测输入参数的加密类型。
  */
 class ParamEncryptionAnalyzer {
 
     /**
-     *
-     * @param param {Param}
+     * 分析参数的加密类型。
+     * @param {Param} param - 需要分析的参数对象，包含一个 `value` 属性。
+     * @returns {string|null} 返回检测到的加密类型，如果无法识别则返回 `null`。
      */
     analyze(param) {
         return this.detectEncryptionType(param.value);
     }
 
+    /**
+     * 检测输入字符串的加密类型。
+     * @param {string} input - 需要检测的输入字符串。
+     * @returns {string|null} 返回检测到的加密类型，如果无法识别则返回 `null`。
+     */
     detectEncryptionType(input) {
-        // Base64
-        const base64Regex = /^[A-Za-z0-9+/]+={0,2}$/;
-        if (base64Regex.test(input) && input.length % 4 === 0) {
-            return "Base64";
+
+        // 如果输入为空，直接返回 null
+        if (!input) {
+            return null;
         }
 
-        // MD5
+        // // Base64 编码检测
+        // const base64Regex = /^[A-Za-z0-9+/]+={0,2}$/;
+        // if (base64Regex.test(input) && input.length % 4 === 0) {
+        //     return "Base64";
+        // }
+
+        // MD5 哈希检测
         const md5Regex = /^[a-f0-9]{32}$/i;
         if (md5Regex.test(input)) {
             return "MD5";
         }
 
-        // SHA-1
+        // SHA-1 哈希检测
         const sha1Regex = /^[a-f0-9]{40}$/i;
         if (sha1Regex.test(input)) {
             return "SHA-1";
         }
 
-        // SHA-256
+        // SHA-256 哈希检测
         const sha256Regex = /^[a-f0-9]{64}$/i;
         if (sha256Regex.test(input)) {
             return "SHA-256";
         }
 
-        // SHA-512
+        // SHA-512 哈希检测
         const sha512Regex = /^[a-f0-9]{128}$/i;
         if (sha512Regex.test(input)) {
             return "SHA-512";
         }
 
-        // bcrypt
+        // bcrypt 哈希检测
         const bcryptRegex = /^\$2[aby]\$\d{2}\$[.\/A-Za-z0-9]{53}$/;
         if (bcryptRegex.test(input)) {
             return "bcrypt";
         }
 
-        // URL编码
-        const urlEncodedRegex = /%[0-9A-Fa-f]{2}/;
-        if (urlEncodedRegex.test(input)) {
-            return "URL Encoded";
-        }
+        // // URL 编码检测
+        // const urlEncodedRegex = /%[0-9A-Fa-f]{2}/;
+        // if (urlEncodedRegex.test(input)) {
+        //     return "URL Encoded";
+        // }
+        //
+        // // Hex 编码检测
+        // const hexRegex = /^[0-9A-Fa-f]+$/;
+        // if (hexRegex.test(input) && input.length % 2 === 0) {
+        //     return "Hex Encoded";
+        // }
 
-        // Hex编码
-        const hexRegex = /^[0-9A-Fa-f]+$/;
-        if (hexRegex.test(input) && input.length % 2 === 0) {
-            return "Hex Encoded";
-        }
+        // // ROT13 编码检测
+        // const rot13Regex = /^[A-Za-z]+$/;
+        // if (rot13Regex.test(input) && input === input.replace(/[A-Za-z]/g, function (c) {
+        //     return String.fromCharCode(c.charCodeAt(0) + (c.toLowerCase() < 'n' ? 13 : -13));
+        // })) {
+        //     return "ROT13";
+        // }
 
-        // ROT13
-        const rot13Regex = /^[A-Za-z]+$/;
-        if (rot13Regex.test(input) && input === input.replace(/[A-Za-z]/g, function (c) {
-            return String.fromCharCode(c.charCodeAt(0) + (c.toLowerCase() < 'n' ? 13 : -13));
-        })) {
-            return "ROT13";
-        }
+        // // JWT (JSON Web Token) 检测
+        // const jwtRegex = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/;
+        // if (jwtRegex.test(input)) {
+        //     return "JWT";
+        // }
 
-        // JWT
-        const jwtRegex = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/;
-        if (jwtRegex.test(input)) {
-            return "JWT";
-        }
-
-        // UUID
+        // UUID 检测
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (uuidRegex.test(input)) {
             return "UUID";
         }
 
-        // 如果都不匹配，返回未知
+        // 如果以上所有加密类型都不匹配，返回 null 表示未知加密类型
         return null;
     }
 
-// // 测试示例
-//     console.log(detectEncryptionType("SGVsbG8gV29ybGQ=")); // Base64
-//     console.log(detectEncryptionType("5d41402abc4b2a76b9719d911017c592")); // MD5
-//     console.log(detectEncryptionType("2fd4e1c67a2d28fced849ee1bb76e7391b93eb12")); // SHA-1
-//     console.log(detectEncryptionType("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")); // SHA-256
-//     console.log(detectEncryptionType("$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy")); // bcrypt
-//     console.log(detectEncryptionType("Hello%20World")); // URL Encoded
-//     console.log(detectEncryptionType("48656c6c6f20576f726c64")); // Hex Encoded
-//     console.log(detectEncryptionType("Uryyb Jbeyq")); // ROT13
-//     console.log(detectEncryptionType("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c")); // JWT
-//     console.log(detectEncryptionType("550e8400-e29b-41d4-a716-446655440000")); // UUID
-//     console.log(detectEncryptionType("randomstring")); // Unknown Encryption Type
-
 }
 
-
+// 导出 ParamEncryptionAnalyzer 类
 module.exports = {
     ParamEncryptionAnalyzer
 }

@@ -1,4 +1,5 @@
 const {repeat} = require("../../utils/string-util");
+const {Param} = require("./param");
 
 /**
  * 用于封装请求的上下文，包含从 URL 中解析出的各种信息。
