@@ -21,11 +21,6 @@ class RequestFormatter {
         const requestContext = scriptContext.requestContext;
         const language = getLanguage(getGlobalConfig().language);
 
-        // 把参数以表格的形式打印
-        // const data = this.convertParamsToTableData(language, requestContext.params);
-        // console.table(data);
-
-        // 示例数据
         const data = [
             // TODO 2025-01-08 01:28:26 国际化
             ["名称", "值", "备注"],
@@ -65,7 +60,8 @@ class RequestFormatter {
         };
 
         // 打印表格
-        printStyledTable(data, styles);
+        const title = language.console.titleRequest;
+        printStyledTable(data, styles, title);
 
     }
 
