@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSONP Example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+<h1>JSONP Example</h1>
+<div id="result"></div>
+
+<script>
+
+    // 加密密钥（与后端一致）
+    const SECRET_KEY = 'CC11001100';
+
+    // 加密函数
+    function encryptData(data) {
+        return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
+    }
+
+    // 解密函数
+    function decryptData(encryptedData) {
+        const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
+        return bytes.toString(CryptoJS.enc.Utf8);
+    }
+
+    // JSONP 请求
+    function fetchData() {
+        const data = { name: 'CC11001100' };
+        const encryptedData = encryptData(data);
+
+        const script = document.createElement('script');
+        script.src = `http://localhost:3000/api/data?encryptedData=${encodeURIComponent(encryptedData)}&callback=handleResponse`;
+        document.body.appendChild(script);
+    }
+
+    // 处理 JSONP 响应
+    function handleResponse(encryptedResponse) {
+        const decryptedResponse = decryptData(encryptedResponse);
+        const responseData = JSON.parse(decryptedResponse);
+
+        document.getElementById('result').innerText = responseData.message;
+    }
+
+    // 发起请求
+    fetchData();
+</script>
+</body>
+</html>

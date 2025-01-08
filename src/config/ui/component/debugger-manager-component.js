@@ -34,11 +34,18 @@ class DebuggerManagerComponent {
         // 增加断点配置
         debuggerManager.find("#js-script-hook-add-debugger-btn").click(() => {
             const debuggerComponent = new DebuggerComponent();
-            const newDebuggerInformation = new Debugger();
-            newDebuggerInformation.id = randomId();
-            debuggerManager.find("#js-script-hook-debugger-list").append(debuggerComponent.render(language, newDebuggerInformation));
+            const newDebuggerConfig = new Debugger();
+            newDebuggerConfig.id = randomId();
+            newDebuggerConfig.enable = true;
+            newDebuggerConfig.urlPatternType = "match-all";
+            newDebuggerConfig.urlPattern = "";
+            newDebuggerConfig.enableRequestDebugger = true;
+            newDebuggerConfig.enableResponseDebugger = true;
+            newDebuggerConfig.callbackFunctionParamName = "";
+            newDebuggerConfig.comment = "";
+            debuggerManager.find("#js-script-hook-debugger-list").append(debuggerComponent.render(language, newDebuggerConfig));
 
-            getGlobalConfig().addDebugger(newDebuggerInformation);
+            getGlobalConfig().addDebugger(newDebuggerConfig);
             getGlobalConfig().persist();
         });
 

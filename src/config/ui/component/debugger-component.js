@@ -1,4 +1,5 @@
 const {getGlobalConfig} = require("../../config");
+const {DebuggerTester} = require("../../../debugger/debugger-tester");
 
 /**
  * 用于表示一个断点配置
@@ -56,7 +57,7 @@ class DebuggerComponent {
                         </div>
                         <div class="js-script-hook-select-container" style="width: 400px !important; ">
                             <select id="${debuggerConfig.id}-url-pattern">
-                                <option value="equals-string">${language.debugger_config.urlPatternType_EqualsThisString}</option>
+                                <option value="equals-string" >${language.debugger_config.urlPatternType_EqualsThisString}</option>
                                 <option value="contains-string">${language.debugger_config.urlPatternType_ContainsThisString}</option>
                                 <option value="match-regexp">${language.debugger_config.urlPatternType_MatchThisRegexp}</option>
                                 <option value="match-all">${language.debugger_config.urlPatternType_MatchALL}</option>
@@ -161,6 +162,11 @@ class DebuggerComponent {
     render(language, debuggerInformation) {
         const debuggerElt = $(this.template(language, debuggerInformation));
 
+        // 设置匹配类型
+        if (debuggerInformation.urlPatternType) {
+            debuggerElt.find(`#${debuggerInformation.id}-url-pattern`).val(debuggerInformation.urlPatternType);
+        }
+
         // 断点是否开启
         debuggerElt.find(`#${debuggerInformation.id}-enable-checkbox`).on('change', function () {
             const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
@@ -169,7 +175,7 @@ class DebuggerComponent {
         });
 
         // URL匹配类型
-        debuggerElt.find(`${debuggerInformation.id}-url-pattern`).change(function () {
+        debuggerElt.find(`#${debuggerInformation.id}-url-pattern`).change(function () {
             const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
             localDebuggerInformation.urlPatternType = $(this).val();
             getGlobalConfig().persist();
@@ -184,9 +190,10 @@ class DebuggerComponent {
 
         // URL匹配测试
         debuggerElt.find(`#${debuggerInformation.id}-url-pattern-test`).on('click', function () {
-            // TODO 2025-01-05 16:10:01 测试
-            let urlForTest = prompt("请输入要测试的URL", "");
-            alert(urlForTest);
+            let urlForTest = prompt(language.debugger_config.urlPatternTestPrompt, "");
+            const debuggerConfig = getGlobalConfig().findDebuggerById(debuggerInformation.id);
+            const result = new DebuggerTester().testUrlPattern(debuggerConfig.urlPatternType, debuggerConfig.urlPattern, urlForTest);
+            alert(language.debugger_config.urlPatternTestResult + result);
         });
 
         // enableRequestDebugger
@@ -200,6 +207,13 @@ class DebuggerComponent {
         debuggerElt.find(`#${debuggerInformation.id}-enableResponseDebugger-checkbox`).on('change', function () {
             const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
             localDebuggerInformation.enableResponseDebugger = $(this).is(':checked');
+            getGlobalConfig().persist();
+        });
+
+        // ${debuggerConfig.id}-hook-type
+        debuggerElt.find(`#${debuggerInformation.id}-hook-type`).change(function () {
+            const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
+            localDebuggerInformation.hookType = $(this).val();
             getGlobalConfig().persist();
         });
 

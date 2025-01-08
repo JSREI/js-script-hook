@@ -70,7 +70,7 @@ class RequestAnalyzer {
     }
 
     /**
-     * 判断时间戳是否是合法的jsonp时间戳，它的事件范围不应该太过于离谱，应该是一个近期的时间
+     * 判断时间戳是否是合法的jsonp时间戳，它的时间范围不应该太过于离谱，应该是一个近期的时间
      *
      * @param timestampString
      * @return {boolean}

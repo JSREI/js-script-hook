@@ -1,21 +1,20 @@
-const {Param} = require("./param");
 const {repeat} = require("../../utils/string-util");
 
 /**
- * 用于封装请求的上下文
+ * 用于封装请求的上下文，包含从 URL 中解析出的各种信息。
  */
 class RequestContext {
 
     /**
-     * 一个请求上下文是从一个script的src的url中解析出来的
+     * 构造函数，创建一个 RequestContext 实例。
      *
-     * @param rawUrl {String} 要请求的URL的地址，到锚点这一层的
-     * @param hostname {String}
-     * @param host {String}
-     * @param port {Number}
-     * @param path {String}
-     * @param params {Array<Param>}
-     * @param hash {String}
+     * @param {string} rawUrl - 原始的 URL 地址，包含锚点部分。
+     * @param {string} hostname - 主机名（例如：example.com）。
+     * @param {string} host - 主机（包含端口号，例如：example.com:8080）。
+     * @param {number} port - 端口号。
+     * @param {string} path - URL 路径部分（例如：/path/to/resource）。
+     * @param {Array<Param>} params - URL 中的查询参数列表。
+     * @param {string} hash - URL 中的锚点部分（例如：#section1）。
      */
     constructor(rawUrl, hostname, host, port, path, params, hash) {
         this.rawUrl = rawUrl;
@@ -23,36 +22,21 @@ class RequestContext {
         this.host = host;
         this.port = port;
         this.path = path;
-        // 避免为空
+        // 避免 params 为空，初始化为空数组
         this.params = params || [];
         this.hash = hash;
     }
 
     /**
-     * 从URL解析请求上下文
+     * 从 URL 解析请求上下文。
      *
-     * @param requestUrl {String} 要被解析的URL
-     * @return {RequestContext} 返回解析好的请求上下文
+     * @param {string} requestUrl - 要被解析的 URL。
+     * @return {RequestContext} - 返回解析好的请求上下文。
      */
     static parseRequestContext(requestUrl) {
-
-        // 强制requestUrl是一个字符串
-        // 比如可能会是一个TrustedScriptURL
-        requestUrl = requestUrl + "";
-
-        // 兼容CDN URL
-        // 示例："//statics.moonshot.cn/kimi-chat/shared-K0TvIN461soURJCs7nh6uxcQiCM_.04bc3959.async.js"
-        if (requestUrl.startsWith("//")) {
-            requestUrl = "https:" + requestUrl;
-        } else if (requestUrl.startsWith("/")) {
-            // 兼容省略域名的情况
-            // 数据样例："/logos/2024/moon/december-r4/december.js"
-            requestUrl = window.location.origin + requestUrl;
-        }
-
         const url = new URL(requestUrl);
 
-        // 解析URL上的参数
+        // 解析 URL 上的参数
         const params = [];
         url.searchParams.forEach(function (value, key) {
             const param = new Param(key, value);
@@ -69,9 +53,39 @@ class RequestContext {
     }
 
     /**
-     * 此请求是否是JSONP类型的请求
+     * 根据参数名获取参数对象。
      *
-     * @return {boolean}
+     * @param {string} paramName - 要查找的参数名。
+     * @return {Param|null} - 返回找到的参数对象，如果未找到则返回 null。
+     */
+    getParam(paramName) {
+        for (let param of this.params) {
+            if (param.name === paramName) {
+                return param;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根据参数名获取参数值。
+     *
+     * @param {string} paramName - 要查找的参数名。
+     * @return {string|null} - 返回参数的值，如果未找到则返回 null。
+     */
+    getParamValueByName(paramName) {
+        const param = this.getParam(paramName);
+        if (param) {
+            return param.value;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * 判断此请求是否是 JSONP 类型的请求。
+     *
+     * @return {boolean} - 如果是 JSONP 请求则返回 true，否则返回 false。
      */
     isJsonpRequest() {
         if (!this.params) {
@@ -86,9 +100,9 @@ class RequestContext {
     }
 
     /**
-     * 获取JsonP类型的请求的回调函数的名字
+     * 获取 JSONP 请求的回调函数名称。
      *
-     * @return {String}
+     * @return {string|null} - 返回 JSONP 回调函数的名称，如果未找到则返回 null。
      */
     getJsonpCallbackFuncName() {
         if (!this.params) {
@@ -103,39 +117,44 @@ class RequestContext {
     }
 
     /**
+     * 判断此请求是否是 .js 后缀的请求。
      *
-     * @return {""|boolean}
+     * @return {boolean} - 如果路径以 .js 结尾则返回 true，否则返回 false。
      */
     isJsSuffixRequest() {
-        return this.path && this.path.toLowerCase().endsWith(".js")
+        return this.path && this.path.toLowerCase().endsWith(".js");
     }
 
     /**
-     * 转成方便阅读的格式
+     * 将请求上下文转换为方便人类阅读的格式。
+     *
+     * @param {number} indent - 缩进空格数，用于格式化输出。
+     * @return {string} - 返回格式化后的字符串。
      */
     toHumanReadable(indent) {
-
         const indentSpace = repeat(" ", indent);
 
         const msgs = [];
         msgs.push(`${indentSpace}hostname: ${this.hostname}`);
         msgs.push(`${indentSpace}path: ${this.path}`);
 
-        msgs.push(`${indentSpace}params: `);
+        let paramTitle = `${indentSpace}params(${this.params.length}): `;
+        if (!this.params.length) {
+            paramTitle += " do not have param.";
+        }
+        msgs.push(paramTitle);
         for (let param of this.params) {
             msgs.push(param.toHumanReadable(indent + 4));
         }
 
         if (this.hash) {
-            msgs.push(`${indentSpace}hash: ${this.hash}`)
+            msgs.push(`${indentSpace}hash: ${this.hash}`);
         }
 
-        return msgs.join("\n\n");
+        return msgs.join("\n");
     }
-
 }
 
 module.exports = {
     RequestContext
-}
-
+};
