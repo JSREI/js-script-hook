@@ -47,8 +47,7 @@ class ResponseFormatter {
         const title = language.console.titleResponse;
         printStyledTable(data, styles, title);
         const msgs = highlightJSON(responseContext.jsonpCallbackArguments);
-        console.log(msgs);
-
+        // console.log(msgs);
 
     }
 

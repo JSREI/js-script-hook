@@ -52,8 +52,10 @@ function printStyledTable(data, styles, title = '') {
 
     // 如果有标题，添加标题行
     if (title) {
-        const titlePadding = Math.floor((totalWidth - getStringWidth(title)) / 2);
-        const paddedTitle = padString(title, totalWidth);
+        const titleWidth = getStringWidth(title);
+        const leftPadding = Math.floor((totalWidth - titleWidth) / 2);
+        const rightPadding = totalWidth - titleWidth - leftPadding;
+        const paddedTitle = ' '.repeat(leftPadding) + title + ' '.repeat(rightPadding);
         tableContent += '%c' + paddedTitle + '\n';
     }
 
