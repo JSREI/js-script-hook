@@ -18,10 +18,10 @@ class Config {
         this.hookType = "use-proxy-function";
 
         // 是否忽略.js后缀的请求
-        this.isIgnoreJsSuffixRequest = true;
+        this.isIgnoreJsSuffixRequest = false;
 
         // 是否忽略不是jsonp的请求
-        this.isIgnoreNotJsonpRequest = true;
+        this.isIgnoreNotJsonpRequest = false;
 
         // 在打开配置页面的时候自动跳转到项目主页
         this.autoJumpProjectSiteOnConfiguraion = true;

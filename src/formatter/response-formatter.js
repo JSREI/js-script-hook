@@ -1,4 +1,4 @@
-const {getLanguage, chinese} = require("../config/ui/component/language");
+const {getLanguage, chinese, getLanguageByGlobalConfig} = require("../config/ui/component/language");
 const {fillToLength} = require("../utils/string-util");
 const {genFormatArray} = require("../utils/log-util");
 const {getGlobalConfig} = require("../config/config");
@@ -21,12 +21,11 @@ class ResponseFormatter {
 
         const responseContext = scriptContext.responseContext;
         const requestContext = scriptContext.requestContext;
-        // const language = getLanguage(getGlobalConfig().language);
-        const language = chinese;
+        const language = getLanguageByGlobalConfig();
 
         const data = [
             // TODO 2025-01-08 01:28:26 国际化
-            ["名称", "值", "备注"],
+            [language.console.tableKey, language.console.tableValue, language.console.tableComment],
             [language.console.time, new Date().toLocaleString(), ""],
             [language.console.requestId, scriptContext.requestId, ""],
             [language.console.isJsonpRequest, scriptContext.isJsonp(), ""],

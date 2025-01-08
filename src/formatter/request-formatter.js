@@ -1,6 +1,6 @@
 const {genFormatArray} = require("../utils/log-util");
 const {repeat, fillToLength} = require("../utils/string-util");
-const {getLanguage} = require("../config/ui/component/language");
+const {getLanguage, getLanguageByGlobalConfig} = require("../config/ui/component/language");
 const {getGlobalConfig} = require("../config/config");
 const {printStyledTable} = require("./table-formatter");
 const {getUserCodeLocation} = require("../utils/code-util");
@@ -19,11 +19,11 @@ class RequestFormatter {
         const codeLocation = getUserCodeLocation();
 
         const requestContext = scriptContext.requestContext;
-        const language = getLanguage(getGlobalConfig().language);
+        const language = getLanguageByGlobalConfig();
 
         const data = [
             // TODO 2025-01-08 01:28:26 国际化
-            ["名称", "值", "备注"],
+            [language.console.tableKey, language.console.tableValue, language.console.tableComment],
             [language.console.time, new Date().toLocaleString(), ""],
             [language.console.requestId, scriptContext.requestId, ""],
             [language.console.isJsonpRequest, scriptContext.isJsonp(), ""],
