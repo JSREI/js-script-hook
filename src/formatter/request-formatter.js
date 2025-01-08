@@ -3,6 +3,7 @@ const {repeat, fillToLength} = require("../utils/string-util");
 const {getLanguage} = require("../config/ui/component/language");
 const {getGlobalConfig} = require("../config/config");
 const {printStyledTable} = require("./table-formatter");
+const {getUserCodeLocation} = require("../utils/code-util");
 
 /**
  * 用于第请求进行格式化
@@ -14,6 +15,8 @@ class RequestFormatter {
      * @param scriptContext {ScriptContext}
      */
     format(scriptContext) {
+
+        const codeLocation = getUserCodeLocation();
 
         const requestContext = scriptContext.requestContext;
         const language = getLanguage(getGlobalConfig().language);
@@ -32,6 +35,7 @@ class RequestFormatter {
             [language.console.hostname, requestContext.hostname, ""],
             [language.console.path, requestContext.path, ""],
             [language.console.hash, requestContext.hash, ""],
+            [language.console.codeLocation, codeLocation, ""],
             // [language.console.param, requestContext.params.length],
         ];
 

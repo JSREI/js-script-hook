@@ -74,6 +74,7 @@ const chinese = {
         paramName: "参数名称",
         paramValue: "参数值",
         isJsonpCallback: "是否是jsonp回调函数",
+        codeLocation: "代码位置",
     }
 };
 
