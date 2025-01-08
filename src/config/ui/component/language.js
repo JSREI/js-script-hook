@@ -9,7 +9,7 @@ const chinese = {
 
         flagPrefix: "Hook Flag前缀：",
         flagPrefixTips: "在Hook的时候会设置一些全局唯一的标志位，你可以个性化修改为自定义的前缀",
-        flagPrefixPlaceholder: "可自定义全局前缀，未设置默认为 CC11001100_js_script_hook",
+        flagPrefixPlaceholder: "可自定义全局前缀，未设置默认为 JSREI_js_script_hook",
 
         responseDebuggerHookType: "响应断点Hook方式：",
         responseDebuggerHookTypeTips: "此选项刷新页面后生效",

@@ -45,8 +45,8 @@ class ObjectFunctionHook {
 
         // 如果已经Hook过了则不重复hook，也就是说一次addHook只生效一次
         // TODO 2025-01-06 03:19:19 修改为读取配置中的前缀
-        // const prefix = getGlobalConfig().prefix || "CC11001100_js_script_hook"
-        const prefix = "CC11001100_js_script_hook"
+        // const prefix = getGlobalConfig().prefix || "JSREI_js_script_hook"
+        const prefix = "JSREI_js_script_hook"
         const hookDoneFlag = prefix + "_hookDoneFlag";
         if (functionHolder[hookDoneFlag]) {
             return;
