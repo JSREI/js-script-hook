@@ -76,12 +76,13 @@ class ObjectFunctionHook {
         let parameterNames = getParameterNames(functionHolder);
         // TODO 2025-01-07 23:41:26 调用 hookCallbackFunction
         // TODO 2025-01-06 03:19:19 提示语也国际化，根据设置的语言选择
+        // TODO 2025-01-09 02:58:29 暂不删除函数，否则第二次运行就可能报错了，暂不考虑函数溢出的问题
         const newFunctionCode = `
         
         // 这里就是jsonp的回调函数的方法体，这是插入的hook代码 
         // 判断是否命中断点 
         const isHitDebugger = ${hookCallbackFunctionGlobalName}.apply(this, arguments);
-        delete window["${hookCallbackFunctionGlobalName}"];
+        // delete window["${hookCallbackFunctionGlobalName}"];
         if (isHitDebugger) {
             debugger; 
         }

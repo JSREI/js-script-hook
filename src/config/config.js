@@ -69,6 +69,8 @@ class Config {
         this.debuggers = [];
         for (let debuggerInformationObject of o.debuggers) {
             const debuggerInformation = new Debugger();
+            debuggerInformation.createTime = debuggerInformationObject.createTime;
+            debuggerInformation.updateTime = debuggerInformationObject.updateTime;
             debuggerInformation.id = debuggerInformationObject.id;
             debuggerInformation.enable = debuggerInformationObject.enable;
             debuggerInformation.urlPattern = debuggerInformationObject.urlPattern;

@@ -171,6 +171,7 @@ class DebuggerComponent {
         debuggerElt.find(`#${debuggerInformation.id}-enable-checkbox`).on('change', function () {
             const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
             localDebuggerInformation.enable = $(this).is(':checked');
+            localDebuggerInformation.updateTime = new Date().getTime();
             getGlobalConfig().persist();
         });
 
@@ -178,6 +179,7 @@ class DebuggerComponent {
         debuggerElt.find(`#${debuggerInformation.id}-url-pattern`).change(function () {
             const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
             localDebuggerInformation.urlPatternType = $(this).val();
+            localDebuggerInformation.updateTime = new Date().getTime();
             getGlobalConfig().persist();
         });
 
@@ -185,6 +187,7 @@ class DebuggerComponent {
         debuggerElt.find(`#${debuggerInformation.id}-url-pattern-text`).on('input', function () {
             const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
             localDebuggerInformation.urlPattern = this.value;
+            localDebuggerInformation.updateTime = new Date().getTime();
             getGlobalConfig().persist();
         });
 
@@ -200,6 +203,7 @@ class DebuggerComponent {
         debuggerElt.find(`#${debuggerInformation.id}-enableRequestDebugger-checkbox`).on('change', function () {
             const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
             localDebuggerInformation.enableRequestDebugger = $(this).is(':checked');
+            localDebuggerInformation.updateTime = new Date().getTime();
             getGlobalConfig().persist();
         });
 
@@ -207,6 +211,7 @@ class DebuggerComponent {
         debuggerElt.find(`#${debuggerInformation.id}-enableResponseDebugger-checkbox`).on('change', function () {
             const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
             localDebuggerInformation.enableResponseDebugger = $(this).is(':checked');
+            localDebuggerInformation.updateTime = new Date().getTime();
             getGlobalConfig().persist();
         });
 
@@ -214,6 +219,7 @@ class DebuggerComponent {
         debuggerElt.find(`#${debuggerInformation.id}-hook-type`).change(function () {
             const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
             localDebuggerInformation.hookType = $(this).val();
+            localDebuggerInformation.updateTime = new Date().getTime();
             getGlobalConfig().persist();
         });
 
@@ -221,6 +227,7 @@ class DebuggerComponent {
         debuggerElt.find(`#${debuggerInformation.id}-callbackFunctionParamName-text`).on('input', function () {
             const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
             localDebuggerInformation.callbackFunctionParamName = this.value;
+            localDebuggerInformation.updateTime = new Date().getTime();
             getGlobalConfig().persist();
         });
 
@@ -228,6 +235,7 @@ class DebuggerComponent {
         debuggerElt.find(`#${debuggerInformation.id}-comment-text`).on('input', function () {
             const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
             localDebuggerInformation.comment = this.value;
+            localDebuggerInformation.updateTime = new Date().getTime();
             getGlobalConfig().persist();
         });
 
