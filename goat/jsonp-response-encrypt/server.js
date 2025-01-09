@@ -1,45 +1,35 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const CryptoJS = require('crypto-js');
-
 const app = express();
-const port = 3000;
 
-// 加密密钥
-const SECRET_KEY = 'CC11001100';
-
-// 解密函数
-function decryptData(encryptedData) {
-    const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
-    return bytes.toString(CryptoJS.enc.Utf8);
+// 加密函数（使用 DES）
+function encryptData(data, secretKey) {
+    return CryptoJS.DES.encrypt(JSON.stringify(data), secretKey).toString();
 }
-
-// 加密函数
-function encryptData(data) {
-    return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
-}
-
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
 
 // JSONP 接口
-app.get('/api/data', (req, res) => {
-    const encryptedData = req.query.encryptedData;
-    const decryptedData = decryptData(encryptedData);
+app.get('/api', (req, res) => {
+    const callbackName = req.query.callback;
+    const requestData = req.query.data;
 
-    console.log('Received decrypted data:', decryptedData);
+    console.log("接收到的请求数据:", requestData);
 
-    // 处理数据（这里简单返回接收到的数据）
-    const responseData = {message: `Hello, ${decryptedData}`};
+    // 模拟响应数据
+    const responseData = {
+        status: "success",
+        message: "请求成功！",
+        requestData: requestData
+    };
 
     // 加密响应数据
-    const encryptedResponse = encryptData(responseData);
+    const secretKey = "my-secret-key"; // 加密密钥（需要与前端一致）
+    const encryptedResponse = encryptData(responseData, secretKey);
 
     // 返回 JSONP 响应
-    const callback = req.query.callback;
-    res.send(`${callback}('${encryptedResponse}')`);
+    res.jsonp(encryptedResponse);
 });
 
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+// 启动服务器
+app.listen(3000, () => {
+    console.log('服务器运行在 http://localhost:3000');
 });
