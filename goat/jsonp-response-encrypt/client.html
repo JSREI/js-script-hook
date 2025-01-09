@@ -3,49 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSONP Example</title>
+    <title>JSONP 响应解密示例</title>
+    <!-- 引入 CryptoJS 库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        /* 全局样式 */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333; /* 深色文字 */
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4); /* 亮色渐变背景 */
+            overflow: hidden;
+        }
+
+        /* 分屏布局 */
+        .split-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 左侧操作区 */
+        .left-pane {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.3); /* 半透明白色背景 */
+            backdrop-filter: blur(10px); /* 毛玻璃效果 */
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.5); /* 浅色边框 */
+        }
+
+        /* 右侧结果区 */
+        .right-pane {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.3); /* 半透明白色背景 */
+            backdrop-filter: blur(10px); /* 毛玻璃效果 */
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 标题 */
+        h1 {
+            margin: 0 0 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #ff6f61; /* 亮色标题 */
+        }
+
+        /* 输入框 */
+        input {
+            width: 100%;
+            max-width: 300px;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.8); /* 半透明白色背景 */
+            color: #333; /* 深色文字 */
+            outline: none;
+            margin-bottom: 1rem;
+        }
+
+        input::placeholder {
+            color: rgba(51, 51, 51, 0.7); /* 深色占位符 */
+        }
+
+        /* 按钮 */
+        button {
+            width: 100%;
+            max-width: 300px;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: #ff6f61; /* 亮色按钮 */
+            color: #fff; /* 白色文字 */
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #ff4a3d; /* 悬停时稍暗的亮色 */
+        }
+
+        /* 结果展示 */
+        .result {
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.8); /* 半透明白色背景 */
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #333; /* 深色文字 */
+            word-wrap: break-word;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.5); /* 浅色边框 */
+        }
+    </style>
 </head>
 <body>
-<h1>JSONP Example</h1>
-<div id="result"></div>
+<div class="split-container">
+    <!-- 左侧操作区 -->
+    <div class="left-pane">
+        <h1>JSONP 响应解密</h1>
+        <input type="text" id="inputData" placeholder="请输入数据">
+        <button id="sendRequest">发送请求</button>
+    </div>
+
+    <!-- 右侧结果区 -->
+    <div class="right-pane">
+        <h1>解密结果</h1>
+        <div class="result" id="resultContainer">结果将显示在这里...</div>
+    </div>
+</div>
 
 <script>
-
-    // 加密密钥（与后端一致）
-    const SECRET_KEY = 'CC11001100';
-
-    // 加密函数
-    function encryptData(data) {
-        return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
+    // 加密函数（使用 DES）
+    function encryptData(data, secretKey) {
+        return CryptoJS.DES.encrypt(data, secretKey).toString();
     }
 
-    // 解密函数
-    function decryptData(encryptedData) {
-        const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
+    // 解密函数（使用 DES）
+    function decryptData(encryptedData, secretKey) {
+        const bytes = CryptoJS.DES.decrypt(encryptedData, secretKey);
         return bytes.toString(CryptoJS.enc.Utf8);
     }
 
-    // JSONP 请求
-    function fetchData() {
-        const data = { name: 'CC11001100' };
-        const encryptedData = encryptData(data);
-
+    // JSONP 请求函数
+    function jsonpRequest(url, callbackName, data) {
         const script = document.createElement('script');
-        script.src = `http://localhost:3000/api/data?encryptedData=${encodeURIComponent(encryptedData)}&callback=handleResponse`;
+        script.src = `${url}?callback=${callbackName}&data=${encodeURIComponent(data)}`;
         document.body.appendChild(script);
+
+        // 请求完成后移除 script 标签
+        script.onload = function () {
+            document.body.removeChild(script);
+        };
     }
 
-    // 处理 JSONP 响应
+    // 回调函数，用于处理服务器返回的加密数据
     function handleResponse(encryptedResponse) {
-        const decryptedResponse = decryptData(encryptedResponse);
-        const responseData = JSON.parse(decryptedResponse);
+        const resultContainer = document.getElementById('resultContainer');
+        const secretKey = "my-secret-key"; // 解密密钥（需要与服务器一致）
 
-        document.getElementById('result').innerText = responseData.message;
+        try {
+            // 解密数据
+            const decryptedData = decryptData(encryptedResponse, secretKey);
+            resultContainer.textContent = JSON.stringify(JSON.parse(decryptedData), null, 2);
+        } catch (error) {
+            resultContainer.textContent = "解密失败，请检查密钥或数据格式。";
+        }
     }
 
-    // 发起请求
-    fetchData();
+    // 初始化随机值
+    function generateRandomValue() {
+        const randomData = {
+            name: "User" + Math.floor(Math.random() * 1000),
+            age: Math.floor(Math.random() * 100)
+        };
+        return JSON.stringify(randomData);
+    }
+
+    // 页面加载时初始化输入框
+    document.addEventListener('DOMContentLoaded', function () {
+        const inputData = document.getElementById('inputData');
+        inputData.value = generateRandomValue();
+    });
+
+    // 绑定按钮点击事件
+    document.getElementById('sendRequest').addEventListener('click', function () {
+        const inputData = document.getElementById('inputData').value;
+
+        // 发送 JSONP 请求
+        jsonpRequest("http://localhost:3000/api", "handleResponse", inputData);
+    });
 </script>
 </body>
 </html>
