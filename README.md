@@ -1,8 +1,12 @@
 # Script Hook
 
+产品演示视频：https://www.bilibili.com/video/BV12BrkYGEHv/
+
 源代码仓库链接：https://github.com/JSREI/js-script-hook
 
 ![Greasy Fork Downloads](https://img.shields.io/greasyfork/dt/419533)  ![Greasy Fork Rating](https://img.shields.io/greasyfork/rating-count/419533)  ![GitHub Created At](https://img.shields.io/github/created-at/JSREI/js-script-hook)  ![GitHub contributors](https://img.shields.io/github/contributors-anon/JSREI/js-script-hook)  ![GitHub top language](https://img.shields.io/github/languages/top/JSREI/js-script-hook)  ![GitHub commit activity](https://img.shields.io/github/commit-activity/t/JSREI/js-script-hook)  ![GitHub Release](https://img.shields.io/github/v/release/JSREI/js-script-hook)   ![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/JSREI/js-script-hook)  ![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-closed/JSREI/js-script-hook)  ![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/JSREI/js-script-hook)  ![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr-closed/JSREI/js-script-hook)  ![GitHub License](https://img.shields.io/github/license/JSREI/js-script-hook)  ![GitHub Repo stars](https://img.shields.io/github/stars/JSREI/js-script-hook)  ![GitHub forks](https://img.shields.io/github/forks/JSREI/js-script-hook)  ![GitHub watchers](https://img.shields.io/github/watchers/JSREI/js-script-hook)  
+
+![logo.png](./README.assets/logo.png)
 
 # 一、解决了什么问题？
 
