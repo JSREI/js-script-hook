@@ -51,10 +51,10 @@ const chinese = {
         urlPatternTestResult: "测试结果：",
 
         enableRequestDebugger: "是否开启请求断点：",
-        enableRequestDebuggerTips: "启动请求断点后，在script请求发出之前进入断点",
+        enableRequestDebuggerTips: "启用请求断点后，在script请求发出之前进入断点",
 
         enableResponseDebugger: "是否开启响应断点：",
-        enableResponseDebuggerTips: "启动响应断点之后，在jsonp请求的回调函数中命中断点",
+        enableResponseDebuggerTips: "启用响应断点之后，在jsonp请求的回调函数中命中断点",
 
         callbackFunctionParamName: "jsonp回调函数参数名称：",
         callbackFunctionParamNameTips: "不指定的话会使用内置引擎自动推测jsonp参数名称，推测失败的话可以手动指定",
