@@ -23,6 +23,13 @@ class DebuggerManagerComponent {
      */
     render(language, debuggers) {
 
+        // 按照最后修改时间排序
+        debuggers.sort((a, b) => {
+            const t1 = parseInt(a.updateTime || 0);
+            const t2 = parseInt(b.updateTime || 0);
+            return t2 - t1;
+        });
+
         const debuggerManager = $(this.html);
 
         // 渲染已经存在的断点配置信息

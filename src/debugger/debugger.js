@@ -25,6 +25,8 @@ class Debugger {
         callbackFunctionParamName = null,
         comment = null
     ) {
+        this.createTime = new Date().getTime();
+        this.updateTime = new Date().getTime();
         this.id = id;
         this.enable = enable;
         this.urlPatternType = urlPatternType;
