@@ -1,0 +1,58 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" border="50" scale="3" compressed="false" locked="false" version="25.0.2">
+  <diagram name="Blank" id="YmL12bMKpDGza6XwsDPr">
+    <mxGraphModel dx="1642" dy="795" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" background="none" math="1" shadow="0">
+      <root>
+        <mxCell id="X5NqExCQtvZxIxQ7pmgY-0" />
+        <mxCell id="1" parent="X5NqExCQtvZxIxQ7pmgY-0" />
+        <mxCell id="-EHa6s8e7eqt31AD87Gg-13" value="" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="-4" y="207" width="922" height="497" as="geometry" />
+        </mxCell>
+        <mxCell id="-EHa6s8e7eqt31AD87Gg-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="-EHa6s8e7eqt31AD87Gg-1" target="-EHa6s8e7eqt31AD87Gg-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="-EHa6s8e7eqt31AD87Gg-1" value="浏览器JS使用script标签发起请求" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="235" y="322" width="309" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="-EHa6s8e7eqt31AD87Gg-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="-EHa6s8e7eqt31AD87Gg-2" target="-EHa6s8e7eqt31AD87Gg-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="-EHa6s8e7eqt31AD87Gg-2" value="服务器收到请求处理并返回响应" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="235" y="447" width="309" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="-EHa6s8e7eqt31AD87Gg-3" value="浏览器收到服务器响应，&lt;div&gt;回调callback函数处理响应&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="232.5" y="572" width="314" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="-EHa6s8e7eqt31AD87Gg-6" value="可选，可能没有回调函数" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="694" y="587" width="189" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="-EHa6s8e7eqt31AD87Gg-7" value="" style="endArrow=classic;html=1;rounded=0;fontSize=16;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="692" y="602" as="sourcePoint" />
+            <mxPoint x="560" y="602" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-EHa6s8e7eqt31AD87Gg-8" value="请求断点" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="23" y="337" width="82" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="-EHa6s8e7eqt31AD87Gg-9" value="响应断点" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="11" y="583" width="79" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="-EHa6s8e7eqt31AD87Gg-11" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fontSize=16;" edge="1" parent="1" source="-EHa6s8e7eqt31AD87Gg-8">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="134" y="405" as="sourcePoint" />
+            <mxPoint x="230" y="355" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-EHa6s8e7eqt31AD87Gg-12" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fontSize=16;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="98" y="600.5" as="sourcePoint" />
+            <mxPoint x="223" y="603.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-EHa6s8e7eqt31AD87Gg-14" value="一次jsonp请求的生命周期" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#CCCCCC;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="-21" y="212" width="246" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
