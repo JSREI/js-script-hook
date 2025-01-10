@@ -44,7 +44,7 @@ https://greasyfork.org/zh-CN/scripts/419533-js-script-hook
 
 安装成功后能够在油猴的脚本列表看到有一项`js-script-hook`：
 
-![image-20250109202738169](./README.assets/image-20250109202738169.png)
+<img src="./README.assets/image-20250109202738169.png" style="width: 400px">
 
 ## 2.2 源码编译安装
 
@@ -94,7 +94,7 @@ dist/index.js
 
 安装成功后能够在油猴的脚本列表看到有一项`js-script-hook`：
 
-![image-20250109202728996](./README.assets/image-20250109202728996.png)
+<img src="./README.assets/image-20250109202728996.png" style="width: 400px">
 
 # 三、产品文档
 
@@ -102,7 +102,7 @@ dist/index.js
 
 本脚本自带了一个操作界面，选择“`Configuration`"子菜单打开配置界面：
 
-![image-20250109201543898](./README.assets/image-20250109201543898.png)
+<img src="./README.assets/image-20250109201543898.png" style="width: 600px">
 
 配置界面大概长这个样子：
 
