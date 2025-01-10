@@ -22,6 +22,10 @@
 
 
 
+一次jsonp请求的生命周期：
+
+![jsonp-life-circle.drawio](./README.assets/jsonp-life-circle.drawio.png)
+
 工具辅助逆向实战资料：
 
 - 待补充
