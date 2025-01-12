@@ -26,9 +26,21 @@
 
 ![jsonp-life-circle.drawio](./README.assets/jsonp-life-circle.drawio.png)
 
-工具辅助逆向实战资料：
 
-- 待补充
+
+逆向练习靶场：
+
+- [https://github.com/JSREI/js-script-hook-goat](https://github.com/JSREI/js-script-hook-goat)
+
+辅助逆向实战文章：
+
+- [Script Hook辅助逆向jsonp参数加密](https://github.com/JSREI/js-script-hook-goat/blob/main/docs/jsonp-request-encrypt/README.md)
+- [Script Hook辅助逆向jsonp响应加密](https://github.com/JSREI/js-script-hook-goat/blob/main/docs/jsonp-response-encrypt/README.md)
+- [Script Hook辅助逆向jsonp请求参数/响应字段加密](https://github.com/JSREI/js-script-hook-goat/blob/main/docs/jsonp-request-encrypt-and-response-encrypt/README.md)
+
+核心功能演示：
+
+![ezgif-5-191ba6b41b](./README.assets/ezgif-5-191ba6b41b.gif)
 
 # 二、安装
 
