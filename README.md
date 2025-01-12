@@ -28,7 +28,7 @@
 
 工具辅助逆向实战资料：
 
-- 待补充
+- [Script Hook辅助逆向jsonp参数加密](https://github.com/JSREI/js-script-hook/blob/dev/goat/jsonp-request-encrypt/README.md)
 
 # 二、安装
 
