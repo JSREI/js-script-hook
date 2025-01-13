@@ -284,7 +284,23 @@ http://localhost:10010/?jsonp_callback=jsonpCallback_1734635066
 
 ![image-20250109025028086](./README.assets/image-20250109025028086.png)
 
-# 四、问题反馈
+# 四、常见问题
+## 4.1 当遇到界面与 2.1界面不相同,没有Configuration的情况：
+
+![image-20250109025028086](./README.assets/image-2025-01-13_17.58.09.png)
+检查是否开启开发者模式 https://www.tampermonkey.net/faq.php#Q209
+1. 打开菜单，选择“扩展程序”和“管理扩展程序”，或者在新的浏览器标签页中输入 chrome://extensions 或 edge://extensions 以导航到扩展程序页面。
+    ![image-20250109025028086](./README.assets/chrome_extensions.jpg)
+2. 在右上角找到并点击“开发者模式”开关以启用它。
+     ![image-20250109025028086](./README.assets/developer_mode.jpg)
+
+## 4.2 如果使用Edge在按照界面又没跳转
+可以多尝试几次
+    ![image-20250109025028086](./README.assets/image-2025-01-13_18.07.16.png)
+
+
+
+# 五、问题反馈
 
  当您遇到了问题，可以在仓库新建一个issue反馈：
 
@@ -295,22 +311,22 @@ https://github.com/JSREI/js-script-hook/issues/new
 建议您优先以新建issue的方式反馈问题，issue是可记录可追溯的，也方便后来者遇到同一个问题时有参考。
 
 
-# 五、感谢支持 
+# 六、感谢支持
 暂无。
 
 当您提issue或者pr后，会将您的GitHub账号放在此处感谢您为产品迭代做出的贡献！
 
-# 六、Contributors
+# 七、Contributors
 
 欢迎提交pr，提了就merge，点击就送！
 
 <img src="https://contrib.nn.ci/api?repo=JSREI/js-script-hook" />
 
-# 七、Star History
+# 八、Star History
 
 <img src="https://starchart.cc/JSREI/js-script-hook.svg" />
 
-# 八、逆向技术交流群
+# 九、逆向技术交流群
 
 扫码加入逆向技术交流群：
 
