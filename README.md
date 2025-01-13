@@ -317,7 +317,9 @@ https://github.com/JSREI/js-script-hook/issues/new
 
 当您提issue或者pr后，会将您的GitHub账号放在此处感谢您为产品迭代做出的贡献！
 
-# 七、Contributors
+# 七、Roadmap & Contributors
+
+项目开发计划看板： https://github.com/orgs/JSREI/projects/7/views/1
 
 欢迎提交pr，提了就merge，点击就送！
 
