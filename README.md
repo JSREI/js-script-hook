@@ -289,7 +289,7 @@ http://localhost:10010/?jsonp_callback=jsonpCallback_1734635066
 
 ![image-20250109025028086](./README.assets/image-2025-01-13_17.58.09.png)
 
-(https://www.tampermonkey.net/faq.php#Q209)[检查是否开启开发者模式]
+[检查是否开启开发者模式](https://www.tampermonkey.net/faq.php#Q209)
 1. 打开菜单，选择“扩展程序”和“管理扩展程序”，或者在新的浏览器标签页中输入 chrome://extensions 或 edge://extensions 以导航到扩展程序页面。
     ![image-20250109025028086](./README.assets/chrome_extensions.jpg)
 2. 在右上角找到并点击“开发者模式”开关以启用它。
