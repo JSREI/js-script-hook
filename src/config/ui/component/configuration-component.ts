@@ -1,12 +1,14 @@
-const {GlobalOptionsComponent} = require("./global-options-component");
-const {DebuggerManagerComponent} = require("./debugger-manager-component");
-const {getGlobalConfig} = require("../../config");
-const {getLanguage} = require("./language");
+import $ from 'jquery';
+import { GlobalOptionsComponent } from "./global-options-component";
+import { DebuggerManagerComponent } from "./debugger-manager-component";
+import { getGlobalConfig } from "../../config";
+import { getLanguage } from "./language";
 
 /**
  * 配置组件
  */
-class ConfigurationComponent {
+export class ConfigurationComponent {
+    private readonly modalHTML: string;
 
     constructor() {
         this.modalHTML = `
@@ -22,10 +24,9 @@ class ConfigurationComponent {
     /**
      * 展示配置界面
      */
-    show() {
-
+    public show(): void {
         // i18n配置语言
-        let language = getLanguage(getGlobalConfig().language);
+        const language = getLanguage(getGlobalConfig().language);
 
         // 将模态框添加到body元素中
         $(document.body).append($(this.modalHTML));
@@ -39,24 +40,20 @@ class ConfigurationComponent {
         $("#js-script-hook-configuration-content").append(debuggerManager.render(language, getGlobalConfig().debuggers));
 
         // 关闭按钮事件处理
-        document.getElementById("jsrei-js-script-hook-configuration-close-btn").addEventListener('click', this.closeModalWindow);
-        document.getElementById("jsrei-js-script-hook-configuration-modal-window").style.display = 'flex';
+        document.getElementById("jsrei-js-script-hook-configuration-close-btn")?.addEventListener('click', this.closeModalWindow);
+        const modalWindow = document.getElementById("jsrei-js-script-hook-configuration-modal-window");
+        if (modalWindow) {
+            modalWindow.style.display = 'flex';
+        }
     }
 
     /**
      * 隐藏模态框的函数
      */
-    closeModalWindow() {
+    private closeModalWindow(): void {
         const element = document.getElementById("jsrei-js-script-hook-configuration-modal-window");
-        if (element) {
+        if (element && element.parentNode) {
             element.parentNode.removeChild(element);
         }
     }
-
-}
-
-module.exports = {
-    ConfigurationComponent
-}
-
-
+} 

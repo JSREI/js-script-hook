@@ -1,20 +1,22 @@
-const {getGlobalConfig} = require("../../config");
-const {renderSwitchComponent} = require("./switch-component");
+import $ from 'jquery';
+import { getGlobalConfig } from "../../config";
+import { Config } from "../../config";
+import { Language } from "./debugger-component";
+
+type HookType = "use-proxy-function" | "use-redeclare-function";
 
 /**
- * 全局配置参数
+ * 全局配置参数组件
  */
-class GlobalOptionsComponent {
-
-
+export class GlobalOptionsComponent {
     /**
      * 渲染模板
      *
-     * @param oldConfig
-     * @param language
-     * @return {string}
+     * @param oldConfig 旧的配置
+     * @param language 语言配置
+     * @returns 模板字符串
      */
-    template(oldConfig, language) {
+    private template(oldConfig: Config, language: Language): string {
         return `
 <fieldset style="border: 1px solid #AAA !important; margin: 10px !important; padding: 10px !important; width: 800px !important; ">
     <legend style="color: #AAA !important;">${language.global_settings.title}</legend>
@@ -134,13 +136,13 @@ class GlobalOptionsComponent {
     }
 
     /**
-     *
      * 渲染全局配置
      *
-     * @param language
-     * @param oldConfig {Config}
+     * @param language 语言配置
+     * @param oldConfig 旧的配置
+     * @returns jQuery对象
      */
-    render(language, oldConfig) {
+    render(language: Language, oldConfig: Config): JQuery<HTMLElement> {
         const component = $(this.template(oldConfig, language));
 
         if (oldConfig.hookType) {
@@ -148,45 +150,46 @@ class GlobalOptionsComponent {
         }
 
         component.find("#js-script-hook-global-config-hook-type").change(function () {
-            getGlobalConfig().hookType = $(this).val();
-            getGlobalConfig().persist();
+            const config = getGlobalConfig();
+            config.hookType = $(this).val() as HookType;
+            config.persist();
         });
 
         // 切换语言选择
         component.find("#js-script-hook-global-config-language").change(function () {
-            getGlobalConfig().language = $(this).val();
-            getGlobalConfig().persist();
+            const config = getGlobalConfig();
+            config.language = $(this).val() as 'english' | 'chinese';
+            config.persist();
         });
 
         // 全局标志的前缀
-        component.find("#js-script-hook-global-config-flag-prefix").on("input", function () {
-            getGlobalConfig().prefix = this.value;
-            getGlobalConfig().persist();
+        component.find("#js-script-hook-global-config-flag-prefix").on("input", function (this: HTMLInputElement) {
+            const config = getGlobalConfig();
+            config.prefix = this.value;
+            config.persist();
         });
 
         // 是否忽略所有的js文件的请求
         component.find("#js-script-hook-global-config-isIgnoreJsSuffixRequest").on("change", function () {
-            getGlobalConfig().isIgnoreJsSuffixRequest = $(this).is(':checked');
-            getGlobalConfig().persist();
+            const config = getGlobalConfig();
+            config.isIgnoreJsSuffixRequest = $(this).is(':checked');
+            config.persist();
         });
 
         // 是否忽略所有的非jsonp的请求
         component.find("#js-script-hook-global-config-isIgnoreNotJsonpRequest").on("change", function () {
-            getGlobalConfig().isIgnoreNotJsonpRequest = $(this).is(':checked');
-            getGlobalConfig().persist();
+            const config = getGlobalConfig();
+            config.isIgnoreNotJsonpRequest = $(this).is(':checked');
+            config.persist();
         });
 
         // 在打开配置页面的时候自动跳转项目主页
         component.find("#js-script-hook-global-config-autoJumpProjectSiteOnConfiguraion").on("change", function () {
-            getGlobalConfig().autoJumpProjectSiteOnConfiguraion = $(this).is(':checked');
-            getGlobalConfig().persist();
+            const config = getGlobalConfig();
+            config.autoJumpProjectSiteOnConfiguraion = $(this).is(':checked');
+            config.persist();
         });
 
         return component;
     }
-
-}
-
-module.exports = {
-    GlobalOptionsComponent
-}
+} 

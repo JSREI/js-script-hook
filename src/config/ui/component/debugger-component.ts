@@ -1,19 +1,84 @@
-const {getGlobalConfig} = require("../../config");
-const {DebuggerTester} = require("../../../debugger/debugger-tester");
+import $ from 'jquery';
+import { getGlobalConfig } from "../../config";
+import { DebuggerTester } from "../../../debugger/debugger-tester";
+import { ScriptContext } from "../../../context/script/script-context";
+
+type UrlPatternType = 'equals-string' | 'contains-string' | 'match-regexp' | 'match-all';
+type HookType = 'redeclare' | 'proxy';
+
+export interface Language {
+    debugger_config: {
+        debuggerTitle: string;
+        enableTips: string;
+        enable: string;
+        urlPatternTips: string;
+        urlPattern: string;
+        urlPatternTypeTips: string;
+        urlPatternType_EqualsThisString: string;
+        urlPatternType_ContainsThisString: string;
+        urlPatternType_MatchThisRegexp: string;
+        urlPatternType_MatchALL: string;
+        urlPatternTextTips: string;
+        urlPatternTextPlaceholder: string;
+        urlPatternTestTips: string;
+        urlPatternTest: string;
+        urlPatternTestPrompt: string;
+        urlPatternTestResult: string;
+        enableRequestDebuggerTips: string;
+        enableRequestDebugger: string;
+        enableResponseDebuggerTips: string;
+        enableResponseDebugger: string;
+        callbackFunctionParamNameTips: string;
+        callbackFunctionParamName: string;
+        callbackFunctionParamNamePlaceholder: string;
+        commentTips: string;
+        comment: string;
+        commentPlaceholder: string;
+    };
+    global_settings: {
+        title: string;
+        languageTips: string;
+        language: string;
+        responseDebuggerHookTypeTips: string;
+        responseDebuggerHookType: string;
+        responseDebuggerHookTypeUseProxyFunction: string;
+        responseDebuggerHookTypeUseRedeclareFunction: string;
+        flagPrefixTips: string;
+        flagPrefix: string;
+        flagPrefixPlaceholder: string;
+        isIgnoreJsSuffixRequestTips: string;
+        isIgnoreJsSuffixRequest: string;
+        isIgnoreNotJsonpRequestTips: string;
+        isIgnoreNotJsonpRequest: string;
+        autoJumpProjectSiteOnConfiguraionTips: string;
+        autoJumpProjectSiteOnConfiguraion: string;
+    };
+}
+
+export interface DebuggerConfig {
+    id: string;
+    enable: boolean;
+    urlPattern: string;
+    urlPatternType: UrlPatternType;
+    hookType: HookType;
+    enableRequestDebugger: boolean;
+    enableResponseDebugger: boolean;
+    comment: string;
+    callbackFunctionName: string;
+}
 
 /**
  * 用于表示一个断点配置
  */
-class DebuggerComponent {
-
+export class DebuggerComponent {
     /**
      * 构造初始的模板
      *
-     * @param language
-     * @param debuggerConfig
-     * @return {string}
+     * @param language 语言配置
+     * @param debuggerConfig 断点配置
+     * @return 模板字符串
      */
-    template(language, debuggerConfig) {
+    private template(language: Language, debuggerConfig: DebuggerConfig): string {
         return `
 <fieldset id="${debuggerConfig.id}" style="width: 800px !important; border: 1px solid #AAA !important; margin: 10px !important; padding: 10px !important;">      
     <legend style="color: #AAA !important;">${language.debugger_config.debuggerTitle}-${debuggerConfig.id}</legend>          
@@ -130,7 +195,7 @@ class DebuggerComponent {
                 <span> ${language.debugger_config.callbackFunctionParamName} </span>
             </td>
             <td align="left" style="padding-left: 10px;">
-                <input class="js-script-hook-input" type="text" id="${debuggerConfig.id}-callbackFunctionParamName-text" value="${debuggerConfig.callbackFunctionParamName || ''}" placeholder="${language.debugger_config.callbackFunctionParamNamePlaceholder}" />
+                <input class="js-script-hook-input" type="text" id="${debuggerConfig.id}-callbackFunctionParamName-text" value="${debuggerConfig.callbackFunctionName || ''}" placeholder="${language.debugger_config.callbackFunctionParamNamePlaceholder}" />
             </td>
         </tr>
         <tr>
@@ -155,127 +220,88 @@ class DebuggerComponent {
     /**
      * 渲染一条断点规则
      *
-     * @param language
-     * @param debuggerInformation
-     * @return {*|jQuery|HTMLElement}
+     * @param language 语言配置
+     * @param debuggerInformation 断点信息
+     * @return jQuery对象
      */
-    render(language, debuggerInformation) {
-        const debuggerElt = $(this.template(language, debuggerInformation));
+    public render(language: Language, debuggerInformation: DebuggerConfig): JQuery<HTMLElement> {
+        const $debuggerComponent = $(this.template(language, debuggerInformation));
 
-        // 设置匹配类型
-        if (debuggerInformation.urlPatternType) {
-            debuggerElt.find(`#${debuggerInformation.id}-url-pattern`).val(debuggerInformation.urlPatternType);
-        }
+        // 绑定事件
+        const localDebuggerInformation = { ...debuggerInformation };
 
-        // 断点是否开启
-        debuggerElt.find(`#${debuggerInformation.id}-enable-checkbox`).on('change', function () {
-            const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
-            localDebuggerInformation.enable = $(this).is(':checked');
-            localDebuggerInformation.updateTime = new Date().getTime();
-            getGlobalConfig().persist();
+        // 启用/禁用断点
+        $debuggerComponent.find(`#${debuggerInformation.id}-enable-checkbox`).on("change", function () {
+            localDebuggerInformation.enable = $(this).prop("checked") as boolean;
         });
 
-        // URL匹配类型
-        debuggerElt.find(`#${debuggerInformation.id}-url-pattern`).change(function () {
-            const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
-            localDebuggerInformation.urlPatternType = $(this).val();
-            localDebuggerInformation.updateTime = new Date().getTime();
-            getGlobalConfig().persist();
+        // URL匹配方式
+        $debuggerComponent.find(`#${debuggerInformation.id}-url-pattern`).on("change", function () {
+            localDebuggerInformation.urlPatternType = $(this).val() as UrlPatternType;
         });
 
-        // URL匹配值
-        debuggerElt.find(`#${debuggerInformation.id}-url-pattern-text`).on('input', function () {
-            const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
-            localDebuggerInformation.urlPattern = this.value;
-            localDebuggerInformation.updateTime = new Date().getTime();
-            getGlobalConfig().persist();
+        // URL匹配文本
+        $debuggerComponent.find(`#${debuggerInformation.id}-url-pattern-text`).on("change", function () {
+            localDebuggerInformation.urlPattern = $(this).val() as string;
         });
 
         // URL匹配测试
-        debuggerElt.find(`#${debuggerInformation.id}-url-pattern-test`).on('click', function () {
-            let urlForTest = prompt(language.debugger_config.urlPatternTestPrompt, "");
-            const debuggerConfig = getGlobalConfig().findDebuggerById(debuggerInformation.id);
-            const result = new DebuggerTester().testUrlPattern(debuggerConfig.urlPatternType, debuggerConfig.urlPattern, urlForTest);
-            alert(language.debugger_config.urlPatternTestResult + result);
+        $debuggerComponent.find(`#${debuggerInformation.id}-url-pattern-test`).on("click", function () {
+            const testUrl = prompt(language.debugger_config.urlPatternTestPrompt);
+            if (!testUrl) {
+                return;
+            }
+            const debuggerTester = new DebuggerTester();
+            const isMatch = debuggerTester.testUrl(localDebuggerInformation.urlPatternType, localDebuggerInformation.urlPattern, testUrl);
+            alert(`${language.debugger_config.urlPatternTestResult} ${isMatch}`);
         });
 
-        // enableRequestDebugger
-        debuggerElt.find(`#${debuggerInformation.id}-enableRequestDebugger-checkbox`).on('change', function () {
-            const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
-            localDebuggerInformation.enableRequestDebugger = $(this).is(':checked');
-            localDebuggerInformation.updateTime = new Date().getTime();
-            getGlobalConfig().persist();
+        // 启用/禁用请求断点
+        $debuggerComponent.find(`#${debuggerInformation.id}-enableRequestDebugger-checkbox`).on("change", function () {
+            localDebuggerInformation.enableRequestDebugger = $(this).prop("checked") as boolean;
         });
 
-        // enableResponseDebugger
-        debuggerElt.find(`#${debuggerInformation.id}-enableResponseDebugger-checkbox`).on('change', function () {
-            const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
-            localDebuggerInformation.enableResponseDebugger = $(this).is(':checked');
-            localDebuggerInformation.updateTime = new Date().getTime();
-            getGlobalConfig().persist();
+        // 启用/禁用响应断点
+        $debuggerComponent.find(`#${debuggerInformation.id}-enableResponseDebugger-checkbox`).on("change", function () {
+            localDebuggerInformation.enableResponseDebugger = $(this).prop("checked") as boolean;
         });
 
-        // ${debuggerConfig.id}-hook-type
-        debuggerElt.find(`#${debuggerInformation.id}-hook-type`).change(function () {
-            const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
-            localDebuggerInformation.hookType = $(this).val();
-            localDebuggerInformation.updateTime = new Date().getTime();
-            getGlobalConfig().persist();
+        // Hook类型
+        $debuggerComponent.find(`#${debuggerInformation.id}-hookType`).on("change", function () {
+            localDebuggerInformation.hookType = $(this).val() as HookType;
         });
 
-        // callbackFunctionParamName
-        debuggerElt.find(`#${debuggerInformation.id}-callbackFunctionParamName-text`).on('input', function () {
-            const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
-            localDebuggerInformation.callbackFunctionParamName = this.value;
-            localDebuggerInformation.updateTime = new Date().getTime();
-            getGlobalConfig().persist();
+        // 回调函数参数名
+        $debuggerComponent.find(`#${debuggerInformation.id}-callbackFunctionParamName-text`).on("change", function () {
+            localDebuggerInformation.callbackFunctionName = $(this).val() as string;
         });
 
-        // 注释
-        debuggerElt.find(`#${debuggerInformation.id}-comment-text`).on('input', function () {
-            const localDebuggerInformation = getGlobalConfig().findDebuggerById(debuggerInformation.id);
-            localDebuggerInformation.comment = this.value;
-            localDebuggerInformation.updateTime = new Date().getTime();
-            getGlobalConfig().persist();
+        // 备注
+        $debuggerComponent.find(`#${debuggerInformation.id}-comment-text`).on("change", function () {
+            localDebuggerInformation.comment = $(this).val() as string;
         });
 
-        // 删除按钮
-        debuggerElt.find(`#${debuggerInformation.id}-remove-btn`).click(function () {
-            $(`#${debuggerInformation.id}`).remove();
-
-            getGlobalConfig().removeDebuggerById(debuggerInformation.id);
-            getGlobalConfig().persist();
+        // 删除断点
+        $debuggerComponent.find(`#${debuggerInformation.id}-remove-btn`).on("click", function () {
+            $debuggerComponent.remove();
         });
 
-        return debuggerElt;
+        return $debuggerComponent;
     }
 
+    private bindEvents() {
+        const debuggerTester = new DebuggerTester();
+        const globalConfig = getGlobalConfig();
 
-    // // 鼠标划过与移走
-    // manifestElt.onmouseover = function () {
-    //
-    //     // 获取元素的边界矩形
-    //     const rect = manifestElt.getBoundingClientRect();
-    //
-    //     // 获取页面的滚动偏移量
-    //     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    //     const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-    //
-    //     // 计算绝对位置
-    //     const absoluteTop = rect.top + scrollTop;
-    //     const absoluteLeft = rect.left + scrollLeft;
-    //
-    //     tips.style.display = 'block';
-    //     tips.style.position = 'absolute';
-    //     tips.style.left = `${absoluteLeft}px`;
-    //     tips.style.top = `${absoluteTop - tips.offsetHeight - 20}px`;
-    // };
-    // manifestElt.onmouseout = function () {
-    //     tips.style.display = 'none';
-    // };
-
-}
-
-module.exports = {
-    DebuggerComponent
-}
+        // Test URL match
+        const testUrlButton = document.getElementById('test-url-button');
+        testUrlButton?.addEventListener('click', () => {
+            const urlPattern = (document.getElementById('url-pattern') as HTMLInputElement).value;
+            const urlPatternType = (document.getElementById('url-pattern-type') as HTMLSelectElement).value as UrlPatternType;
+            const testUrl = (document.getElementById('test-url') as HTMLInputElement).value;
+            
+            const isMatch = debuggerTester.testUrl(urlPatternType, urlPattern, testUrl);
+            alert(isMatch ? 'URL matches!' : 'URL does not match.');
+        });
+    }
+} 

@@ -1,37 +1,45 @@
-const {DebuggerTester} = require("../debugger/debugger-tester");
-const {Debugger} = require("../debugger/debugger");
+import { DebuggerTester } from "../debugger/debugger-tester";
+import { Debugger } from "../debugger/debugger";
+import { ScriptContext } from "../context/script/script-context";
+
+declare const GM_getValue: (key: string) => string | undefined;
+declare const GM_setValue: (key: string, value: string) => void;
+
 const GM_config_name = "js-script-hook-config-name";
+
+type HookType = "use-proxy-function" | "use-redeclare-function";
+type Language = "english" | "chinese";
 
 /**
  * 支持的相关配置
  */
-class Config {
+export class Config {
+    public language: Language;
+    public prefix: string;
+    public hookType: HookType;
+    public isIgnoreJsSuffixRequest: boolean;
+    public isIgnoreNotJsonpRequest: boolean;
+    public autoJumpProjectSiteOnConfiguraion: boolean;
+    public debuggers: Debugger[];
 
     constructor() {
-
         // 默认为英文的操作界面
         this.language = "english";
-
         // 让用户能够自己指定前缀，也许会有一些拥有感？之前ast hook好像就有个哥们喜欢这样干...
         this.prefix = "JSREI";
-
         this.hookType = "use-proxy-function";
-
         // 是否忽略.js后缀的请求
         this.isIgnoreJsSuffixRequest = false;
-
         // 是否忽略不是jsonp的请求
         this.isIgnoreNotJsonpRequest = false;
-
         // 在打开配置页面的时候自动跳转到项目主页
         this.autoJumpProjectSiteOnConfiguraion = true;
-
         // 所有的断点
         this.debuggers = [];
     }
 
-    findDebuggerById(id) {
-        for (let debuggerInformation of this.debuggers) {
+    public findDebuggerById(id: string): Debugger | null {
+        for (const debuggerInformation of this.debuggers) {
             if (debuggerInformation.id === id) {
                 return debuggerInformation;
             }
@@ -39,22 +47,16 @@ class Config {
         return null;
     }
 
-    addDebugger(debuggerInformation) {
+    public addDebugger(debuggerInformation: Debugger): void {
         // TODO 2024-12-22 05:06:15 断点的有效性校验
         this.debuggers.push(debuggerInformation);
     }
 
-    removeDebuggerById(id) {
-        const newDebuggers = [];
-        for (let debuggerInformation of this.debuggers) {
-            if (debuggerInformation.id !== id) {
-                newDebuggers.push(debuggerInformation);
-            }
-        }
-        this.debuggers = newDebuggers;
+    public removeDebuggerById(id: string): void {
+        this.debuggers = this.debuggers.filter(debuggerInformation => debuggerInformation.id !== id);
     }
 
-    load() {
+    public load(): Config {
         const configJsonString = GM_getValue(GM_config_name);
         if (!configJsonString) {
             return this;
@@ -67,7 +69,7 @@ class Config {
         this.isIgnoreNotJsonpRequest = o.isIgnoreNotJsonpRequest;
         this.autoJumpProjectSiteOnConfiguraion = o.autoJumpProjectSiteOnConfiguraion;
         this.debuggers = [];
-        for (let debuggerInformationObject of o.debuggers) {
+        for (const debuggerInformationObject of o.debuggers) {
             const debuggerInformation = new Debugger();
             debuggerInformation.createTime = debuggerInformationObject.createTime;
             debuggerInformation.updateTime = debuggerInformationObject.updateTime;
@@ -77,27 +79,26 @@ class Config {
             debuggerInformation.urlPatternType = debuggerInformationObject.urlPatternType;
             debuggerInformation.enableRequestDebugger = debuggerInformationObject.enableRequestDebugger;
             debuggerInformation.enableResponseDebugger = debuggerInformationObject.enableResponseDebugger;
-            debuggerInformation.callbackFunctionParamName = debuggerInformationObject.callbackFunctionParamName;
+            debuggerInformation.callbackFunctionName = debuggerInformationObject.callbackFunctionName;
             debuggerInformation.comment = debuggerInformationObject.comment;
             this.debuggers.push(debuggerInformation);
         }
         return this;
     }
 
-    persist() {
+    public persist(): void {
         const configJsonString = JSON.stringify(this);
         GM_setValue(GM_config_name, configJsonString);
     }
 
     /**
      * 执行测试所有断点，看看是否有条件命中啥的
-     *
-     * @param scriptContext {ScriptContext}
-     * @return {Array<Debugger>}
+     * @param scriptContext - 脚本上下文
+     * @returns {Array<Debugger>} - 命中的断点列表
      */
-    testAll(scriptContext) {
-        const hitDebuggers = [];
-        for (let jsonpDebugger of this.debuggers) {
+    public testAll(scriptContext: ScriptContext): Debugger[] {
+        const hitDebuggers: Debugger[] = [];
+        for (const jsonpDebugger of this.debuggers) {
             if (jsonpDebugger.enable && new DebuggerTester().test(this, jsonpDebugger, scriptContext)) {
                 hitDebuggers.push(jsonpDebugger);
             }
@@ -107,34 +108,26 @@ class Config {
 
     /**
      * 测试是否能够命中响应内容
-     *
-     * @param scriptContext
-     * @return {*[]}
+     * @param scriptContext - 脚本上下文
+     * @returns {Array<Debugger>} - 命中的断点列表
      */
-    testAllForResponse(scriptContext) {
-        const hitDebuggers = [];
-        for (let debuggerConfig of this.debuggers) {
+    public testAllForResponse(scriptContext: ScriptContext): Debugger[] {
+        const hitDebuggers: Debugger[] = [];
+        for (const debuggerConfig of this.debuggers) {
             if (debuggerConfig.enable && new DebuggerTester().testForResponse(this, debuggerConfig, scriptContext)) {
                 hitDebuggers.push(debuggerConfig);
             }
         }
         return hitDebuggers;
     }
-
 }
 
 let globalConfig = new Config();
 
-function initConfig() {
+export function initConfig(): void {
     globalConfig.load();
 }
 
-function getGlobalConfig() {
+export function getGlobalConfig(): Config {
     return globalConfig;
-}
-
-module.exports = {
-    Config,
-    initConfig,
-    getGlobalConfig
-}
+} 
