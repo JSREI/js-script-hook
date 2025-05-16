@@ -1,61 +1,63 @@
-const {getUnsafeWindow} = require("../utils/scope-util");
-const {ParamEncryptionAnalyzer} = require("./param-encryption-analyzer");
+import { getUnsafeWindow } from '../utils/scope-util';
+import { ParamEncryptionAnalyzer } from './param-encryption-analyzer';
+import { RequestContext } from '../context/request/request-context';
+import { Param } from '../context/request/param';
+
+interface UnsafeWindow extends Window {
+    [key: string]: any;
+}
 
 /**
  * 分析请求中的jsonp情况，主要是看一下是否存在jsonp参数，并将其识别出来
  */
-class RequestAnalyzer {
-
+export class RequestAnalyzer {
     /**
-     *
-     * @param requestContext {RequestContext}
+     * 分析请求上下文
+     * @param requestContext - 请求上下文对象
      */
-    analyze(requestContext) {
-
+    public analyze(requestContext: RequestContext): void {
         if (!requestContext.params) {
-            return null;
+            return;
         }
 
         // 自动推断出jsonp参数
-        requestContext.params = this.computeParamsJsonpCallbackScore(requestContext.params);
+        const analyzedParams = this.computeParamsJsonpCallbackScore(requestContext.params);
         // 选出其中可能性最大的一个参数作为jsonp callback参数
-        if (requestContext.params && requestContext.params.length && requestContext.params[0].jsonpCallbackScore > 0) {
-            requestContext.params[0].isJsonpCallback = true;
+        if (analyzedParams.length && analyzedParams[0].jsonpCallbackScore > 0) {
+            analyzedParams[0].isJsonpCallback = true;
         }
 
         // 推断参数加密方式
         const paramEncryptionAnalyzer = new ParamEncryptionAnalyzer();
-        for (let param of requestContext.params) {
+        for (const param of analyzedParams) {
             param.encryptType = paramEncryptionAnalyzer.analyze(param);
         }
-
     }
 
     /**
      * 计算每个参数的jsonp callback的可能性的得分，并按照得分倒序排列返回
      *
-     * @param params
-     * @return {number}
+     * @param params - 参数列表
+     * @returns 按得分排序后的参数列表
      */
-    computeParamsJsonpCallbackScore(params) {
-        for (let param of params) {
+    private computeParamsJsonpCallbackScore(params: Param[]): Param[] {
+        const scoredParams = [...params];
+        for (const param of scoredParams) {
             param.jsonpCallbackScore = this.computeParamJsonpCallbackScore(param);
         }
-        params.sort((a, b) => b.jsonpCallbackScore - a.jsonpCallbackScore);
-        return params;
+        scoredParams.sort((a, b) => b.jsonpCallbackScore - a.jsonpCallbackScore);
+        return scoredParams;
     }
 
     /**
-     *
      * 计算单个参数的得分
      *
-     * @param param {Param}
-     * @return {number}
+     * @param param - 要计算得分的参数
+     * @returns 参数的得分
      */
-    computeParamJsonpCallbackScore(param) {
-
+    private computeParamJsonpCallbackScore(param: Param): number {
         // 是否存在对应的全局的函数类型，不存在的话肯定也不是jsonp的callback
-        const unsafeWindow = getUnsafeWindow();
+        const unsafeWindow = getUnsafeWindow() as UnsafeWindow;
         if (typeof unsafeWindow[param.value] !== "function") {
             // 如果都没有对应的全局函数存在的话，则直接判定为0分
             return 0;
@@ -81,10 +83,10 @@ class RequestAnalyzer {
     /**
      * 判断时间戳是否是合法的jsonp时间戳，它的时间范围不应该太过于离谱，应该是一个近期的时间
      *
-     * @param timestampString
-     * @return {boolean}
+     * @param timestampString - 时间戳字符串
+     * @returns 是否是有效的JSONP时间戳
      */
-    isValidJsonpTimestamp(timestampString) {
+    private isValidJsonpTimestamp(timestampString: string): boolean {
         if (!timestampString) {
             return false;
         }
@@ -97,11 +99,4 @@ class RequestAnalyzer {
         const min = new Date().getTime() - 1000 * 60 * 60 * 24;
         return timestamp >= min && timestamp <= max;
     }
-
-}
-
-module.exports = {
-    RequestAnalyzer
-}
-
-
+} 

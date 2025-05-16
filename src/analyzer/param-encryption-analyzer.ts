@@ -1,24 +1,24 @@
+import { Param } from '../context/request/param';
+
 /**
  * 参数加密分析器类，用于检测输入参数的加密类型。
  */
-class ParamEncryptionAnalyzer {
-
+export class ParamEncryptionAnalyzer {
     /**
      * 分析参数的加密类型。
-     * @param {Param} param - 需要分析的参数对象，包含一个 `value` 属性。
-     * @returns {string|null} 返回检测到的加密类型，如果无法识别则返回 `null`。
+     * @param param - 需要分析的参数对象，包含一个 `value` 属性。
+     * @returns 返回检测到的加密类型，如果无法识别则返回 `null`。
      */
-    analyze(param) {
+    public analyze(param: Param): string | null {
         return this.detectEncryptionType(param.value);
     }
 
     /**
      * 检测输入字符串的加密类型。
-     * @param {string} input - 需要检测的输入字符串。
-     * @returns {string|null} 返回检测到的加密类型，如果无法识别则返回 `null`。
+     * @param input - 需要检测的输入字符串。
+     * @returns 返回检测到的加密类型，如果无法识别则返回 `null`。
      */
-    detectEncryptionType(input) {
-
+    private detectEncryptionType(input: string): string | null {
         // 如果输入为空，直接返回 null
         if (!input) {
             return null;
@@ -95,10 +95,4 @@ class ParamEncryptionAnalyzer {
         // 如果以上所有加密类型都不匹配，返回 null 表示未知加密类型
         return null;
     }
-
-}
-
-// 导出 ParamEncryptionAnalyzer 类
-module.exports = {
-    ParamEncryptionAnalyzer
-}
+} 
