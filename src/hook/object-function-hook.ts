@@ -1,23 +1,36 @@
-const {getGlobalConfig} = require("../config/config");
-const {getFunctionBody, getParameterNames, generateRandomFunctionName} = require("../utils/code-util");
-const {getUnsafeWindow} = require("../utils/scope-util");
-const {getLanguage} = require("../config/ui/component/language");
+import { getGlobalConfig } from "../config/config";
+import { getFunctionBody, getParameterNames, generateRandomFunctionName } from "../utils/code-util";
+import { getUnsafeWindow } from "../utils/scope-util";
+import { getLanguage } from "../config/ui/component/language";
 
-const hookTypeUseProxyFunction = 1;
-const hookTypeUseDeclareFunction = 2;
+export const hookTypeUseProxyFunction = 1;
+export const hookTypeUseDeclareFunction = 2;
+
+type HookType = typeof hookTypeUseProxyFunction | typeof hookTypeUseDeclareFunction;
+
+interface UnsafeWindow extends Window {
+    [key: string]: any;
+}
+
+interface HookCallbackArgs {
+    hookFunctionHolder: Function;
+    args: IArguments;
+}
 
 /**
  * 为全局的函数添加Hook，因为是要在新的script中调用，所以这些jsonp函数声明的都是全局作用域
  */
-class ObjectFunctionHook {
+export class ObjectFunctionHook {
+    private readonly object: UnsafeWindow;
+    private readonly functionName: string;
+    public hookType: HookType;
+    public callByHookCallbackFunction: boolean;
 
     /**
-     *
-     * @param object
-     * @param functionName
+     * @param object - 要被hook的对象
+     * @param functionName - 要被hook的函数名
      */
-    constructor(object, functionName) {
-
+    constructor(object: UnsafeWindow, functionName: string) {
         // 被hook的对象
         this.object = object;
         // 被hook的函数名
@@ -30,11 +43,10 @@ class ObjectFunctionHook {
     }
 
     /**
-     *
-     * @param hookCallbackFunction
+     * 添加 hook
+     * @param hookCallbackFunction - hook的回调函数
      */
-    addHook(hookCallbackFunction) {
-
+    public addHook(hookCallbackFunction: Function): void {
         // 要Hook的函数必须存在
         const functionHolder = this.object[this.functionName];
         if (!functionHolder) {
@@ -46,9 +58,9 @@ class ObjectFunctionHook {
         // 如果已经Hook过了则不重复hook，也就是说一次addHook只生效一次
         // TODO 2025-01-06 03:19:19 修改为读取配置中的前缀
         // const prefix = getGlobalConfig().prefix || "JSREI_js_script_hook"
-        const prefix = "JSREI_js_script_hook"
+        const prefix = "JSREI_js_script_hook";
         const hookDoneFlag = prefix + "_hookDoneFlag";
-        if (functionHolder[hookDoneFlag]) {
+        if ((functionHolder as any)[hookDoneFlag]) {
             return;
         }
 
@@ -59,21 +71,20 @@ class ObjectFunctionHook {
         }
 
         // 设置标记位，防止重复Hook
-        this.object[this.functionName][hookDoneFlag] = true;
+        (this.object[this.functionName] as any)[hookDoneFlag] = true;
     }
 
     /**
-     *
      * 直接修改原有函数代码的方式实现hook，注意，这种方式可能有点高危
      *
-     * @param functionHolder
-     * @param hookCallbackFunction
+     * @param functionHolder - 原始函数
+     * @param hookCallbackFunction - hook的回调函数
      */
-    hookUseRedeclareFunction(functionHolder, hookCallbackFunction) {
+    private hookUseRedeclareFunction(functionHolder: Function, hookCallbackFunction: Function): void {
         const hookCallbackFunctionGlobalName = generateRandomFunctionName(100);
-        getUnsafeWindow()[hookCallbackFunctionGlobalName] = hookCallbackFunction
-        let functionBodyCode = getFunctionBody(functionHolder);
-        let parameterNames = getParameterNames(functionHolder);
+        (getUnsafeWindow() as UnsafeWindow)[hookCallbackFunctionGlobalName] = hookCallbackFunction;
+        const functionBodyCode = getFunctionBody(functionHolder);
+        const parameterNames = getParameterNames(functionHolder);
         // TODO 2025-01-07 23:41:26 调用 hookCallbackFunction
         // TODO 2025-01-06 03:19:19 提示语也国际化，根据设置的语言选择
         // TODO 2025-01-09 02:58:29 暂不删除函数，否则第二次运行就可能报错了，暂不考虑函数溢出的问题
@@ -98,24 +109,22 @@ class ObjectFunctionHook {
     }
 
     /**
-     *
      * 使用代理函数替换的方式来实现hook
      *
-     * @param functionHolder
-     * @param hookCallbackFunction
+     * @param functionHolder - 原始函数
+     * @param hookCallbackFunction - hook的回调函数
      */
-    hookUseProxyFunction(functionHolder, hookCallbackFunction) {
+    private hookUseProxyFunction(functionHolder: Function, hookCallbackFunction: Function): void {
         const _this = this;
         // 为函数添加Hook
-        this.object[this.functionName] = function () {
-
+        this.object[this.functionName] = function (this: any, ...args: any[]): any {
             if (_this.callByHookCallbackFunction) {
                 // 由hook函数自行调用被hook函数
                 try {
                     hookCallbackFunction.apply(this, [{
-                        "hookFunctionHolder": functionHolder,
-                        "args": arguments
-                    }]);
+                        hookFunctionHolder: functionHolder,
+                        args: arguments
+                    } as HookCallbackArgs]);
                 } catch (e) {
                     console.error(e);
                 }
@@ -123,19 +132,12 @@ class ObjectFunctionHook {
                 // 不干扰流程，hook函数只作为观测
                 try {
                     // TODO 2023-8-21 22:15:09 在函数执行的时候尝试触发各种断点
-                    hookCallbackFunction.apply(this, arguments);
+                    hookCallbackFunction.apply(this, args);
                 } catch (e) {
                     console.error(e);
                 }
-                return functionHolder.apply(this, arguments);
+                return functionHolder.apply(this, args);
             }
-        }
+        };
     }
-
-}
-
-module.exports = {
-    ObjectFunctionHook,
-    hookTypeUseProxyFunction,
-    hookTypeUseDeclareFunction,
-}
+} 

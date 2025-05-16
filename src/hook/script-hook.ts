@@ -1,37 +1,37 @@
-const {ScriptContext} = require("../context/script/script-context");
-const {RequestContext} = require("../context/request/request-context");
-const {RequestAnalyzer} = require("../analyzer/request-analyzer");
-const {getGlobalConfig} = require("../config/config");
-const {RequestFormatter} = require("../formatter/request-formatter");
-const {JsonpCallbackHook} = require("./jsonp-callback-hook");
-const {formatScriptSrcToUrl} = require("../utils/url-util");
-const {DebuggerTester} = require("../debugger/debugger-tester");
+import { ScriptContext } from '../context/script/script-context';
+import { RequestContext } from '../context/request/request-context';
+import { RequestAnalyzer } from '../analyzer/request-analyzer';
+import { getGlobalConfig } from '../config/config';
+import { RequestFormatter } from '../formatter/request-formatter';
+import { JsonpCallbackHook } from './jsonp-callback-hook';
+import { formatScriptSrcToUrl } from '../utils/url-util';
+import { DebuggerTester } from '../debugger/debugger-tester';
 
 /**
  * 用于给script添加Hook
  */
-class ScriptHook {
+export class ScriptHook {
+    private readonly script: HTMLScriptElement;
 
     /**
-     *
-     * @param script {HTMLScriptElement}
+     * @param script - 要添加 hook 的 script 元素
      */
-    constructor(script) {
+    constructor(script: HTMLScriptElement) {
         this.script = script;
     }
 
     /**
-     *
+     * 添加 hook
      */
-    addHook() {
+    public addHook(): void {
         const _this = this;
         // 在设置src时拦截，然后就可以去追溯src是怎么来的了
-        let srcHolder = null;
+        let srcHolder: string | null = null;
         Object.defineProperty(this.script, "src", {
-            get: function () {
+            get: function (): string | null {
                 return srcHolder;
-            }, set: function (newSrc) {
-
+            },
+            set: function (newSrc: string): void {
                 // 尽量不要影响页面原有的流程
                 try {
                     const formattedScriptSrc = formatScriptSrcToUrl(newSrc);
@@ -45,7 +45,7 @@ class ScriptHook {
                     // 在请求发送之前测试断点
                     if (new DebuggerTester().isNeedPrintToConsole(getGlobalConfig(), scriptContext)) {
                         const requestFormatter = new RequestFormatter();
-                        requestFormatter.format(scriptContext)
+                        requestFormatter.format(scriptContext);
                     }
 
                     const hitDebuggers = getGlobalConfig().testAll(scriptContext);
@@ -55,15 +55,10 @@ class ScriptHook {
                 }
 
                 // 这里认为script不会被复用，所以添加的hook在设置src的时候就会被删除掉，会有script复用的情况吗？
-                delete _this.script.src;
+                delete (_this.script as any).src;
                 srcHolder = _this.script.src = newSrc;
             },
             configurable: true
         });
     }
-
-}
-
-module.exports = {
-    ScriptHook
-}
+} 
