@@ -1,11 +1,11 @@
 /**
  * 获取函数的方法体代码。
  *
- * @param {Function} fn - 要提取方法体的函数。
- * @return {string} - 返回函数的方法体代码。
+ * @param fn - 要提取方法体的函数。
+ * @returns 返回函数的方法体代码。
  * @throws {TypeError} - 如果传入的参数不是函数，则抛出 TypeError。
  */
-function getFunctionBody(fn) {
+export function getFunctionBody(fn: Function): string {
     if (typeof fn !== 'function') {
         throw new TypeError('Expected a function');
     }
@@ -24,11 +24,11 @@ function getFunctionBody(fn) {
 /**
  * 获取函数的参数名。
  *
- * @param {Function} fn - 要提取参数名的函数。
- * @return {string[]} - 返回函数的参数名数组。如果没有参数，则返回空数组。
+ * @param fn - 要提取参数名的函数。
+ * @returns 返回函数的参数名数组。如果没有参数，则返回空数组。
  * @throws {TypeError} - 如果传入的参数不是函数，则抛出 TypeError。
  */
-function getParameterNames(fn) {
+export function getParameterNames(fn: Function): string[] {
     if (typeof fn !== 'function') {
         throw new TypeError('Expected a function');
     }
@@ -56,10 +56,10 @@ function getParameterNames(fn) {
 /**
  * 生成一个随机的函数名。
  *
- * @param {number} [length=8] - 函数名的长度，默认为 8。
- * @return {string} - 返回生成的随机函数名。
+ * @param length - 函数名的长度，默认为 8。
+ * @returns 返回生成的随机函数名。
  */
-function generateRandomFunctionName(length = 8) {
+export function generateRandomFunctionName(length: number = 8): string {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     let result = '';
     for (let i = 0; i < length; i++) {
@@ -72,11 +72,11 @@ const tampermonkeyChromeExtensionId = "dhdgffkkebhmkfjojejmpbldmpobfkfo";
 
 /**
  * 获取用户代码的位置，用户代码的定义就是调用栈里从用户的代码进入到插件代码的第一行代码
+ * @returns 用户代码的位置，如果找不到则返回 null
  */
-function getUserCodeLocation() {
-
+export function getUserCodeLocation(): string | null {
     // 把调用栈一个栈帧一个栈帧的弹掉
-    const stack = new Error().stack.split("\n");
+    const stack = new Error().stack?.split("\n") || [];
     let index = stack.length - 1;
     while (index >= 0) {
         const frame = stack[index];
@@ -87,11 +87,4 @@ function getUserCodeLocation() {
         }
     }
     return null;
-}
-
-module.exports = {
-    getFunctionBody,
-    getParameterNames,
-    generateRandomFunctionName,
-    getUserCodeLocation,
-};
+} 

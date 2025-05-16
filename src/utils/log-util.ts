@@ -7,16 +7,12 @@
  * @param {Array<string>} messageAndStyleArray - 包含消息和样式的数组。消息和样式交替出现，例如 `["消息1", "样式1", "消息2", "样式2"]`。
  * @return {string} - 返回一个格式化字符串，例如 `"%c%s%c%s"`，用于 `console.log` 的多样式输出。
  */
-function genFormatArray(messageAndStyleArray) {
-    const formatArray = [];
+export function genFormatArray(messageAndStyleArray: string[]): string {
+    const formatArray: string[] = [];
     // 遍历数组，每两个元素（消息和样式）生成一个 "%c%s"
     for (let i = 0, end = messageAndStyleArray.length / 2; i < end; i++) {
         formatArray.push("%c%s");
     }
     // 将数组拼接成一个字符串
     return formatArray.join("");
-}
-
-module.exports = {
-    genFormatArray
-};
+} 

@@ -1,3 +1,5 @@
+declare const unsafeWindow: Window & typeof globalThis;
+
 /**
  * 获取 `unsafeWindow` 对象，用于在油猴脚本中访问或修改全局 `window` 对象。
  *
@@ -8,10 +10,6 @@
  * @see https://wiki.greasespot.net/UnsafeWindow - 油猴脚本中 `unsafeWindow` 的官方文档。
  * @returns {Window} - 返回全局的 `unsafeWindow` 对象。
  */
-function getUnsafeWindow() {
+export function getUnsafeWindow(): Window & typeof globalThis {
     return unsafeWindow;
-}
-
-module.exports = {
-    getUnsafeWindow,
-};
+} 
