@@ -1,4 +1,12 @@
-const styles = {
+interface Styles {
+    key: string;
+    string: string;
+    number: string;
+    boolean: string;
+    null: string;
+}
+
+const styles: Styles = {
     key: 'color: green;',
     string: 'color: yellow;',
     number: 'color: blue;',
@@ -6,7 +14,7 @@ const styles = {
     null: 'color: magenta;'
 };
 
-function buildString(val, strArr, styleArr) {
+function buildString(val: any, strArr: string[], styleArr: string[]): void {
     if (typeof val === 'string') {
         styleArr.push(styles.string);
         strArr.push('%c"' + val + '"');
@@ -41,13 +49,14 @@ function buildString(val, strArr, styleArr) {
     }
 }
 
-function highlightJSON(jsonObj) {
-    const strArr = [];
-    const styleArr = [];
+/**
+ * 将JSON对象转换为带有语法高亮的格式化字符串
+ * @param jsonObj - 要格式化的JSON对象
+ * @returns 返回一个数组，第一个元素是格式化后的字符串，后面的元素是样式数组
+ */
+export function highlightJSON(jsonObj: any): string[] {
+    const strArr: string[] = [];
+    const styleArr: string[] = [];
     buildString(jsonObj, strArr, styleArr);
     return [strArr.join(''), ...styleArr];
-}
-
-module.exports = {
-    highlightJSON
-}
+} 

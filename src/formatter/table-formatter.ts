@@ -1,8 +1,16 @@
-function printStyledTable(data, styles, title = '') {
+export interface TableStyles {
+    borderColor: string;
+    cellBackgroundColor: string;
+    fontSize: string;
+    fontColor: string;
+    titleFontSize?: string;
+}
+
+export function printStyledTable(data: Array<Array<string | boolean>>, styles: TableStyles, title: string = ''): void {
     const { borderColor, cellBackgroundColor, fontSize, fontColor, titleFontSize = '20px' } = styles;
 
     // 计算字符串的实际宽度（中文字符宽度为2，英文字符宽度为1）
-    function getStringWidth(str) {
+    function getStringWidth(str: string): number {
         let width = 0;
         for (const char of str) {
             width += /[\u4e00-\u9fa5]/.test(char) ? 2 : 1; // 判断是否为中文字符
@@ -11,7 +19,7 @@ function printStyledTable(data, styles, title = '') {
     }
 
     // 计算每列的最大宽度
-    let colWidths = data[0].map((_, colIndex) =>
+    const colWidths = data[0].map((_, colIndex) =>
         Math.max(...data.map(row => getStringWidth(String(row[colIndex]))))
     );
 
@@ -40,7 +48,7 @@ function printStyledTable(data, styles, title = '') {
     `;
 
     // 根据实际宽度填充字符串
-    function padString(str, width) {
+    function padString(str: string, width: number): string {
         const strWidth = getStringWidth(str);
         if (strWidth >= width) return str; // 如果字符串宽度已经足够，直接返回
         const padding = ' '.repeat(width - strWidth); // 计算需要填充的空格
@@ -77,8 +85,4 @@ function printStyledTable(data, styles, title = '') {
     } else {
         console.log('%c' + tableContent, tableStyle);
     }
-}
-
-module.exports = {
-    printStyledTable
-};
+} 
