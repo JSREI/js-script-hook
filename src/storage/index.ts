@@ -111,8 +111,9 @@ function diagnoseGMStorageAPI(): { getValue: (key: string, defaultValue?: any) =
                 if (typeof GM !== 'undefined' && GM && typeof GM.setValue === 'function') {
                     try {
                         const result = GM.setValue(key, value);
-                        // 只有当result不是undefined或null时，才检查它是否是Promise
-                        if (result !== undefined && result !== null && typeof result === 'object' && 'then' in result) {
+                        // 只有当result是对象且有then属性时，才视为Promise
+                        // @ts-ignore - result已经检查过不为null
+                        if (typeof result === 'object' && result !== null && 'then' in result) {
                             const promiseResult = result as Promise<void>;
                             promiseResult.catch(err => storageLogger.error(`异步保存失败: ${err}`));
                         }
@@ -140,7 +141,8 @@ function diagnoseGMStorageAPI(): { getValue: (key: string, defaultValue?: any) =
                 if (typeof GM !== 'undefined' && GM && typeof GM.getValue === 'function') {
                     try {
                         const result = GM.getValue(key);
-                        // 只有当result不是undefined或null时，才检查它是否是Promise
+                        // 只有当result是对象且有then属性时，才视为Promise
+                        // @ts-ignore - result已经检查过不为null
                         if (result !== undefined && result !== null && typeof result === 'object' && 'then' in result) {
                             storageLogger.warn(`GM.getValue返回Promise，无法同步读取 ${key}`);
                             return defaultValue;
