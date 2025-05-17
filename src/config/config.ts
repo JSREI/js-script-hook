@@ -58,17 +58,17 @@ export class Config {
     public load(): Config {
         try {
             console.log('[DEBUG] 正在加载配置...');
-            // 使用新的存储工具
-            const configJsonString = loadValue(GM_config_name);
-            console.log('[DEBUG] 从存储加载的配置字符串:', configJsonString);
+            // 使用新的存储工具，已自动处理JSON解析
+            const configJson = loadValue(GM_config_name);
+            console.log('[DEBUG] 从存储加载的配置:', configJson);
             
-            if (!configJsonString) {
+            if (!configJson) {
                 console.log('[DEBUG] 没有找到存储的配置，使用默认配置');
                 return this;
             }
             
-            const o = JSON.parse(configJsonString);
-            console.log('[DEBUG] 解析后的配置对象:', o);
+            // configJson已经是解析后的对象，无需再次调用JSON.parse
+            const o = configJson;
             
             // 确保加载的配置有效
             if (o.language && (o.language === 'english' || o.language === 'chinese')) {
@@ -120,22 +120,19 @@ export class Config {
     public persist(): void {
         try {
             console.log('[DEBUG] 正在保存配置...');
-            const configJsonString = JSON.stringify(this);
-            console.log('[DEBUG] 要保存的配置JSON:', configJsonString);
             console.log('[DEBUG] 当前语言设置:', this.language);
             
-            // 使用新的存储工具保存配置
-            saveValue(GM_config_name, configJsonString);
+            // 直接将对象传递给saveValue，saveValue会处理序列化
+            saveValue(GM_config_name, this);
             
-            // 验证设置是否成功
-            const savedValue = loadValue(GM_config_name);
-            const saveSuccessful = savedValue === configJsonString;
-            console.log('[DEBUG] 保存成功？', saveSuccessful);
+            // 验证设置是否成功（loadValue已自动解析JSON）
+            const savedConfig = loadValue(GM_config_name);
+            console.log('[DEBUG] 验证保存结果:', savedConfig);
             
-            if (!saveSuccessful) {
+            if (savedConfig && savedConfig.language === this.language) {
+                console.log('[DEBUG] 配置保存验证成功');
+            } else {
                 console.error('[ERROR] 配置保存验证失败！');
-                console.log('[DEBUG] 期望值:', configJsonString);
-                console.log('[DEBUG] 实际保存值:', savedValue);
             }
         } catch (error) {
             console.error('[ERROR] 保存配置时出错:', error);

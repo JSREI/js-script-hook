@@ -17,11 +17,22 @@ function verifyConfigSaved() {
         // 验证配置是否确实被保存
         const savedConfig = loadValue("js-script-hook-config-name");
         if (savedConfig) {
-            const parsedConfig = JSON.parse(savedConfig);
-            console.log('[配置验证] 当前内存中的配置:', getGlobalConfig());
-            console.log('[配置验证] 存储中的配置:', parsedConfig);
-            return true;
+            const currentConfig = getGlobalConfig();
+            console.log('[配置验证] 当前内存中的配置:', currentConfig);
+            console.log('[配置验证] 存储中的配置:', savedConfig);
+            
+            // 验证关键属性是否匹配
+            if (savedConfig.language === currentConfig.language &&
+                savedConfig.prefix === currentConfig.prefix &&
+                savedConfig.hookType === currentConfig.hookType) {
+                console.log('[配置验证] 验证成功: 关键配置属性匹配');
+                return true;
+            } else {
+                console.error('[配置验证] 验证失败: 配置不匹配');
+                return false;
+            }
         }
+        console.error('[配置验证] 验证失败: 无法读取保存的配置');
         return false;
     } catch (e) {
         console.error('[配置验证] 错误:', e);
