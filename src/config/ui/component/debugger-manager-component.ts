@@ -1,15 +1,25 @@
 import { DebuggerComponent, Language, DebuggerConfig } from "./debugger-component";
 import { Debugger } from "../../../debugger/debugger";
 import { getGlobalConfig } from "../../config";
+import { LanguageUpdateable } from './language-updateable';
+import { LanguageEventManager } from './language-event-manager';
+import { createLogger } from '../../../logger';
+
+const debuggerManagerLogger = createLogger('debugger-manager-component');
 
 /**
  * 断点管理器组件
  */
-export class DebuggerManagerComponent {
+export class DebuggerManagerComponent implements LanguageUpdateable {
     private readonly html: string;
     private readonly styleCSS: string;
+    private readonly componentId: string;
+    private currentLanguage: Language | undefined;
+    private debuggerComponents: DebuggerComponent[] = [];
+    private managerElement: HTMLElement | null = null;
 
     constructor() {
+        this.componentId = 'debugger-manager-component-' + Math.random().toString(36).substring(2, 10);
         this.styleCSS = `
         /* 添加断点按钮样式 */
         #js-script-hook-add-debugger-btn {
@@ -80,6 +90,11 @@ export class DebuggerManagerComponent {
     </div>
 </div>
         `;
+
+        this.appendStyles();
+        
+        // 订阅语言更新事件
+        LanguageEventManager.getInstance().subscribe(this.componentId, this.updateLanguage.bind(this));
     }
 
     /**
@@ -110,6 +125,8 @@ export class DebuggerManagerComponent {
      * @returns HTMLElement
      */
     render(language: Language, debuggers: Debugger[]): HTMLElement {
+        this.currentLanguage = language;
+        
         // 添加组件样式
         this.appendStyles();
 
@@ -123,32 +140,35 @@ export class DebuggerManagerComponent {
         // 创建临时容器
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = this.html;
-        const debuggerManager = tempContainer.firstElementChild as HTMLElement;
+        this.managerElement = tempContainer.firstElementChild as HTMLElement;
         
         // 更新添加按钮的文本
-        const addButtonText = debuggerManager.querySelector("#js-script-hook-add-debugger-btn span:last-child");
+        const addButtonText = this.managerElement.querySelector("#js-script-hook-add-debugger-btn span:last-child");
         if (addButtonText) {
             addButtonText.textContent = language.tabs.addNewBreakpoint || "添加新的断点";
         }
 
         // 渲染已经存在的断点配置信息
-        const debuggerList = debuggerManager.querySelector("#js-script-hook-debugger-list");
+        const debuggerList = this.managerElement.querySelector("#js-script-hook-debugger-list");
         if (debuggerList) {
+            this.debuggerComponents = [];
             for (const debuggerInformation of debuggers) {
                 const debuggerComponent = new DebuggerComponent();
+                this.debuggerComponents.push(debuggerComponent);
                 debuggerList.appendChild(debuggerComponent.render(language, debuggerInformation as unknown as DebuggerConfig));
             }
         }
 
         // 增加断点配置
-        const addButton = debuggerManager.querySelector("#js-script-hook-add-debugger-btn");
+        const addButton = this.managerElement.querySelector("#js-script-hook-add-debugger-btn");
         if (addButton) {
             addButton.addEventListener('click', () => {
                 const debuggerComponent = new DebuggerComponent();
                 const newDebuggerConfig = this.createNewDebuggerConfig();
-                const debuggerList = debuggerManager.querySelector("#js-script-hook-debugger-list");
+                const debuggerList = this.managerElement?.querySelector("#js-script-hook-debugger-list");
                 if (debuggerList) {
-                    debuggerList.appendChild(debuggerComponent.render(language, newDebuggerConfig as unknown as DebuggerConfig));
+                    this.debuggerComponents.push(debuggerComponent);
+                    debuggerList.appendChild(debuggerComponent.render(this.currentLanguage!, newDebuggerConfig as unknown as DebuggerConfig));
                 }
 
                 getGlobalConfig().addDebugger(newDebuggerConfig);
@@ -156,7 +176,58 @@ export class DebuggerManagerComponent {
             });
         }
 
-        return debuggerManager;
+        return this.managerElement;
+    }
+
+    /**
+     * 实现LanguageUpdateable接口
+     */
+    public getComponentId(): string {
+        return this.componentId;
+    }
+
+    /**
+     * 更新组件的语言
+     * @param language 新的语言配置
+     */
+    public updateLanguage(language: Language): void {
+        if (!this.managerElement) {
+            return;
+        }
+
+        try {
+            this.currentLanguage = language;
+            
+            // 更新添加按钮的文本
+            const addButtonText = this.managerElement.querySelector("#js-script-hook-add-debugger-btn span:last-child");
+            if (addButtonText) {
+                addButtonText.textContent = language.tabs.addNewBreakpoint || "添加新的断点";
+            }
+
+            // 更新所有断点组件的语言
+            for (const debuggerComponent of this.debuggerComponents) {
+                if (debuggerComponent instanceof DebuggerComponent && 'updateLanguage' in debuggerComponent) {
+                    (debuggerComponent as unknown as LanguageUpdateable).updateLanguage(language);
+                }
+            }
+        } catch (error) {
+            debuggerManagerLogger.error(`更新断点管理器语言时出错: ${error}`);
+        }
+    }
+
+    /**
+     * 组件销毁时取消订阅
+     */
+    public destroy(): void {
+        LanguageEventManager.getInstance().unsubscribe(this.componentId);
+        
+        // 销毁所有断点组件
+        for (const debuggerComponent of this.debuggerComponents) {
+            if (debuggerComponent instanceof DebuggerComponent && 'destroy' in debuggerComponent) {
+                (debuggerComponent as unknown as LanguageUpdateable).destroy();
+            }
+        }
+        this.debuggerComponents = [];
     }
 
     private createNewDebuggerConfig(): Debugger {

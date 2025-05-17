@@ -1,12 +1,19 @@
 import { createLogger } from "../../../../logger";
+import { LanguageUpdateable } from '../language-updateable';
+import { Language } from '../language';
+import { LanguageEventManager } from '../language-event-manager';
 
 // 创建Tips组件专用的日志记录器
 const tipsLogger = createLogger('tips-component');
 
-export class TipsComponent {
+export class TipsComponent implements LanguageUpdateable {
     private readonly styleCSS: string;
+    private readonly componentId: string;
+    private currentTipText: string = '';
+    private containerElement: HTMLElement | null = null;
 
     constructor() {
+        this.componentId = 'tips-component-' + Math.random().toString(36).substring(2, 10);
         this.styleCSS = `
             /* 提示图标容器样式 */
             .js-script-hook-tips-icon {
@@ -70,6 +77,9 @@ export class TipsComponent {
         `;
         
         this.appendStyles();
+        
+        // 订阅语言更新事件
+        LanguageEventManager.getInstance().subscribe(this.componentId, this.updateLanguage.bind(this));
     }
 
     /**
@@ -94,14 +104,17 @@ export class TipsComponent {
      * @returns HTMLElement
      */
     render(tipText: string): HTMLElement {
+        // 保存当前的提示文本
+        this.currentTipText = tipText;
+        
         // 确保样式已添加
         this.appendStyles();
         
         try {
             // 创建提示图标容器
-            const container = document.createElement('div');
-            container.className = 'js-script-hook-tips-icon';
-            container.textContent = '?';
+            this.containerElement = document.createElement('div');
+            this.containerElement.className = 'js-script-hook-tips-icon';
+            this.containerElement.textContent = '?';
             
             // 创建工具提示
             const tooltip = document.createElement('div');
@@ -109,9 +122,9 @@ export class TipsComponent {
             tooltip.textContent = tipText;
             
             // 组装组件
-            container.appendChild(tooltip);
+            this.containerElement.appendChild(tooltip);
             
-            return container;
+            return this.containerElement;
         } catch (error) {
             tipsLogger.error(`渲染提示图标失败: ${error}`);
             
@@ -120,7 +133,45 @@ export class TipsComponent {
             fallbackElement.textContent = '?';
             fallbackElement.title = tipText;
             fallbackElement.style.cursor = 'help';
+            this.containerElement = fallbackElement;
             return fallbackElement;
         }
+    }
+
+    /**
+     * 实现LanguageUpdateable接口
+     */
+    public getComponentId(): string {
+        return this.componentId;
+    }
+
+    /**
+     * 更新组件的语言
+     * @param language 新的语言配置
+     */
+    public updateLanguage(language: Language): void {
+        if (!this.containerElement || !this.currentTipText) {
+            return;
+        }
+
+        try {
+            // 更新工具提示文本
+            const tooltip = this.containerElement.querySelector('.js-script-hook-tooltip');
+            if (tooltip) {
+                tooltip.textContent = this.currentTipText;
+            } else if (this.containerElement.title) {
+                // 如果是降级版本的提示图标
+                this.containerElement.title = this.currentTipText;
+            }
+        } catch (error) {
+            tipsLogger.error(`更新提示文本时出错: ${error}`);
+        }
+    }
+
+    /**
+     * 组件销毁时取消订阅
+     */
+    public destroy(): void {
+        LanguageEventManager.getInstance().unsubscribe(this.componentId);
     }
 } 

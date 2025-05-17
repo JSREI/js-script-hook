@@ -10,6 +10,11 @@ import { TipsComponent, CheckboxComponent, SelectComponent, SelectOption, InputC
 import { show } from "../../ui/menu";
 import { loadValue } from "../../../storage";
 import { ConfigurationComponent } from './configuration-component';
+import { LanguageUpdateable } from './language-updateable';
+import { LanguageEventManager } from './language-event-manager';
+import { createLogger } from '../../../logger';
+
+const globalOptionsLogger = createLogger('global-options-component');
 
 type HookType = "use-proxy-function" | "use-redeclare-function";
 
@@ -45,14 +50,19 @@ function verifyConfigSaved() {
 /**
  * 全局配置参数组件
  */
-export class GlobalOptionsComponent {
+export class GlobalOptionsComponent implements LanguageUpdateable {
     private readonly styleCSS: string;
+    private readonly componentId: string;
     private tipsComponent: TipsComponent;
     private checkboxComponent: CheckboxComponent;
     private selectComponent: SelectComponent;
     private inputComponent: InputComponent;
+    private currentLanguage: Language | undefined;
+    private currentConfig: Config | undefined;
+    private containerElement: HTMLElement | null = null;
     
     constructor() {
+        this.componentId = 'global-options-component-' + Math.random().toString(36).substring(2, 10);
         // 初始化基础组件
         this.tipsComponent = new TipsComponent();
         this.checkboxComponent = new CheckboxComponent();
@@ -145,6 +155,11 @@ export class GlobalOptionsComponent {
             padding-left: 15px;
         }
         `;
+        
+        this.appendStyles();
+        
+        // 订阅语言更新事件
+        LanguageEventManager.getInstance().subscribe(this.componentId, this.updateLanguage.bind(this));
     }
 
     /**
@@ -171,23 +186,26 @@ export class GlobalOptionsComponent {
      * @returns HTMLElement
      */
     render(language: Language, oldConfig: Config): HTMLElement {
+        this.currentLanguage = language;
+        this.currentConfig = oldConfig;
+        
         // 确保样式已添加
         this.appendStyles();
         
         // 创建容器
-        const container = document.createElement('fieldset');
-        container.className = 'global-options-fieldset';
+        this.containerElement = document.createElement('fieldset');
+        this.containerElement.className = 'global-options-fieldset';
         
         // 创建标题
         const legend = document.createElement('legend');
         legend.className = 'global-options-legend';
         legend.textContent = language.global_settings.title;
-        container.appendChild(legend);
+        this.containerElement.appendChild(legend);
         
         // 创建表格
         const table = document.createElement('table');
         table.className = 'global-options-table';
-        container.appendChild(table);
+        this.containerElement.appendChild(table);
         
         // 语言选项
         const languageRow = document.createElement('tr');
@@ -220,11 +238,11 @@ export class GlobalOptionsComponent {
                     
                     // 验证配置是否成功保存
                     if (verifyConfigSaved()) {
-                        // 重新加载配置界面以应用新语言
-                        const configComponent = new ConfigurationComponent();
-                        configComponent.show();
+                        // 使用新的语言更新所有组件
+                        const newLanguage = getLanguage(value);
+                        LanguageEventManager.getInstance().notifyLanguageUpdate(newLanguage);
                     } else {
-                        console.error('配置保存验证失败，不重新加载界面');
+                        console.error('配置保存验证失败，不更新语言');
                     }
                 }
             }
@@ -362,6 +380,121 @@ export class GlobalOptionsComponent {
         ignoreNotJsonpRow.appendChild(ignoreNotJsonpField);
         table.appendChild(ignoreNotJsonpRow);
         
-        return container;
+        return this.containerElement;
+    }
+
+    /**
+     * 实现LanguageUpdateable接口
+     */
+    public getComponentId(): string {
+        return this.componentId;
+    }
+
+    /**
+     * 更新组件的语言
+     * @param language 新的语言配置
+     */
+    public updateLanguage(language: Language): void {
+        if (!this.containerElement || !this.currentConfig) {
+            return;
+        }
+
+        try {
+            this.currentLanguage = language;
+            
+            // 更新标题
+            const legend = this.containerElement.querySelector('.global-options-legend');
+            if (legend) {
+                legend.textContent = language.global_settings.title;
+            }
+
+            // 更新表格内容
+            const table = this.containerElement.querySelector('.global-options-table');
+            if (table) {
+                const rows = table.querySelectorAll('tr');
+                
+                // 更新语言选项行
+                const languageRow = rows[0];
+                if (languageRow) {
+                    const label = languageRow.querySelector('td[align="right"] span:last-child');
+                    if (label) {
+                        label.textContent = language.global_settings.language;
+                    }
+                }
+
+                // 更新Hook类型行
+                const hookTypeRow = rows[1];
+                if (hookTypeRow) {
+                    const label = hookTypeRow.querySelector('td[align="right"] span:last-child');
+                    if (label) {
+                        label.textContent = language.global_settings.responseDebuggerHookType;
+                    }
+                }
+
+                // 更新前缀行
+                const prefixRow = rows[2];
+                if (prefixRow) {
+                    const label = prefixRow.querySelector('td[align="right"] span:last-child');
+                    if (label) {
+                        label.textContent = language.global_settings.flagPrefix;
+                    }
+                }
+
+                // 更新忽略.js请求行
+                const ignoreJsRow = rows[3];
+                if (ignoreJsRow) {
+                    const label = ignoreJsRow.querySelector('td[align="right"] span:last-child');
+                    if (label) {
+                        label.textContent = language.global_settings.isIgnoreJsSuffixRequest;
+                    }
+                }
+
+                // 更新忽略非jsonp请求行
+                const ignoreNotJsonpRow = rows[4];
+                if (ignoreNotJsonpRow) {
+                    const label = ignoreNotJsonpRow.querySelector('td[align="right"] span:last-child');
+                    if (label) {
+                        label.textContent = language.global_settings.isIgnoreNotJsonpRequest;
+                    }
+                }
+            }
+
+            // 更新子组件的语言
+            if ('updateLanguage' in this.tipsComponent) {
+                (this.tipsComponent as unknown as LanguageUpdateable).updateLanguage(language);
+            }
+            if ('updateLanguage' in this.checkboxComponent) {
+                (this.checkboxComponent as unknown as LanguageUpdateable).updateLanguage(language);
+            }
+            if ('updateLanguage' in this.selectComponent) {
+                (this.selectComponent as unknown as LanguageUpdateable).updateLanguage(language);
+            }
+            if ('updateLanguage' in this.inputComponent) {
+                (this.inputComponent as unknown as LanguageUpdateable).updateLanguage(language);
+            }
+        } catch (error) {
+            globalOptionsLogger.error(`更新全局选项组件语言时出错: ${error}`);
+        }
+    }
+
+    /**
+     * 组件销毁时取消订阅
+     */
+    public destroy(): void {
+        LanguageEventManager.getInstance().unsubscribe(this.componentId);
+        
+        // 销毁子组件
+        if ('destroy' in this.tipsComponent) {
+            (this.tipsComponent as unknown as LanguageUpdateable).destroy();
+        }
+        if ('destroy' in this.checkboxComponent) {
+            (this.checkboxComponent as unknown as LanguageUpdateable).destroy();
+        }
+        if ('destroy' in this.selectComponent) {
+            (this.selectComponent as unknown as LanguageUpdateable).destroy();
+        }
+        if ('destroy' in this.inputComponent) {
+            (this.inputComponent as unknown as LanguageUpdateable).destroy();
+        }
     }
 } 

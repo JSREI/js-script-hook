@@ -1,17 +1,37 @@
 /**
  * 输入对话框组件 - 原生JavaScript实现
  */
+import { LanguageUpdateable } from '../language-updateable';
+import { Language } from '../language';
+import { LanguageEventManager } from '../language-event-manager';
+import { createLogger } from '../../../../logger';
+
+const inputDialogLogger = createLogger('input-dialog-component');
 
 type InputDialogCallback = (confirmed: boolean, value: string) => void;
+
+interface DialogConfig {
+    title: string;
+    message: string;
+    callback: InputDialogCallback;
+    defaultValue?: string;
+    placeholder?: string;
+    okText?: string;
+    cancelText?: string;
+}
 
 /**
  * 自定义输入对话框组件
  */
-export class InputDialogComponent {
+export class InputDialogComponent implements LanguageUpdateable {
     private readonly styleCSS: string;
+    private readonly componentId: string;
     private static instance: InputDialogComponent;
+    private currentConfig: DialogConfig | null = null;
+    private dialogElement: HTMLElement | null = null;
 
     private constructor() {
+        this.componentId = 'input-dialog-component-' + Math.random().toString(36).substring(2, 10);
         this.styleCSS = `
         .js-script-hook-input-dialog-overlay {
             position: fixed;
@@ -123,6 +143,11 @@ export class InputDialogComponent {
             color: #2196F3;
         }
         `;
+        
+        this.appendStyles();
+        
+        // 订阅语言更新事件
+        LanguageEventManager.getInstance().subscribe(this.componentId, this.updateLanguage.bind(this));
     }
 
     /**
@@ -170,6 +195,17 @@ export class InputDialogComponent {
         okText: string = '确定', 
         cancelText: string = '取消'
     ): void {
+        // 保存当前配置
+        this.currentConfig = {
+            title,
+            message,
+            callback,
+            defaultValue,
+            placeholder,
+            okText,
+            cancelText
+        };
+
         this.appendStyles();
 
         // 如果已经有对话框，先移除
@@ -182,8 +218,8 @@ export class InputDialogComponent {
         const overlay = document.createElement('div');
         overlay.className = 'js-script-hook-input-dialog-overlay';
 
-        const dialog = document.createElement('div');
-        dialog.className = 'js-script-hook-input-dialog';
+        this.dialogElement = document.createElement('div');
+        this.dialogElement.className = 'js-script-hook-input-dialog';
 
         // 创建头部
         const header = document.createElement('div');
@@ -198,76 +234,64 @@ export class InputDialogComponent {
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
         `;
+
         header.appendChild(iconSpan);
         header.appendChild(document.createTextNode(title));
+        this.dialogElement.appendChild(header);
 
         // 创建内容区域
         const body = document.createElement('div');
         body.className = 'js-script-hook-input-dialog-body';
-        body.appendChild(document.createTextNode(message));
+        body.textContent = message;
 
         const input = document.createElement('input');
-        input.className = 'js-script-hook-input-dialog-input';
         input.type = 'text';
+        input.className = 'js-script-hook-input-dialog-input';
         input.value = defaultValue;
         input.placeholder = placeholder;
         body.appendChild(input);
+        this.dialogElement.appendChild(body);
 
-        // 创建底部按钮
+        // 创建底部按钮区域
         const footer = document.createElement('div');
         footer.className = 'js-script-hook-input-dialog-footer';
 
         const cancelButton = document.createElement('button');
         cancelButton.className = 'js-script-hook-input-dialog-btn js-script-hook-input-dialog-cancel-btn';
         cancelButton.textContent = cancelText;
+        cancelButton.onclick = () => {
+            callback(false, '');
+            this.close();
+        };
 
         const okButton = document.createElement('button');
         okButton.className = 'js-script-hook-input-dialog-btn js-script-hook-input-dialog-ok-btn';
         okButton.textContent = okText;
+        okButton.onclick = () => {
+            callback(true, input.value);
+            this.close();
+        };
 
         footer.appendChild(cancelButton);
         footer.appendChild(okButton);
+        this.dialogElement.appendChild(footer);
 
-        // 组装对话框
-        dialog.appendChild(header);
-        dialog.appendChild(body);
-        dialog.appendChild(footer);
-        overlay.appendChild(dialog);
-
-        // 获取输入值的辅助函数
-        const getInputValue = (): string => {
-            return input.value.trim();
-        };
-
-        // 绑定事件
-        cancelButton.addEventListener('click', () => {
-            this.close();
-            callback(false, getInputValue());
-        });
-
-        okButton.addEventListener('click', () => {
-            this.close();
-            callback(true, getInputValue());
-        });
-
-        // 回车确认
+        // 添加键盘事件处理
         const keyHandler = (event: KeyboardEvent) => {
             if (event.key === 'Enter') {
+                event.preventDefault();
+                callback(true, input.value);
                 this.close();
-                callback(true, getInputValue());
-                document.removeEventListener('keydown', keyHandler);
             } else if (event.key === 'Escape') {
+                event.preventDefault();
+                callback(false, '');
                 this.close();
-                callback(false, getInputValue());
-                document.removeEventListener('keydown', keyHandler);
             }
         };
-        document.addEventListener('keydown', keyHandler);
 
-        // 添加到页面
+        input.addEventListener('keydown', keyHandler);
+        overlay.appendChild(this.dialogElement);
         document.body.appendChild(overlay);
-
-        // 聚焦输入框
         input.focus();
     }
 
@@ -279,5 +303,68 @@ export class InputDialogComponent {
         if (overlay) {
             overlay.remove();
         }
+        this.dialogElement = null;
+    }
+
+    /**
+     * 实现LanguageUpdateable接口
+     */
+    public getComponentId(): string {
+        return this.componentId;
+    }
+
+    /**
+     * 更新组件的语言
+     * @param language 新的语言配置
+     */
+    public updateLanguage(language: Language): void {
+        if (!this.dialogElement || !this.currentConfig) {
+            return;
+        }
+
+        try {
+            // 更新对话框标题
+            const header = this.dialogElement.querySelector('.js-script-hook-input-dialog-header');
+            if (header) {
+                const iconSpan = header.querySelector('.js-script-hook-input-dialog-icon');
+                header.textContent = this.currentConfig.title;
+                if (iconSpan) {
+                    header.insertBefore(iconSpan, header.firstChild);
+                }
+            }
+
+            // 更新对话框消息
+            const body = this.dialogElement.querySelector('.js-script-hook-input-dialog-body');
+            if (body) {
+                const input = body.querySelector('.js-script-hook-input-dialog-input');
+                body.textContent = this.currentConfig.message;
+                if (input) {
+                    body.appendChild(input);
+                }
+            }
+
+            // 更新按钮文本
+            const footer = this.dialogElement.querySelector('.js-script-hook-input-dialog-footer');
+            if (footer) {
+                const cancelButton = footer.querySelector('.js-script-hook-input-dialog-cancel-btn');
+                const okButton = footer.querySelector('.js-script-hook-input-dialog-ok-btn');
+                
+                if (cancelButton) {
+                    cancelButton.textContent = this.currentConfig.cancelText || '取消';
+                }
+                if (okButton) {
+                    okButton.textContent = this.currentConfig.okText || '确定';
+                }
+            }
+        } catch (error) {
+            inputDialogLogger.error(`更新输入对话框语言时出错: ${error}`);
+        }
+    }
+
+    /**
+     * 组件销毁时取消订阅
+     */
+    public destroy(): void {
+        LanguageEventManager.getInstance().unsubscribe(this.componentId);
     }
 } 

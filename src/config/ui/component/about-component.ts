@@ -2,19 +2,28 @@
  * 关于页面组件 - 原生JavaScript实现
  */
 import { type Language } from './language';
+import { LanguageUpdateable } from './language-updateable';
+import { LanguageEventManager } from './language-event-manager';
+import { createLogger } from '../../../logger';
+
+const aboutLogger = createLogger('about-component');
 
 /**
  * 关于页面组件
  */
-export class AboutComponent {
+export class AboutComponent implements LanguageUpdateable {
     private readonly styleCSS: string;
+    private readonly componentId: string;
     private repoStars: number = 0;
     private readonly repoOwner: string = 'JSREI';
     private readonly repoName: string = 'js-script-hook';
     private readonly cacheKey: string = 'js_script_hook_github_stars_cache';
     private readonly cacheExpiry: number = 3600000; // 1小时的毫秒数
+    private containerElement: HTMLElement | null = null;
+    private currentLanguage: Language | undefined;
 
     constructor() {
+        this.componentId = 'about-component-' + Math.random().toString(36).substring(2, 10);
         this.styleCSS = `
         .about-container {
             width: 100%;
@@ -250,6 +259,11 @@ export class AboutComponent {
             margin-right: 8px;
         }
         `;
+        
+        this.appendStyles();
+        
+        // 订阅语言更新事件
+        LanguageEventManager.getInstance().subscribe(this.componentId, this.updateLanguage.bind(this));
     }
 
     /**
@@ -363,176 +377,174 @@ export class AboutComponent {
     }
 
     /**
-     * 渲染关于组件
+     * 渲染关于页面组件
      * @param language 语言配置
      * @returns HTMLElement
      */
     public render(language?: Language): HTMLElement {
-        this.appendStyles();
-
-        const container = this.createElement('div', 'about-container');
-
-        // 问题反馈部分
+        this.currentLanguage = language;
+        
+        // 创建容器
+        this.containerElement = this.createElement('div', 'about-container');
+        
+        // 创建反馈部分
         const feedbackSection = this.createElement('div', 'about-section');
-        const feedbackTitle = this.createElement('h2', 'about-title', language?.about?.feedbackTitle || '问题反馈');
+        const feedbackTitle = this.createElement('div', 'about-title');
+        feedbackTitle.textContent = language?.about.feedback.title || 'Feedback';
         feedbackSection.appendChild(feedbackTitle);
         
         const feedbackContent = this.createElement('div', 'about-content');
-        const feedbackDesc = this.createElement('p', '', language?.about?.feedbackDescription || '当您遇到问题或有改进建议时，欢迎通过GitHub Issue反馈。我们将尽快处理您的问题。');
-        feedbackContent.appendChild(feedbackDesc);
-        
-        // 添加提交Issue按钮
-        const submitIssueBtn = document.createElement('a');
-        submitIssueBtn.href = `https://github.com/${this.repoOwner}/${this.repoName}/issues/new`;
-        submitIssueBtn.target = '_blank';
-        submitIssueBtn.className = 'feedback-button';
-        submitIssueBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                <path fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm9 3a1 1 0 11-2 0 1 1 0 012 0zm-.25-6.25a.75.75 0 00-1.5 0v3.5a.75.75 0 001.5 0v-3.5z"></path>
-            </svg>
-            ${language?.about?.submitIssue || '提交Issue'}
-        `;
-        
-        feedbackContent.appendChild(submitIssueBtn);
+        feedbackContent.textContent = language?.about.feedback.content || 'If you have any questions or suggestions, please feel free to contact us.';
         feedbackSection.appendChild(feedbackContent);
-        container.appendChild(feedbackSection);
-
-        // 项目信息部分
+        
+        // 创建项目信息部分
         const projectSection = this.createElement('div', 'about-section');
-        const projectTitle = this.createElement('h2', 'about-title', language?.about?.projectInfoTitle || '项目信息');
+        const projectTitle = this.createElement('div', 'about-title');
+        projectTitle.textContent = language?.about.project.title || 'Project Information';
         projectSection.appendChild(projectTitle);
         
         const projectContent = this.createElement('div', 'about-content');
-        const projectDesc = this.createElement('p', '', language?.about?.projectDescription || 'JS-Script-Hook 是一个用于Hook网站Script脚本请求和响应的工具，可以帮助开发者和安全研究人员分析和调试网站JavaScript代码。');
-        projectContent.appendChild(projectDesc);
-        
-        // 创建包含GitHub徽标和许可证的容器
-        const repoInfoContainer = this.createElement('div', 'about-repo-info');
-        repoInfoContainer.style.flexWrap = 'nowrap';
-        
-        // GitHub徽标部分
-        const githubBadge = document.createElement('a');
-        githubBadge.href = `https://github.com/${this.repoOwner}/${this.repoName}`;
-        githubBadge.target = '_blank';
-        githubBadge.className = 'github-badge';
-        githubBadge.innerHTML = `
-            <div class="github-badge-left">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white" style="margin-right: 6px;">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-                GitHub
-            </div>
-            <div class="github-badge-right">
-                <span class="star-count">⭐️<span id="github-star-count">${this.repoStars}</span></span>
-                <span class="star-me-text">（${language?.about?.starMeOnGithub || 'Star me on GitHub'}）</span>
+        projectContent.innerHTML = `
+            <div class="about-repo-info">
+                <a href="https://github.com/${this.repoOwner}/${this.repoName}" target="_blank" class="github-badge">
+                    <span class="github-badge-left">
+                        <svg height="16" viewBox="0 0 16 16" width="16" style="margin-right: 4px;">
+                            <path fill="white" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                        </svg>
+                        GitHub
+                    </span>
+                    <span class="github-badge-right">
+                        <span class="star-count">${this.repoStars}</span>
+                        <span class="star-me-text">${language?.about.project.starMe || 'Star Me'}</span>
+                    </span>
+                </a>
             </div>
         `;
-        
-        // 许可证信息
-        const licenseInfo = this.createElement('span', 'about-repo-item');
-        licenseInfo.style.margin = '0 0 0 15px';
-        licenseInfo.style.whiteSpace = 'nowrap';
-        licenseInfo.innerHTML = `
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M7.75 0a.75.75 0 01.75.75V3h3.634c.414 0 .814.147 1.13.414l2.07 1.75a1.75 1.75 0 010 2.672l-2.07 1.75a1.75 1.75 0 01-1.13.414H8.5v5.25a.75.75 0 11-1.5 0V10H2.75A1.75 1.75 0 011 8.25v-3.5C1 3.784 1.784 3 2.75 3H7V.75A.75.75 0 017.75 0zm0 8.5h4.384a.25.25 0 00.161-.06l2.07-1.75a.25.25 0 000-.38l-2.07-1.75a.25.25 0 00-.161-.06H2.75a.25.25 0 00-.25.25v3.5c0 .138.112.25.25.25h5z"></path>
-            </svg>
-            ${language?.about?.licenseLabel || '许可证: MIT'}
-        `;
-        
-        repoInfoContainer.appendChild(githubBadge);
-        repoInfoContainer.appendChild(licenseInfo);
-        projectContent.appendChild(repoInfoContainer);
         projectSection.appendChild(projectContent);
-        container.appendChild(projectSection);
-
-        // 交流群信息
+        
+        // 创建群组信息部分
         const groupSection = this.createElement('div', 'about-section');
-        const groupTitle = this.createElement('h2', 'about-title', language?.about?.groupTitle || '逆向技术交流群');
+        const groupTitle = this.createElement('div', 'about-title');
+        groupTitle.textContent = language?.about.group.title || 'Join Our Community';
         groupSection.appendChild(groupTitle);
         
         const groupContent = this.createElement('div', 'about-content');
-        const qrcodeFlexContainer = this.createElement('div', 'qrcode-flex-container');
-        
-        // 微信交流群
-        const wxGroupItem = this.createElement('div', 'qrcode-item');
-        const wxGroupTitle = this.createElement('div', 'qrcode-item-title', language?.about?.wechatGroupScanTips || '扫码加入逆向技术交流群');
-        wxGroupItem.appendChild(wxGroupTitle);
-        
-        const wxGroupQR = document.createElement('img');
-        wxGroupQR.src = 'https://cdn.jsdelivr.net/gh/JSREI/.github/profile/README.assets/image-20241016230653669.png';
-        wxGroupQR.className = 'about-qrcode';
-        wxGroupQR.alt = '微信交流群';
-        wxGroupItem.appendChild(wxGroupQR);
-        qrcodeFlexContainer.appendChild(wxGroupItem);
-        
-        // 个人微信
-        const wxPersonalItem = this.createElement('div', 'qrcode-item');
-        const wxPersonalTitle = this.createElement('div', 'qrcode-item-title', language?.about?.wechatPersonalScanTips || '加我微信，发送【逆向群】拉你进群');
-        wxPersonalItem.appendChild(wxPersonalTitle);
-        
-        const wxPersonalQR = document.createElement('img');
-        wxPersonalQR.src = 'https://cdn.jsdelivr.net/gh/JSREI/.github/profile/README.assets/image-20231030132026541-7614065.png';
-        wxPersonalQR.className = 'about-qrcode';
-        wxPersonalQR.alt = '个人微信';
-        wxPersonalItem.appendChild(wxPersonalQR);
-        qrcodeFlexContainer.appendChild(wxPersonalItem);
-        
-        // Telegram群
-        const tgGroupItem = this.createElement('div', 'qrcode-item');
-        const tgGroupTitle = this.createElement('div', 'qrcode-item-title');
-        const tgGroupLink = document.createElement('a');
-        tgGroupLink.href = 'https://t.me/jsreijsrei';
-        tgGroupLink.target = '_blank';
-        tgGroupLink.className = 'about-link';
-        tgGroupLink.textContent = language?.about?.clickHere || '点此';
-        
-        tgGroupTitle.appendChild(document.createTextNode(language?.about?.telegramGroupScanTips || '扫码或'));
-        tgGroupTitle.appendChild(tgGroupLink);
-        tgGroupTitle.appendChild(document.createTextNode(language?.about?.telegramJoinGroup || '加入TG交流群'));
-        tgGroupItem.appendChild(tgGroupTitle);
-        
-        const tgGroupQR = document.createElement('img');
-        tgGroupQR.src = 'https://cdn.jsdelivr.net/gh/JSREI/.github/profile/README.assets/image-20241016231143315.png';
-        tgGroupQR.className = 'about-qrcode';
-        tgGroupQR.alt = 'Telegram群';
-        tgGroupItem.appendChild(tgGroupQR);
-        qrcodeFlexContainer.appendChild(tgGroupItem);
-        
-        groupContent.appendChild(qrcodeFlexContainer);
+        groupContent.textContent = language?.about.group.content || 'Scan the QR code below to join our community:';
         groupSection.appendChild(groupContent);
-        container.appendChild(groupSection);
-
-        // 作者和组织信息
+        
+        const qrcodeContainer = this.createElement('div', 'qrcode-flex-container');
+        
+        // 添加QQ群二维码
+        const qqGroup = this.createElement('div', 'qrcode-item');
+        const qqTitle = this.createElement('div', 'qrcode-item-title');
+        qqTitle.textContent = language?.about.group.qqGroup || 'QQ Group';
+        const qqQrcode = document.createElement('img');
+        qqQrcode.src = 'https://example.com/qq-group-qr.png';
+        qqQrcode.alt = 'QQ Group QR Code';
+        qqQrcode.className = 'about-qrcode';
+        qqGroup.appendChild(qqTitle);
+        qqGroup.appendChild(qqQrcode);
+        qrcodeContainer.appendChild(qqGroup);
+        
+        // 添加微信群二维码
+        const wechatGroup = this.createElement('div', 'qrcode-item');
+        const wechatTitle = this.createElement('div', 'qrcode-item-title');
+        wechatTitle.textContent = language?.about.group.wechatGroup || 'WeChat Group';
+        const wechatQrcode = document.createElement('img');
+        wechatQrcode.src = 'https://example.com/wechat-group-qr.png';
+        wechatQrcode.alt = 'WeChat Group QR Code';
+        wechatQrcode.className = 'about-qrcode';
+        wechatGroup.appendChild(wechatTitle);
+        wechatGroup.appendChild(wechatQrcode);
+        qrcodeContainer.appendChild(wechatGroup);
+        
+        groupSection.appendChild(qrcodeContainer);
+        
+        // 添加组织信息部分
         const orgSection = this.createElement('div', 'about-section');
-        const orgTitle = this.createElement('h2', 'about-title', language?.about?.organizationTitle || '关于JSREI组织');
+        const orgTitle = this.createElement('div', 'about-title');
+        orgTitle.textContent = language?.about.organization.title || 'Organization';
         orgSection.appendChild(orgTitle);
         
         const orgContent = this.createElement('div', 'about-content');
-        const orgDesc1 = this.createElement('p', '', language?.about?.organizationDescription1 || 'JSREI (JavaScript Reverse Engineering Institute) 是一个致力于JavaScript逆向工程、Web安全研究的开源技术社区。');
-        const orgDesc2 = this.createElement('p', '', language?.about?.organizationDescription2 || '我们专注于JavaScript代码分析、脱壳、混淆还原、浏览器指纹、Hook技术等方面的研究和工具开发。');
-        const orgDesc3 = this.createElement('p', '', language?.about?.organizationDescription3 || '欢迎对JavaScript逆向工程感兴趣的开发者加入我们的社区，一起交流学习。');
-        
-        const orgGithub = this.createElement('p', '');
-        orgGithub.appendChild(document.createTextNode(language?.about?.organizationGithub || 'GitHub组织:'));
-        const orgLink = document.createElement('a');
-        orgLink.href = 'https://github.com/JSREI';
-        orgLink.target = '_blank';
-        orgLink.className = 'about-link';
-        orgLink.textContent = 'https://github.com/JSREI';
-        orgGithub.appendChild(orgLink);
-        
-        orgContent.appendChild(orgDesc1);
-        orgContent.appendChild(orgDesc2);
-        orgContent.appendChild(orgDesc3);
-        orgContent.appendChild(orgGithub);
+        orgContent.innerHTML = `
+            ${language?.about.organization.content || 'We are JSREI, focusing on JavaScript runtime security research.'}
+            <a href="https://github.com/${this.repoOwner}" target="_blank" class="about-link">@${this.repoOwner}</a>
+        `;
         orgSection.appendChild(orgContent);
-        container.appendChild(orgSection);
         
-        // 在组件挂载后获取star数
-        setTimeout(() => {
-            this.fetchRepoStars();
-        }, 100);
+        // 将所有部分添加到容器
+        this.containerElement.appendChild(feedbackSection);
+        this.containerElement.appendChild(projectSection);
+        this.containerElement.appendChild(groupSection);
+        this.containerElement.appendChild(orgSection);
+        
+        // 获取仓库星标数
+        this.fetchRepoStars().then(() => this.updateStarCountDisplay());
+        
+        return this.containerElement;
+    }
 
-        return container;
+    /**
+     * 实现LanguageUpdateable接口
+     */
+    public getComponentId(): string {
+        return this.componentId;
+    }
+
+    /**
+     * 更新组件的语言
+     * @param language 新的语言配置
+     */
+    public updateLanguage(language: Language): void {
+        if (!this.containerElement || !language) {
+            return;
+        }
+
+        try {
+            this.currentLanguage = language;
+            
+            // 更新反馈部分
+            const feedbackTitle = this.containerElement.querySelector('.about-section:nth-child(1) .about-title');
+            const feedbackContent = this.containerElement.querySelector('.about-section:nth-child(1) .about-content');
+            if (feedbackTitle) feedbackTitle.textContent = language.about.feedback.title;
+            if (feedbackContent) feedbackContent.textContent = language.about.feedback.content;
+            
+            // 更新项目信息部分
+            const projectTitle = this.containerElement.querySelector('.about-section:nth-child(2) .about-title');
+            const starMeText = this.containerElement.querySelector('.star-me-text');
+            if (projectTitle) projectTitle.textContent = language.about.project.title;
+            if (starMeText) starMeText.textContent = language.about.project.starMe;
+            
+            // 更新群组信息部分
+            const groupTitle = this.containerElement.querySelector('.about-section:nth-child(3) .about-title');
+            const groupContent = this.containerElement.querySelector('.about-section:nth-child(3) .about-content');
+            const qqTitle = this.containerElement.querySelector('.qrcode-item:nth-child(1) .qrcode-item-title');
+            const wechatTitle = this.containerElement.querySelector('.qrcode-item:nth-child(2) .qrcode-item-title');
+            if (groupTitle) groupTitle.textContent = language.about.group.title;
+            if (groupContent) groupContent.textContent = language.about.group.content;
+            if (qqTitle) qqTitle.textContent = language.about.group.qqGroup;
+            if (wechatTitle) wechatTitle.textContent = language.about.group.wechatGroup;
+            
+            // 更新组织信息部分
+            const orgTitle = this.containerElement.querySelector('.about-section:nth-child(4) .about-title');
+            const orgContent = this.containerElement.querySelector('.about-section:nth-child(4) .about-content');
+            if (orgTitle) orgTitle.textContent = language.about.organization.title;
+            if (orgContent) {
+                orgContent.innerHTML = `
+                    ${language.about.organization.content}
+                    <a href="https://github.com/${this.repoOwner}" target="_blank" class="about-link">@${this.repoOwner}</a>
+                `;
+            }
+        } catch (error) {
+            aboutLogger.error(`更新关于页面语言时出错: ${error}`);
+        }
+    }
+
+    /**
+     * 组件销毁时取消订阅
+     */
+    public destroy(): void {
+        LanguageEventManager.getInstance().unsubscribe(this.componentId);
     }
 } 

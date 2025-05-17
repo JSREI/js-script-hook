@@ -2,16 +2,30 @@
  * 下拉选择框组件 - 原生JavaScript实现
  */
 
+import { LanguageUpdateable } from '../language-updateable';
+import { Language } from '../language';
+import { LanguageEventManager } from '../language-event-manager';
+import { createLogger } from '../../../../logger';
+
+// 创建Select组件专用的日志记录器
+const selectLogger = createLogger('select-component');
+
 export type SelectOption = {
     value: string;
     text: string;
 };
 
-export class SelectComponent {
+export class SelectComponent implements LanguageUpdateable {
     private readonly styleCSS: string;
+    private readonly componentId: string;
     private static idCounter: number = 0;
+    private currentOptions: SelectOption[] = [];
+    private currentSelectedValue: string = '';
+    private currentLabel?: string;
+    private containerElement: HTMLElement | null = null;
     
     constructor() {
+        this.componentId = 'select-component-' + SelectComponent.generateId();
         this.styleCSS = `
         .js-script-hook-select-container {
             position: relative;
@@ -123,6 +137,11 @@ export class SelectComponent {
             overflow: hidden;
         }
         `;
+        
+        this.appendStyles();
+        
+        // 订阅语言更新事件
+        LanguageEventManager.getInstance().subscribe(this.componentId, this.updateLanguage.bind(this));
     }
     
     /**
@@ -164,6 +183,11 @@ export class SelectComponent {
         label?: string,
         onChange?: (value: string) => void
     ): HTMLElement {
+        // 保存当前状态
+        this.currentOptions = options;
+        this.currentSelectedValue = selectedValue;
+        this.currentLabel = label;
+        
         // 确保样式已添加
         this.appendStyles();
         
@@ -171,8 +195,8 @@ export class SelectComponent {
         const uniqueId = id || SelectComponent.generateId();
         
         // 创建选择框容器
-        const container = document.createElement('div');
-        container.className = 'js-script-hook-select-container';
+        this.containerElement = document.createElement('div');
+        this.containerElement.className = 'js-script-hook-select-container';
         
         // 如果有标签，添加标签
         if (label) {
@@ -180,7 +204,7 @@ export class SelectComponent {
             labelElement.className = 'js-script-hook-select-label';
             labelElement.setAttribute('for', uniqueId);
             labelElement.textContent = label;
-            container.appendChild(labelElement);
+            this.containerElement.appendChild(labelElement);
         }
         
         // 查找默认选中的文本
@@ -202,7 +226,7 @@ export class SelectComponent {
         
         const arrowSpan = document.createElement('span');
         arrowSpan.className = 'js-script-hook-select-arrow';
-        arrowSpan.textContent = '▼';
+        arrowSpan.innerHTML = '▼';
         
         selectedDiv.appendChild(selectedTextSpan);
         selectedDiv.appendChild(arrowSpan);
@@ -213,75 +237,125 @@ export class SelectComponent {
         
         // 添加选项
         options.forEach(option => {
-            const optionElement = document.createElement('div');
-            optionElement.className = `js-script-hook-option${option.value === selectedValue ? ' selected' : ''}`;
-            optionElement.setAttribute('data-value', option.value);
-            optionElement.textContent = option.text;
+            const optionDiv = document.createElement('div');
+            optionDiv.className = `js-script-hook-option ${option.value === selectedValue ? 'selected' : ''}`;
+            optionDiv.setAttribute('data-value', option.value);
+            optionDiv.textContent = option.text;
             
-            // 添加点击事件
-            optionElement.addEventListener('click', (e) => {
+            // 点击选项时的处理
+            optionDiv.addEventListener('click', (e) => {
                 e.stopPropagation();
+                const value = option.value;
                 
                 // 更新选中状态
-                const allOptions = optionsContainer.querySelectorAll('.js-script-hook-option');
-                allOptions.forEach(opt => opt.classList.remove('selected'));
-                optionElement.classList.add('selected');
-                
-                // 更新显示的文本
                 selectedTextSpan.textContent = option.text;
-                selectedDiv.setAttribute('data-value', option.value);
+                selectedDiv.setAttribute('data-value', value);
                 
-                // 关闭选项列表
+                // 更新选项的选中状态
+                optionsContainer.querySelectorAll('.js-script-hook-option').forEach(opt => {
+                    opt.classList.toggle('selected', opt === optionDiv);
+                });
+                
+                // 关闭下拉框
                 optionsContainer.classList.remove('open');
                 selectedDiv.classList.remove('active');
                 arrowSpan.classList.remove('open');
                 
-                // 触发onChange回调
+                // 触发回调
                 if (onChange) {
-                    onChange(option.value);
+                    onChange(value);
                 }
             });
             
-            optionsContainer.appendChild(optionElement);
+            optionsContainer.appendChild(optionDiv);
         });
         
-        // 添加点击事件以显示/隐藏选项列表
-        selectedDiv.addEventListener('click', (e) => {
-            e.stopPropagation();
+        // 点击选中区域时显示/隐藏选项列表
+        selectedDiv.addEventListener('click', () => {
             const isOpen = optionsContainer.classList.contains('open');
-            
-            if (!isOpen) {
-                // 关闭其他所有打开的选择框
-                document.querySelectorAll('.js-script-hook-options-container.open').forEach(container => {
-                    container.classList.remove('open');
-                    const parentSelect = container.closest('.js-script-hook-custom-select');
-                    if (parentSelect) {
-                        const selectedOption = parentSelect.querySelector('.js-script-hook-selected-option');
-                        const arrow = parentSelect.querySelector('.js-script-hook-select-arrow');
-                        if (selectedOption) selectedOption.classList.remove('active');
-                        if (arrow) arrow.classList.remove('open');
-                    }
-                });
-            }
-            
-            // 切换当前选择框的状态
             optionsContainer.classList.toggle('open');
             selectedDiv.classList.toggle('active');
             arrowSpan.classList.toggle('open');
+            
+            // 如果打开了下拉框，添加点击外部关闭的处理
+            if (!isOpen) {
+                const closeHandler = (e: MouseEvent) => {
+                    if (!customSelect.contains(e.target as Node)) {
+                        optionsContainer.classList.remove('open');
+                        selectedDiv.classList.remove('active');
+                        arrowSpan.classList.remove('open');
+                        document.removeEventListener('click', closeHandler);
+                    }
+                };
+                
+                // 延迟添加事件监听，避免立即触发
+                setTimeout(() => {
+                    document.addEventListener('click', closeHandler);
+                }, 0);
+            }
         });
         
-        // 点击外部关闭选项列表
-        document.addEventListener('click', () => {
-            optionsContainer.classList.remove('open');
-            selectedDiv.classList.remove('active');
-            arrowSpan.classList.remove('open');
-        });
-        
-        // 组装组件
         customSelect.appendChild(selectedDiv);
         customSelect.appendChild(optionsContainer);
-        container.appendChild(customSelect);
         
-        return container;
+        this.containerElement.appendChild(customSelect);
+        
+        return this.containerElement;
+    }
+
+    /**
+     * 实现LanguageUpdateable接口
+     */
+    public getComponentId(): string {
+        return this.componentId;
+    }
+
+    /**
+     * 更新组件的语言
+     * @param language 新的语言配置
+     */
+    public updateLanguage(language: Language): void {
+        if (!this.containerElement || !this.currentOptions) {
+            return;
+        }
+
+        try {
+            // 更新标签文本（如果有）
+            if (this.currentLabel) {
+                const labelElement = this.containerElement.querySelector('.js-script-hook-select-label');
+                if (labelElement) {
+                    labelElement.textContent = this.currentLabel;
+                }
+            }
+
+            // 更新选中的文本
+            const selectedTextSpan = this.containerElement.querySelector('.js-script-hook-selected-text');
+            const selectedOption = this.currentOptions.find(opt => opt.value === this.currentSelectedValue);
+            if (selectedTextSpan && selectedOption) {
+                selectedTextSpan.textContent = selectedOption.text;
+            }
+
+            // 更新选项列表
+            const optionsContainer = this.containerElement.querySelector('.js-script-hook-options-container');
+            if (optionsContainer) {
+                const options = optionsContainer.querySelectorAll('.js-script-hook-option');
+                options.forEach((optionElement) => {
+                    const value = optionElement.getAttribute('data-value');
+                    const option = this.currentOptions.find(opt => opt.value === value);
+                    if (option) {
+                        optionElement.textContent = option.text;
+                    }
+                });
+            }
+        } catch (error) {
+            selectLogger.error(`更新选择框语言时出错: ${error}`);
+        }
+    }
+
+    /**
+     * 组件销毁时取消订阅
+     */
+    public destroy(): void {
+        LanguageEventManager.getInstance().unsubscribe(this.componentId);
     }
 } 

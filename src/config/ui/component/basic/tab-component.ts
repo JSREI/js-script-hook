@@ -3,6 +3,9 @@
  */
 
 import { createLogger } from '../../../../logger';
+import { LanguageUpdateable } from '../language-updateable';
+import { Language } from '../language';
+import { LanguageEventManager } from '../language-event-manager';
 
 // 创建Tab组件专用的日志记录器
 const tabLogger = createLogger('tab-component');
@@ -21,8 +24,11 @@ export interface TabItem {
 /**
  * 标签页组件
  */
-export class TabComponent {
+export class TabComponent implements LanguageUpdateable {
     private readonly styleCSS: string;
+    private readonly componentId: string;
+    private currentTabs: TabItem[] = [];
+    private containerElement: HTMLElement | null = null;
 
     /**
      * 生成唯一ID
@@ -32,6 +38,7 @@ export class TabComponent {
     }
 
     constructor() {
+        this.componentId = 'tab-component-' + TabComponent.generateId();
         this.styleCSS = `
             /* 标签页容器样式 */
             .js-script-hook-tabs-container {
@@ -117,6 +124,9 @@ export class TabComponent {
         `;
         
         this.appendStyles();
+        
+        // 订阅语言更新事件
+        LanguageEventManager.getInstance().subscribe(this.componentId, this.updateLanguage.bind(this));
     }
 
     /**
@@ -140,22 +150,25 @@ export class TabComponent {
      * @returns HTMLElement
      */
     render(tabs: TabItem[]): HTMLElement {
+        // 保存当前的标签页配置
+        this.currentTabs = tabs;
+        
         // 确保样式已添加
         this.appendStyles();
         
         // 创建容器元素
-        const containerElement = document.createElement('div');
-        containerElement.className = 'js-script-hook-tabs-container';
+        this.containerElement = document.createElement('div');
+        this.containerElement.className = 'js-script-hook-tabs-container';
         
         // 创建标签页头部
         const tabsHeaderElement = document.createElement('div');
         tabsHeaderElement.className = 'js-script-hook-tabs-header';
-        containerElement.appendChild(tabsHeaderElement);
+        this.containerElement.appendChild(tabsHeaderElement);
         
         // 创建标签页内容区域
         const tabsContentElement = document.createElement('div');
         tabsContentElement.className = 'js-script-hook-tabs-content';
-        containerElement.appendChild(tabsContentElement);
+        this.containerElement.appendChild(tabsContentElement);
         
         // 确保至少有一个标签页是激活的
         let hasActiveTab = tabs.some(tab => tab.active);
@@ -198,11 +211,10 @@ export class TabComponent {
                 
                 // 添加点击事件
                 tabElement.addEventListener('click', () => {
-                    // 移除所有标签页的激活状态
+                    // 移除所有激活状态
                     const allTabs = tabsHeaderElement.querySelectorAll('.js-script-hook-tab');
                     allTabs.forEach(t => t.classList.remove('active'));
                     
-                    // 移除所有内容的激活状态
                     const allContents = tabsContentElement.querySelectorAll('.js-script-hook-tab-content');
                     allContents.forEach(c => c.classList.remove('active'));
                     
@@ -210,11 +222,61 @@ export class TabComponent {
                     tabElement.classList.add('active');
                     contentElement.classList.add('active');
                 });
+                
             } catch (error) {
                 tabLogger.error(`创建标签页时出错: ${error}`);
             }
         });
         
-        return containerElement;
+        return this.containerElement;
+    }
+
+    /**
+     * 实现LanguageUpdateable接口
+     */
+    public getComponentId(): string {
+        return this.componentId;
+    }
+
+    /**
+     * 更新组件的语言
+     * @param language 新的语言配置
+     */
+    public updateLanguage(language: Language): void {
+        if (!this.containerElement || !this.currentTabs) {
+            return;
+        }
+
+        try {
+            // 更新标签页标题
+            const tabElements = this.containerElement.querySelectorAll('.js-script-hook-tab');
+            tabElements.forEach((tabElement, index) => {
+                const tab = this.currentTabs[index];
+                if (tab) {
+                    // 保留图标
+                    const iconSpan = tabElement.querySelector('.js-script-hook-tab-icon');
+                    
+                    // 清空内容
+                    tabElement.textContent = '';
+                    
+                    // 重新添加图标（如果存在）
+                    if (iconSpan) {
+                        tabElement.appendChild(iconSpan);
+                    }
+                    
+                    // 添加新的标题文本
+                    tabElement.appendChild(document.createTextNode(tab.title));
+                }
+            });
+        } catch (error) {
+            tabLogger.error(`更新标签页语言时出错: ${error}`);
+        }
+    }
+
+    /**
+     * 组件销毁时取消订阅
+     */
+    public destroy(): void {
+        LanguageEventManager.getInstance().unsubscribe(this.componentId);
     }
 } 

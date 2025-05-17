@@ -83,24 +83,24 @@ interface ConfirmDialogLanguage {
 
 // 关于页面的语言配置
 interface AboutLanguage {
-    projectInfoTitle: string;
-    projectDescription: string;
-    licenseLabel: string;
-    groupTitle: string;
-    wechatGroupScanTips: string;
-    wechatPersonalScanTips: string;
-    telegramGroupScanTips: string;
-    clickHere: string;
-    telegramJoinGroup: string;
-    organizationTitle: string;
-    organizationDescription1: string;
-    organizationDescription2: string;
-    organizationDescription3: string;
-    organizationGithub: string;
-    starMeOnGithub: string;
-    feedbackTitle: string;
-    feedbackDescription: string;
-    submitIssue: string;
+    feedback: {
+        title: string;
+        content: string;
+    };
+    project: {
+        title: string;
+        starMe: string;
+    };
+    group: {
+        title: string;
+        content: string;
+        qqGroup: string;
+        wechatGroup: string;
+    };
+    organization: {
+        title: string;
+        content: string;
+    };
 }
 
 export interface Language {
@@ -191,24 +191,24 @@ const chinese: Language = {
         closeWindow: "关闭窗口"
     },
     about: {
-        projectInfoTitle: "项目信息",
-        projectDescription: "JS-Script-Hook 是一个用于Hook网站Script脚本请求和响应的工具，可以帮助开发者和安全研究人员分析和调试网站JavaScript代码。",
-        licenseLabel: "许可证: MIT",
-        groupTitle: "逆向技术交流群",
-        wechatGroupScanTips: "扫码加入逆向技术交流群",
-        wechatPersonalScanTips: "加我微信，发送【逆向群】拉你进群",
-        telegramGroupScanTips: "扫码或",
-        clickHere: "点此",
-        telegramJoinGroup: "加入TG交流群",
-        organizationTitle: "关于JSREI组织",
-        organizationDescription1: "JSREI (JavaScript Reverse Engineering Institute) 是一个致力于JavaScript逆向工程、Web安全研究的开源技术社区。",
-        organizationDescription2: "我们专注于JavaScript代码分析、脱壳、混淆还原、浏览器指纹、Hook技术等方面的研究和工具开发。",
-        organizationDescription3: "欢迎对JavaScript逆向工程感兴趣的开发者加入我们的社区，一起交流学习。",
-        organizationGithub: "GitHub组织:",
-        starMeOnGithub: "Star me on GitHub",
-        feedbackTitle: "问题反馈",
-        feedbackDescription: "当您遇到问题或有改进建议时，欢迎通过GitHub Issue反馈。我们将尽快处理您的问题。",
-        submitIssue: "提交Issue"
+        feedback: {
+            title: "问题反馈",
+            content: "如果您遇到问题或有改进建议，欢迎通过GitHub Issue反馈。我们将尽快处理您的问题。"
+        },
+        project: {
+            title: "项目信息",
+            starMe: "Star 一下"
+        },
+        group: {
+            title: "技术交流群",
+            content: "扫描下方二维码加入我们的技术交流群：",
+            qqGroup: "QQ群",
+            wechatGroup: "微信群"
+        },
+        organization: {
+            title: "关于JSREI",
+            content: "JSREI (JavaScript Reverse Engineering Institute) 是一个致力于JavaScript逆向工程、Web安全研究的开源技术社区。"
+        }
     }
 };
 
@@ -291,24 +291,24 @@ const english: Language = {
         closeWindow: "Close Window"
     },
     about: {
-        projectInfoTitle: "Project Information",
-        projectDescription: "JS-Script-Hook is a tool for hooking website script request and response, which helps developers and security researchers analyze and debug website JavaScript code.",
-        licenseLabel: "License: MIT",
-        groupTitle: "Reverse Engineering Communication Group",
-        wechatGroupScanTips: "Scan the QR code to join the reverse engineering WeChat group",
-        wechatPersonalScanTips: "Add my WeChat and send [Reverse Group] to join the group",
-        telegramGroupScanTips: "Scan or",
-        clickHere: "click here",
-        telegramJoinGroup: "to join the Telegram group",
-        organizationTitle: "About JSREI Organization",
-        organizationDescription1: "JSREI (JavaScript Reverse Engineering Institute) is an open-source technical community dedicated to JavaScript reverse engineering and Web security research.",
-        organizationDescription2: "We focus on JavaScript code analysis, unpacking, deobfuscation, browser fingerprinting, Hook technology, and tool development.",
-        organizationDescription3: "We welcome developers interested in JavaScript reverse engineering to join our community and learn together.",
-        organizationGithub: "GitHub Organization:",
-        starMeOnGithub: "Star me on GitHub",
-        feedbackTitle: "Feedback",
-        feedbackDescription: "When you encounter issues or have suggestions for improvement, please feel free to submit a GitHub Issue. We will address your concerns as soon as possible.",
-        submitIssue: "Submit Issue"
+        feedback: {
+            title: "Feedback",
+            content: "If you encounter any issues or have suggestions for improvement, please feel free to submit a GitHub Issue. We will address your concerns as soon as possible."
+        },
+        project: {
+            title: "Project Information",
+            starMe: "Star Me"
+        },
+        group: {
+            title: "Join Our Community",
+            content: "Scan the QR code below to join our community:",
+            qqGroup: "QQ Group",
+            wechatGroup: "WeChat Group"
+        },
+        organization: {
+            title: "About JSREI",
+            content: "JSREI (JavaScript Reverse Engineering Institute) is an open-source technical community dedicated to JavaScript reverse engineering and Web security research."
+        }
     }
 };
 

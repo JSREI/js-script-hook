@@ -5,6 +5,7 @@ import { getGlobalConfig } from "../../config";
 import { getLanguage, type Language } from "./language";
 import { TabComponent, TabItem } from "./basic";
 import { createLogger } from "../../../logger";
+import { LanguageUpdateable } from "./language-updateable";
 
 // 创建配置组件专用的日志记录器
 const configUILogger = createLogger('config-ui');
@@ -414,6 +415,28 @@ export class ConfigurationComponent {
             } catch (fallbackError) {
                 configUILogger.error(`降级方案也失败了: ${fallbackError}`);
             }
+        }
+    }
+
+    /**
+     * 销毁组件
+     */
+    public destroy(): void {
+        // 销毁TabComponent
+        if ('destroy' in this.tabComponent) {
+            (this.tabComponent as unknown as LanguageUpdateable).destroy();
+        }
+
+        // 移除配置窗口
+        const modalWindow = document.getElementById("jsrei-js-script-hook-configuration-modal-window");
+        if (modalWindow) {
+            modalWindow.remove();
+        }
+
+        // 移除样式
+        const style = document.getElementById("js-script-hook-configuration-style");
+        if (style) {
+            style.remove();
         }
     }
 } 
