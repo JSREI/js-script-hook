@@ -270,15 +270,27 @@ function updateAllInputPlaceholders(componentElement: HTMLElement, language: Lan
         // 查找URL匹配方式输入框并更新placeholder
         const urlPatternInput = componentElement.querySelector(`#${currentConfig.id}-url-pattern-text`) as HTMLInputElement;
         if (urlPatternInput) {
-            urlPatternInput.placeholder = language.debugger_config.urlPatternTextPlaceholder;
+            // 根据输入框是否禁用设置不同的占位符文本
+            if (urlPatternInput.disabled || currentConfig.urlPatternType === 'match-all') {
+                urlPatternInput.placeholder = language.debugger_config.urlPatternMatchAllDisabledText;
+                languageUpdateLogger.debug(`URL匹配方式输入框为禁用状态，更新placeholder为: ${language.debugger_config.urlPatternMatchAllDisabledText}`);
+            } else {
+                urlPatternInput.placeholder = language.debugger_config.urlPatternTextPlaceholder;
+                languageUpdateLogger.debug(`更新URL匹配方式输入框placeholder为: ${language.debugger_config.urlPatternTextPlaceholder}`);
+            }
             
             // 如果有提供InputComponent实例，使用其setPlaceholder方法更新
             if (inputComponent) {
                 const inputCompInstance = inputComponent;
                 // 使用setTimeout确保DOM操作完成后再调用
                 setTimeout(() => {
-                    inputCompInstance.setPlaceholder(language.debugger_config.urlPatternTextPlaceholder);
-                    languageUpdateLogger.debug(`通过InputComponent更新URL匹配方式输入框placeholder为: ${language.debugger_config.urlPatternTextPlaceholder}`);
+                    if (urlPatternInput.disabled || currentConfig.urlPatternType === 'match-all') {
+                        inputCompInstance.setPlaceholder(language.debugger_config.urlPatternMatchAllDisabledText);
+                        languageUpdateLogger.debug(`通过InputComponent更新禁用状态的URL匹配方式输入框placeholder为: ${language.debugger_config.urlPatternMatchAllDisabledText}`);
+                    } else {
+                        inputCompInstance.setPlaceholder(language.debugger_config.urlPatternTextPlaceholder);
+                        languageUpdateLogger.debug(`通过InputComponent更新URL匹配方式输入框placeholder为: ${language.debugger_config.urlPatternTextPlaceholder}`);
+                    }
                 }, 0);
             }
         }

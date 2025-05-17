@@ -91,7 +91,22 @@ export class InputDialogComponent implements LanguageUpdateable {
         cancelText?: string
     ): void {
         try {
+            // 获取当前语言配置
             const language = LanguageEventManager.getInstance().getCurrentLanguage();
+            
+            // 检测是否为URL测试对话框并应用正确的语言
+            const isUrlTestDialog = title.includes('enter the URL') || 
+                                   title.includes('Please enter the URL') || 
+                                   title.includes('请输入要测试的URL');
+            
+            if (isUrlTestDialog && language) {
+                // 使用当前语言的URL测试提示
+                title = language.debugger_config.urlPatternTestPrompt;
+                placeholder = language.debugger_config.urlPatternTextPlaceholder;
+                okText = language.basic.testButton;
+                cancelText = language.basic.inputDialog.defaultCancelText;
+                logger.debug(`检测到URL测试对话框，应用当前语言的文本配置`);
+            }
             
             // 保存当前配置
             this.currentConfig = {
@@ -100,8 +115,8 @@ export class InputDialogComponent implements LanguageUpdateable {
                 callback,
                 defaultValue,
                 placeholder,
-                okText: okText || language?.basic.inputDialog.defaultOkText || 'OK',
-                cancelText: cancelText || language?.basic.inputDialog.defaultCancelText || 'Cancel'
+                okText: okText || (language?.basic.inputDialog.defaultOkText || 'OK'),
+                cancelText: cancelText || (language?.basic.inputDialog.defaultCancelText || 'Cancel')
             };
 
             this.appendStyles();
@@ -231,25 +246,53 @@ export class InputDialogComponent implements LanguageUpdateable {
                 return;
             }
             
+            // 更新对话框标题
+            const header = this.dialogElement.querySelector('.js-script-hook-input-dialog-header');
+            if (header) {
+                // 保存图标元素
+                const iconSpan = header.querySelector('.js-script-hook-input-dialog-icon');
+                const iconHtml = iconSpan ? iconSpan.outerHTML : '';
+                
+                // 检查标题是否需要本地化
+                if (this.currentConfig.title.includes('enter the URL') || 
+                    this.currentConfig.title.includes('Please enter the URL') ||
+                    this.currentConfig.title.includes('请输入要测试的URL')) {
+                    // 检测到是URL测试对话框，使用对应语言的提示文本
+                    header.innerHTML = iconHtml + language.debugger_config.urlPatternTestPrompt;
+                    logger.debug(`已将对话框标题更新为URL测试提示: ${language.debugger_config.urlPatternTestPrompt}`);
+                }
+            }
+            
             // 更新确认按钮文本
             const okButton = this.dialogElement.querySelector('.js-script-hook-input-dialog-ok-btn') as HTMLButtonElement;
             if (okButton) {
-                okButton.textContent = this.currentConfig.okText;
+                // 检查是否为测试按钮
+                if (this.currentConfig.okText === 'Test' || 
+                    this.currentConfig.okText === '测试' ||
+                    this.currentConfig.okText === language.basic.testButton) {
+                    okButton.textContent = language.basic.testButton;
+                    logger.debug(`已将确认按钮更新为测试按钮: ${language.basic.testButton}`);
+                } else {
+                    okButton.textContent = language.basic.inputDialog.defaultOkText;
+                }
             }
             
             // 更新取消按钮文本
             const cancelButton = this.dialogElement.querySelector('.js-script-hook-input-dialog-cancel-btn') as HTMLButtonElement;
             if (cancelButton) {
-                cancelButton.textContent = this.currentConfig.cancelText;
+                cancelButton.textContent = language.basic.inputDialog.defaultCancelText;
+                logger.debug(`已将取消按钮更新为: ${language.basic.inputDialog.defaultCancelText}`);
             }
             
             // 更新输入框的placeholder
             const inputField = this.dialogElement.querySelector('.js-script-hook-input-dialog-input') as HTMLInputElement;
-            if (inputField && this.currentConfig.placeholder) {
+            if (inputField) {
                 // 如果当前placeholder是URL pattern相关的提示文本
-                if (this.currentConfig.placeholder.includes('Enter a keyword') || 
+                if (this.currentConfig.placeholder === language.debugger_config.urlPatternTextPlaceholder ||
+                    this.currentConfig.placeholder.includes('Enter a keyword') || 
                     this.currentConfig.placeholder.includes('输入关键字')) {
                     inputField.placeholder = language.debugger_config.urlPatternTextPlaceholder;
+                    logger.debug(`已将输入框占位符更新为URL匹配提示: ${language.debugger_config.urlPatternTextPlaceholder}`);
                 } 
                 // 如果当前placeholder是JSONP回调函数参数名相关的提示文本
                 else if (this.currentConfig.placeholder.includes('If not specified') || 
@@ -257,7 +300,7 @@ export class InputDialogComponent implements LanguageUpdateable {
                     inputField.placeholder = language.debugger_config.callbackFunctionParamNamePlaceholder;
                 }
                 // 如果是其他类型的placeholder，保持原样
-                else {
+                else if (this.currentConfig.placeholder) {
                     inputField.placeholder = this.currentConfig.placeholder;
                 }
             }

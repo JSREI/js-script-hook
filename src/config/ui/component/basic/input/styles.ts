@@ -29,6 +29,30 @@ export const inputStyles = `
     box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
 }
 
+/* 禁用状态的输入框样式 */
+.js-script-hook-input-field:disabled {
+    background-color: #f2f2f2;
+    color: #999;
+    border-color: #ddd;
+    cursor: not-allowed;
+    opacity: 0.7;
+    box-shadow: none;
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(0, 0, 0, 0.03) 10px,
+        rgba(0, 0, 0, 0.03) 20px
+    );
+    text-decoration: line-through;
+    font-style: italic;
+}
+
+.js-script-hook-input-field:disabled::placeholder {
+    color: #aaa;
+    text-decoration: line-through;
+}
+
 .js-script-hook-input-label {
     font-size: 12px;
     color: #666;
