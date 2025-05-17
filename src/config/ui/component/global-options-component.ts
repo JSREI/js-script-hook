@@ -4,6 +4,8 @@ import { Config } from "../../config";
 // 导入语言相关的函数和接口
 import { getLanguage, getLanguageByGlobalConfig, type Language } from "./language";
 import { TipsComponent, CheckboxComponent, SelectComponent, SelectOption, InputComponent } from './basic';
+// 导入show函数用于重新加载配置界面
+import { show } from "../../ui/menu";
 
 type HookType = "use-proxy-function" | "use-redeclare-function";
 
@@ -248,27 +250,42 @@ export class GlobalOptionsComponent {
             const langValue = ($(this).val() as string);
             if (langValue === 'english' || langValue === 'chinese') {
                 config.language = langValue;
+                config.persist(); // 保存配置
+                
+                // 关闭并重新打开配置界面以应用新的语言设置
+                const modalWindow = $("#jsrei-js-script-hook-configuration-modal-window");
+                if (modalWindow.length) {
+                    modalWindow.remove();
+                    setTimeout(() => {
+                        // 重新打开配置界面
+                        show();
+                    }, 100);
+                }
             }
         });
         
         container.on('change', '#js-script-hook-global-config-hook-type', function() {
             const config = getGlobalConfig();
             config.hookType = $(this).val() as HookType;
+            config.persist(); // 保存配置
         });
         
         container.on('input', '#js-script-hook-global-config-flag-prefix', function() {
             const config = getGlobalConfig();
             config.prefix = $(this).val() as string;
+            config.persist(); // 保存配置
         });
         
         container.on('change', '#js-script-hook-global-config-isIgnoreJsSuffixRequest', function() {
             const config = getGlobalConfig();
             config.isIgnoreJsSuffixRequest = $(this).is(':checked');
+            config.persist(); // 保存配置
         });
         
         container.on('change', '#js-script-hook-global-config-isIgnoreNotJsonpRequest', function() {
             const config = getGlobalConfig();
             config.isIgnoreNotJsonpRequest = $(this).is(':checked');
+            config.persist(); // 保存配置
         });
         
         return container;

@@ -5,6 +5,7 @@ export type TabItem = {
     title: string;
     content: JQuery<HTMLElement>;
     active?: boolean;
+    icon?: string;
 };
 
 export class TabComponent {
@@ -39,6 +40,8 @@ export class TabComponent {
             border-top-right-radius: 4px;
             margin-right: 2px;
             margin-bottom: -1px;
+            display: flex;
+            align-items: center;
         }
         
         .js-script-hook-tab:hover {
@@ -61,6 +64,20 @@ export class TabComponent {
         .js-script-hook-tab-content.active {
             display: block;
             animation: fadeIn 0.3s ease;
+        }
+        
+        .js-script-hook-tab-icon {
+            margin-right: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+        }
+        
+        .js-script-hook-tab-icon svg {
+            width: 16px;
+            height: 16px;
         }
         
         @keyframes fadeIn {
@@ -125,7 +142,13 @@ export class TabComponent {
             const isActive = tab.active === true;
             
             // 创建标签页头
-            const tabElement = $(`<div class="js-script-hook-tab ${isActive ? 'active' : ''}" data-tab-id="${tabId}">${tab.title}</div>`);
+            let tabHTML = '';
+            if (tab.icon) {
+                tabHTML += `<span class="js-script-hook-tab-icon">${tab.icon}</span>`;
+            }
+            tabHTML += tab.title;
+            
+            const tabElement = $(`<div class="js-script-hook-tab ${isActive ? 'active' : ''}" data-tab-id="${tabId}">${tabHTML}</div>`);
             tabsHeader.append(tabElement);
             
             // 创建标签页内容

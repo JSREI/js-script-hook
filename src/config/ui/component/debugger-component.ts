@@ -2,7 +2,20 @@ import $ from 'jquery';
 import { getGlobalConfig } from "../../config";
 import { DebuggerTester } from "../../../debugger/debugger-tester";
 import { ScriptContext } from "../../../context/script/script-context";
-import { SelectComponent, SelectOption, ConfirmDialogComponent } from './basic';
+import { 
+    SelectComponent, 
+    SelectOption, 
+    ConfirmDialogComponent,
+    InputComponent,
+    CheckboxComponent,
+    CheckboxType,
+    ButtonComponent,
+    ButtonType,
+    ButtonSize,
+    TextareaComponent,
+    InputDialogComponent,
+    AlertDialogComponent
+} from './basic';
 
 type UrlPatternType = 'equals-string' | 'contains-string' | 'match-regexp' | 'match-all';
 type HookType = 'redeclare' | 'proxy';
@@ -82,10 +95,18 @@ export interface DebuggerConfig {
  */
 export class DebuggerComponent {
     private selectComponent: SelectComponent;
+    private inputComponent: InputComponent;
+    private checkboxComponent: CheckboxComponent;
+    private buttonComponent: ButtonComponent;
+    private textareaComponent: TextareaComponent;
     private readonly styleCSS: string;
     
     constructor() {
         this.selectComponent = new SelectComponent();
+        this.inputComponent = new InputComponent();
+        this.checkboxComponent = new CheckboxComponent();
+        this.buttonComponent = new ButtonComponent();
+        this.textareaComponent = new TextareaComponent();
         
         this.styleCSS = `
         .debugger-component-fieldset {
@@ -115,24 +136,26 @@ export class DebuggerComponent {
             position: absolute;
             right: 10px;
             top: 10px;
-            width: 26px;
-            height: 26px;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: none;
-            background-color: transparent;
+            border: 1px solid #aaa;
+            background-color: white;
             border-radius: 50%;
-            font-size: 16px;
-            color: #999;
+            font-size: 14px;
+            color: #888;
             cursor: pointer;
             transition: all 0.2s ease;
+            opacity: 0.7;
         }
         
         .debugger-component-remove-btn:hover {
-            color: #f44336;
-            background-color: rgba(244, 67, 54, 0.1);
-            transform: rotate(90deg);
+            color: #555;
+            background-color: #f5f5f5;
+            border-color: #777;
+            opacity: 1;
         }
 
         .debugger-component-table {
@@ -190,8 +213,8 @@ export class DebuggerComponent {
         return `
 <fieldset id="${debuggerConfig.id}" class="debugger-component-fieldset">      
     <legend class="debugger-component-legend">${language.debugger_config.debuggerTitle}-${debuggerConfig.id}</legend>          
-    <button id="${debuggerConfig.id}-remove-btn" class="debugger-component-remove-btn" title="删除断点">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <button id="${debuggerConfig.id}-remove-btn" class="debugger-component-remove-btn" title="${language.confirm_dialog.deleteBreakpoint}">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
@@ -207,11 +230,8 @@ export class DebuggerComponent {
                 </div>
                 <span>${language.debugger_config.enable} </span>
             </td>
-            <td align="left">
-                <label class="js-script-hook-checkbox-container">
-                    <input id="${debuggerConfig.id}-enable-checkbox" class="js-script-hook-input" type="checkbox" ${debuggerConfig.enable ? "checked='checked'" : ""}>
-                    <span class="js-script-hook-custom-checkbox"></span>
-                </label>
+            <td align="left" id="${debuggerConfig.id}-enable-checkbox-container">
+                <!-- 复选框组件将在render方法中添加 -->
             </td>
         </tr>
         <tr>
@@ -242,7 +262,7 @@ export class DebuggerComponent {
                             ${language.debugger_config.urlPatternTextTips}
                             </div>
                         </div>
-                        <input class="js-script-hook-input" id="${debuggerConfig.id}-url-pattern-text" value="${debuggerConfig.urlPattern || ''}" type="text" placeholder="${language.debugger_config.urlPatternTextPlaceholder}" style="width: 380px;" />
+                        <div id="${debuggerConfig.id}-url-pattern-text-container" style="display: inline-block; width: 380px;"></div>
                     </div>
                     <div>
                        <div class="js-script-hook-tips-icon">
@@ -251,7 +271,7 @@ export class DebuggerComponent {
                             ${language.debugger_config.urlPatternTestTips}
                             </div>
                         </div>
-                        <button class="js-script-hook-button" id="${debuggerConfig.id}-url-pattern-test" style="cursor: pointer;">${language.debugger_config.urlPatternTest}</button>
+                        <div id="${debuggerConfig.id}-url-pattern-test-container"></div>
                     </div>
                </div>
             </td>
@@ -266,11 +286,8 @@ export class DebuggerComponent {
                 </div>
                 <span>${language.debugger_config.enableRequestDebugger}</span>
             </td>
-            <td align="left">
-                <label class="js-script-hook-checkbox-container">
-                    <input id="${debuggerConfig.id}-enableRequestDebugger-checkbox" class="js-script-hook-input" type="checkbox" ${debuggerConfig.enableRequestDebugger ? "checked='checked'" : ""}>
-                    <span class="js-script-hook-custom-checkbox"></span>
-                </label>
+            <td align="left" id="${debuggerConfig.id}-enableRequestDebugger-checkbox-container">
+                <!-- 复选框组件将在render方法中添加 -->
             </td>
         </tr>
         <tr>
@@ -283,11 +300,8 @@ export class DebuggerComponent {
                 </div>
                 <span> ${language.debugger_config.enableResponseDebugger} </span>
             </td>
-            <td align="left">
-                <label class="js-script-hook-checkbox-container">
-                    <input id="${debuggerConfig.id}-enableResponseDebugger-checkbox" class="js-script-hook-input" type="checkbox" ${debuggerConfig.enableResponseDebugger ? "checked='checked'" : ""}>
-                    <span class="js-script-hook-custom-checkbox"></span>
-                </label>
+            <td align="left" id="${debuggerConfig.id}-enableResponseDebugger-checkbox-container">
+                <!-- 复选框组件将在render方法中添加 -->
             </td>
         </tr>
         <tr>
@@ -300,8 +314,8 @@ export class DebuggerComponent {
                 </div>
                 <span> ${language.debugger_config.callbackFunctionParamName} </span>
             </td>
-            <td align="left">
-                <input class="js-script-hook-input" type="text" id="${debuggerConfig.id}-callbackFunctionParamName-text" value="${debuggerConfig.callbackFunctionName || ''}" placeholder="${language.debugger_config.callbackFunctionParamNamePlaceholder}" style="width: 380px;" />
+            <td align="left" id="${debuggerConfig.id}-callbackFunctionParamName-container">
+                <!-- 输入框组件将在render方法中添加 -->
             </td>
         </tr>
         <tr>
@@ -314,8 +328,8 @@ export class DebuggerComponent {
                 </div>
                 <span> ${language.debugger_config.comment} </span>
             </td>
-            <td align="left">
-                <textarea class="js-script-hook-textarea" id="${debuggerConfig.id}-comment-text" placeholder="${language.debugger_config.commentPlaceholder}" style="width: 480px; height: 100px;">${debuggerConfig.comment || ""}</textarea>
+            <td align="left" id="${debuggerConfig.id}-comment-container">
+                <!-- 文本区域组件将在render方法中添加 -->
             </td>
         </tr>
     </table>
@@ -339,6 +353,128 @@ export class DebuggerComponent {
         // 绑定事件
         const localDebuggerInformation = { ...debuggerInformation };
 
+        // 添加复选框组件 - 启用/禁用断点
+        $debuggerComponent.find(`#${debuggerInformation.id}-enable-checkbox-container`).append(
+            this.checkboxComponent.render(
+                `${debuggerInformation.id}-enable-checkbox`,
+                debuggerInformation.enable,
+                (isChecked: boolean) => {
+                    localDebuggerInformation.enable = isChecked;
+                    // 保存配置
+                    const config = getGlobalConfig();
+                    const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
+                    if (debuggerItem) {
+                        debuggerItem.enable = localDebuggerInformation.enable;
+                        debuggerItem.updateTime = new Date().getTime();
+                        config.persist();
+                    }
+                }
+            )
+        );
+
+        // 添加输入框组件 - URL匹配文本
+        $debuggerComponent.find(`#${debuggerInformation.id}-url-pattern-text-container`).append(
+            this.inputComponent.render(
+                `${debuggerInformation.id}-url-pattern-text`,
+                debuggerInformation.urlPattern || '',
+                language.debugger_config.urlPatternTextPlaceholder,
+                undefined,
+                (value: string) => {
+                    localDebuggerInformation.urlPattern = value;
+                    // 保存配置
+                    const config = getGlobalConfig();
+                    const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
+                    if (debuggerItem) {
+                        debuggerItem.urlPattern = localDebuggerInformation.urlPattern;
+                        debuggerItem.updateTime = new Date().getTime();
+                        config.persist();
+                    }
+                }
+            )
+        );
+
+        // 添加复选框组件 - 启用请求断点
+        $debuggerComponent.find(`#${debuggerInformation.id}-enableRequestDebugger-checkbox-container`).append(
+            this.checkboxComponent.render(
+                `${debuggerInformation.id}-enableRequestDebugger-checkbox`,
+                debuggerInformation.enableRequestDebugger,
+                (isChecked: boolean) => {
+                    localDebuggerInformation.enableRequestDebugger = isChecked;
+                    // 保存配置
+                    const config = getGlobalConfig();
+                    const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
+                    if (debuggerItem) {
+                        debuggerItem.enableRequestDebugger = localDebuggerInformation.enableRequestDebugger;
+                        debuggerItem.updateTime = new Date().getTime();
+                        config.persist();
+                    }
+                }
+            )
+        );
+
+        // 添加复选框组件 - 启用响应断点
+        $debuggerComponent.find(`#${debuggerInformation.id}-enableResponseDebugger-checkbox-container`).append(
+            this.checkboxComponent.render(
+                `${debuggerInformation.id}-enableResponseDebugger-checkbox`,
+                debuggerInformation.enableResponseDebugger,
+                (isChecked: boolean) => {
+                    localDebuggerInformation.enableResponseDebugger = isChecked;
+                    // 保存配置
+                    const config = getGlobalConfig();
+                    const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
+                    if (debuggerItem) {
+                        debuggerItem.enableResponseDebugger = localDebuggerInformation.enableResponseDebugger;
+                        debuggerItem.updateTime = new Date().getTime();
+                        config.persist();
+                    }
+                }
+            )
+        );
+
+        // 添加输入框组件 - 回调函数参数名
+        $debuggerComponent.find(`#${debuggerInformation.id}-callbackFunctionParamName-container`).append(
+            this.inputComponent.render(
+                `${debuggerInformation.id}-callbackFunctionParamName-text`,
+                debuggerInformation.callbackFunctionName || '',
+                language.debugger_config.callbackFunctionParamNamePlaceholder,
+                undefined,
+                (value: string) => {
+                    localDebuggerInformation.callbackFunctionName = value;
+                    // 保存配置
+                    const config = getGlobalConfig();
+                    const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
+                    if (debuggerItem) {
+                        debuggerItem.callbackFunctionName = localDebuggerInformation.callbackFunctionName;
+                        debuggerItem.updateTime = new Date().getTime();
+                        config.persist();
+                    }
+                }
+            )
+        );
+
+        // 添加文本区域组件 - 备注
+        $debuggerComponent.find(`#${debuggerInformation.id}-comment-container`).append(
+            this.textareaComponent.render(
+                `${debuggerInformation.id}-comment-text`,
+                debuggerInformation.comment || '',
+                language.debugger_config.commentPlaceholder,
+                undefined, // 无标签
+                (value: string) => {
+                    localDebuggerInformation.comment = value;
+                    // 保存配置
+                    const config = getGlobalConfig();
+                    const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
+                    if (debuggerItem) {
+                        debuggerItem.comment = localDebuggerInformation.comment;
+                        debuggerItem.updateTime = new Date().getTime();
+                        config.persist();
+                    }
+                },
+                5, // 行数
+                undefined // 无最大长度限制
+            )
+        );
+
         // 初始化URL匹配方式下拉菜单
         const urlPatternOptions: SelectOption[] = [
             { value: 'equals-string', text: language.debugger_config.urlPatternType_EqualsThisString },
@@ -355,130 +491,60 @@ export class DebuggerComponent {
                     this.selectComponent.render(
                         `${debuggerInformation.id}-url-pattern`,
                         urlPatternOptions,
-                        debuggerInformation.urlPatternType || 'match-all'
+                        debuggerInformation.urlPatternType || 'match-all',
+                        undefined,
+                        (value: string) => {
+                            if (value === 'equals-string' || value === 'contains-string' || 
+                                value === 'match-regexp' || value === 'match-all') {
+                                localDebuggerInformation.urlPatternType = value as UrlPatternType;
+                                // 保存配置
+                                const config = getGlobalConfig();
+                                const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
+                                if (debuggerItem) {
+                                    debuggerItem.urlPatternType = localDebuggerInformation.urlPatternType;
+                                    debuggerItem.updateTime = new Date().getTime();
+                                    config.persist();
+                                }
+                            }
+                        }
                     )
                 );
             }
         }, 0);
 
-        // 启用/禁用断点
-        $debuggerComponent.find(`#${debuggerInformation.id}-enable-checkbox`).on("change", function () {
-            localDebuggerInformation.enable = $(this).prop("checked") as boolean;
-            // 保存配置
-            const config = getGlobalConfig();
-            const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-            if (debuggerItem) {
-                debuggerItem.enable = localDebuggerInformation.enable;
-                debuggerItem.updateTime = new Date().getTime();
-                config.persist();
-            }
-        });
-
-        // URL匹配方式 - 使用SelectComponent的事件
-        $debuggerComponent.on("change", `#${debuggerInformation.id}-url-pattern`, function () {
-            const value = $(this).val() as string;
-            if (value === 'equals-string' || value === 'contains-string' || 
-                value === 'match-regexp' || value === 'match-all') {
-                localDebuggerInformation.urlPatternType = value as UrlPatternType;
-                // 保存配置
-                const config = getGlobalConfig();
-                const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-                if (debuggerItem) {
-                    debuggerItem.urlPatternType = localDebuggerInformation.urlPatternType;
-                    debuggerItem.updateTime = new Date().getTime();
-                    config.persist();
-                }
-            }
-        });
-
-        // URL匹配文本
-        $debuggerComponent.find(`#${debuggerInformation.id}-url-pattern-text`).on("change", function () {
-            localDebuggerInformation.urlPattern = $(this).val() as string;
-            // 保存配置
-            const config = getGlobalConfig();
-            const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-            if (debuggerItem) {
-                debuggerItem.urlPattern = localDebuggerInformation.urlPattern;
-                debuggerItem.updateTime = new Date().getTime();
-                config.persist();
-            }
-        });
-
-        // URL匹配测试
-        $debuggerComponent.find(`#${debuggerInformation.id}-url-pattern-test`).on("click", function () {
-            const testUrl = prompt(language.debugger_config.urlPatternTestPrompt);
-            if (!testUrl) {
-                return;
-            }
-            const debuggerTester = new DebuggerTester();
-            const isMatch = debuggerTester.testUrl(localDebuggerInformation.urlPatternType, localDebuggerInformation.urlPattern, testUrl);
-            alert(`${language.debugger_config.urlPatternTestResult} ${isMatch}`);
-        });
-
-        // 启用/禁用请求断点
-        $debuggerComponent.find(`#${debuggerInformation.id}-enableRequestDebugger-checkbox`).on("change", function () {
-            localDebuggerInformation.enableRequestDebugger = $(this).prop("checked") as boolean;
-            // 保存配置
-            const config = getGlobalConfig();
-            const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-            if (debuggerItem) {
-                debuggerItem.enableRequestDebugger = localDebuggerInformation.enableRequestDebugger;
-                debuggerItem.updateTime = new Date().getTime();
-                config.persist();
-            }
-        });
-
-        // 启用/禁用响应断点
-        $debuggerComponent.find(`#${debuggerInformation.id}-enableResponseDebugger-checkbox`).on("change", function () {
-            localDebuggerInformation.enableResponseDebugger = $(this).prop("checked") as boolean;
-            // 保存配置
-            const config = getGlobalConfig();
-            const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-            if (debuggerItem) {
-                debuggerItem.enableResponseDebugger = localDebuggerInformation.enableResponseDebugger;
-                debuggerItem.updateTime = new Date().getTime();
-                config.persist();
-            }
-        });
-
-        // Hook类型
-        $debuggerComponent.find(`#${debuggerInformation.id}-hookType`).on("change", function () {
-            localDebuggerInformation.hookType = $(this).val() as HookType;
-            // 保存配置
-            const config = getGlobalConfig();
-            const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-            if (debuggerItem) {
-                (debuggerItem as any).hookType = localDebuggerInformation.hookType;
-                debuggerItem.updateTime = new Date().getTime();
-                config.persist();
-            }
-        });
-
-        // 回调函数参数名
-        $debuggerComponent.find(`#${debuggerInformation.id}-callbackFunctionParamName-text`).on("change", function () {
-            localDebuggerInformation.callbackFunctionName = $(this).val() as string;
-            // 保存配置
-            const config = getGlobalConfig();
-            const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-            if (debuggerItem) {
-                debuggerItem.callbackFunctionName = localDebuggerInformation.callbackFunctionName;
-                debuggerItem.updateTime = new Date().getTime();
-                config.persist();
-            }
-        });
-
-        // 备注
-        $debuggerComponent.find(`#${debuggerInformation.id}-comment-text`).on("change", function () {
-            localDebuggerInformation.comment = $(this).val() as string;
-            // 保存配置
-            const config = getGlobalConfig();
-            const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-            if (debuggerItem) {
-                debuggerItem.comment = localDebuggerInformation.comment;
-                debuggerItem.updateTime = new Date().getTime();
-                config.persist();
-            }
-        });
+        // 添加按钮组件 - URL匹配测试
+        $debuggerComponent.find(`#${debuggerInformation.id}-url-pattern-test-container`).append(
+            this.buttonComponent.render(
+                `${debuggerInformation.id}-url-pattern-test`,
+                language.debugger_config.urlPatternTest,
+                function() {
+                    // 使用InputDialogComponent替代原生prompt
+                    const inputDialog = InputDialogComponent.getInstance();
+                    inputDialog.show(
+                        language.debugger_config.urlPatternTest,
+                        language.debugger_config.urlPatternTestPrompt,
+                        (confirmed, testUrl) => {
+                            if (confirmed && testUrl) {
+                                const debuggerTester = new DebuggerTester();
+                                const isMatch = debuggerTester.testUrl(localDebuggerInformation.urlPatternType, localDebuggerInformation.urlPattern, testUrl);
+                                
+                                // 使用AlertDialogComponent替代原生alert
+                                const alertDialog = AlertDialogComponent.getInstance();
+                                alertDialog.show(
+                                    language.debugger_config.urlPatternTest,
+                                    `${language.debugger_config.urlPatternTestResult} ${isMatch}`
+                                );
+                            }
+                        },
+                        '', // 默认值为空
+                        'https://' // 提示输入URL的占位符
+                    );
+                },
+                'primary', // 使用主按钮样式
+                'small',   // 使用小尺寸按钮
+                '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>' // 测试图标
+            )
+        );
 
         // 删除断点 - 使用自定义确认对话框
         $debuggerComponent.find(`#${debuggerInformation.id}-remove-btn`).on("click", function () {

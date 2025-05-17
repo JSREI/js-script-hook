@@ -69,6 +69,7 @@ interface TabsLanguage {
     debuggerListTab: string;
     globalSettingsTab: string;
     addNewBreakpoint: string;
+    aboutTab: string;
 }
 
 // 新增确认对话框相关的语言配置
@@ -77,6 +78,29 @@ interface ConfirmDialogLanguage {
     deleteConfirmMessage: string;
     okButton: string;
     cancelButton: string;
+    closeWindow: string;  // 新增关闭窗口文本
+}
+
+// 关于页面的语言配置
+interface AboutLanguage {
+    projectInfoTitle: string;
+    projectDescription: string;
+    licenseLabel: string;
+    groupTitle: string;
+    wechatGroupScanTips: string;
+    wechatPersonalScanTips: string;
+    telegramGroupScanTips: string;
+    clickHere: string;
+    telegramJoinGroup: string;
+    organizationTitle: string;
+    organizationDescription1: string;
+    organizationDescription2: string;
+    organizationDescription3: string;
+    organizationGithub: string;
+    starMeOnGithub: string;
+    feedbackTitle: string;
+    feedbackDescription: string;
+    submitIssue: string;
 }
 
 export interface Language {
@@ -85,6 +109,7 @@ export interface Language {
     console: ConsoleLanguage;
     tabs: TabsLanguage;
     confirm_dialog: ConfirmDialogLanguage;  // 新增
+    about: AboutLanguage;  // 添加关于页面的国际化
 }
 
 // 中文菜单
@@ -154,14 +179,36 @@ const chinese: Language = {
     tabs: {
         debuggerListTab: "断点列表",
         globalSettingsTab: "全局设置",
-        addNewBreakpoint: "添加新的断点"
+        addNewBreakpoint: "添加新的断点",
+        aboutTab: "关于"
     },
     // 新增确认对话框的中文翻译
     confirm_dialog: {
         deleteBreakpoint: "删除断点",
         deleteConfirmMessage: "确定要删除此断点吗？删除后将无法恢复。",
         okButton: "删除",
-        cancelButton: "取消"
+        cancelButton: "取消",
+        closeWindow: "关闭窗口"
+    },
+    about: {
+        projectInfoTitle: "项目信息",
+        projectDescription: "JS-Script-Hook 是一个用于Hook网站Script脚本请求和响应的工具，可以帮助开发者和安全研究人员分析和调试网站JavaScript代码。",
+        licenseLabel: "许可证: MIT",
+        groupTitle: "逆向技术交流群",
+        wechatGroupScanTips: "扫码加入逆向技术交流群",
+        wechatPersonalScanTips: "加我微信，发送【逆向群】拉你进群",
+        telegramGroupScanTips: "扫码或",
+        clickHere: "点此",
+        telegramJoinGroup: "加入TG交流群",
+        organizationTitle: "关于JSREI组织",
+        organizationDescription1: "JSREI (JavaScript Reverse Engineering Institute) 是一个致力于JavaScript逆向工程、Web安全研究的开源技术社区。",
+        organizationDescription2: "我们专注于JavaScript代码分析、脱壳、混淆还原、浏览器指纹、Hook技术等方面的研究和工具开发。",
+        organizationDescription3: "欢迎对JavaScript逆向工程感兴趣的开发者加入我们的社区，一起交流学习。",
+        organizationGithub: "GitHub组织:",
+        starMeOnGithub: "Star me on GitHub",
+        feedbackTitle: "问题反馈",
+        feedbackDescription: "当您遇到问题或有改进建议时，欢迎通过GitHub Issue反馈。我们将尽快处理您的问题。",
+        submitIssue: "提交Issue"
     }
 };
 
@@ -232,14 +279,36 @@ const english: Language = {
     tabs: {
         debuggerListTab: "Debugger List",
         globalSettingsTab: "Global Settings",
-        addNewBreakpoint: "Add New Breakpoint"
+        addNewBreakpoint: "Add New Breakpoint",
+        aboutTab: "About"
     },
     // 新增确认对话框的英文翻译
     confirm_dialog: {
         deleteBreakpoint: "Delete Breakpoint",
         deleteConfirmMessage: "Are you sure you want to delete this breakpoint? This action cannot be undone.",
         okButton: "Delete",
-        cancelButton: "Cancel"
+        cancelButton: "Cancel",
+        closeWindow: "Close Window"
+    },
+    about: {
+        projectInfoTitle: "Project Information",
+        projectDescription: "JS-Script-Hook is a tool for hooking website script request and response, which helps developers and security researchers analyze and debug website JavaScript code.",
+        licenseLabel: "License: MIT",
+        groupTitle: "Reverse Engineering Communication Group",
+        wechatGroupScanTips: "Scan the QR code to join the reverse engineering WeChat group",
+        wechatPersonalScanTips: "Add my WeChat and send [Reverse Group] to join the group",
+        telegramGroupScanTips: "Scan or",
+        clickHere: "click here",
+        telegramJoinGroup: "to join the Telegram group",
+        organizationTitle: "About JSREI Organization",
+        organizationDescription1: "JSREI (JavaScript Reverse Engineering Institute) is an open-source technical community dedicated to JavaScript reverse engineering and Web security research.",
+        organizationDescription2: "We focus on JavaScript code analysis, unpacking, deobfuscation, browser fingerprinting, Hook technology, and tool development.",
+        organizationDescription3: "We welcome developers interested in JavaScript reverse engineering to join our community and learn together.",
+        organizationGithub: "GitHub Organization:",
+        starMeOnGithub: "Star me on GitHub",
+        feedbackTitle: "Feedback",
+        feedbackDescription: "When you encounter issues or have suggestions for improvement, please feel free to submit a GitHub Issue. We will address your concerns as soon as possible.",
+        submitIssue: "Submit Issue"
     }
 };
 

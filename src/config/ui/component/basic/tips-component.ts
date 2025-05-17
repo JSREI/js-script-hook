@@ -13,8 +13,8 @@ export class TipsComponent {
             line-height: 20px;
             text-align: center;
             border-radius: 50%;
-            background-color: #eee;
-            color: #666;
+            background-color: #f7f7f7;
+            color: #aaa;
             cursor: help;
             margin-right: 5px;
             position: relative;
@@ -22,7 +22,8 @@ export class TipsComponent {
         }
         
         .js-script-hook-tips-icon:hover {
-            background-color: #ddd;
+            background-color: #f0f0f0;
+            color: #888;
         }
         
         /* 问号提示内容 */

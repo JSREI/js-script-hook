@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { GlobalOptionsComponent } from "./global-options-component";
 import { DebuggerManagerComponent } from "./debugger-manager-component";
+import { AboutComponent } from "./about-component";
 import { getGlobalConfig } from "../../config";
 import { getLanguage, type Language } from "./language";
 import { TabComponent, TabItem } from "./basic";
@@ -62,30 +63,33 @@ export class ConfigurationComponent {
             right: 15px;
             top: 15px;
             cursor: pointer;
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: none;
-            background-color: transparent;
+            border: 2px solid #999;
+            background-color: white;
             border-radius: 50%;
             font-size: 24px;
-            color: #666;
-            transition: all 0.3s ease;
+            color: #888;
+            transition: all 0.2s ease;
             z-index: 1000;
             transform: rotate(0deg);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         
         #jsrei-js-script-hook-configuration-close-btn:hover {
-            color: #f44336;
-            background-color: rgba(244, 67, 54, 0.1);
+            color: #555;
+            background-color: #f0f0f0;
+            border-color: #666;
             transform: rotate(90deg);
+            box-shadow: 0 3px 7px rgba(0,0,0,0.3);
         }
         
         #jsrei-js-script-hook-configuration-close-btn:focus {
             outline: none;
-            box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.3);
+            box-shadow: 0 0 0 3px rgba(153, 153, 153, 0.4);
         }
         
         #jsrei-js-script-hook-configuration-close-btn:active {
@@ -97,7 +101,7 @@ export class ConfigurationComponent {
         <div id="jsrei-js-script-hook-configuration-modal-window">
             <div class="js-script-hook-scrollable-div">
                 <button id="jsrei-js-script-hook-configuration-close-btn" title="关闭">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
@@ -119,7 +123,30 @@ export class ConfigurationComponent {
         const language = getLanguage(getGlobalConfig().language);
 
         // 将模态框添加到body元素中
-        $(document.body).append($(this.modalHTML));
+        $(document.body).append($(this.modalHTML.replace('关闭', language.confirm_dialog.closeWindow)));
+
+        // 断点列表图标
+        const debuggerListIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 4H3"/>
+            <path d="M21 8H3"/>
+            <path d="M21 12H3"/>
+            <path d="M21 16H3"/>
+            <path d="M21 20H3"/>
+            <circle cx="7" cy="8" r="2.5" fill="#ff5252" stroke="none"/>
+        </svg>`;
+        
+        // 全局设置图标
+        const globalSettingsIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>`;
+        
+        // 关于图标
+        const aboutIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 16v-4"></path>
+            <path d="M12 8h.01"></path>
+        </svg>`;
 
         // 创建Tab页内容
         const tabItems: TabItem[] = [
@@ -127,12 +154,20 @@ export class ConfigurationComponent {
                 id: 'debugger-list-tab',
                 title: language.tabs.debuggerListTab,
                 content: this.createDebuggerListTab(language),
-                active: true
+                active: true,
+                icon: debuggerListIcon
             },
             {
                 id: 'global-settings-tab',
                 title: language.tabs.globalSettingsTab,
-                content: this.createGlobalSettingsTab(language)
+                content: this.createGlobalSettingsTab(language),
+                icon: globalSettingsIcon
+            },
+            {
+                id: 'about-tab',
+                title: language.tabs.aboutTab,
+                content: this.createAboutTab(language),
+                icon: aboutIcon
             }
         ];
 
@@ -165,6 +200,16 @@ export class ConfigurationComponent {
     private createGlobalSettingsTab(language: Language): JQuery<HTMLElement> {
         const globalOptionsComponent = new GlobalOptionsComponent();
         return globalOptionsComponent.render(language, getGlobalConfig());
+    }
+
+    /**
+     * 创建关于Tab页内容
+     * @param language 语言配置
+     * @returns 关于页面jQuery对象
+     */
+    private createAboutTab(language: Language): JQuery<HTMLElement> {
+        const aboutComponent = new AboutComponent();
+        return aboutComponent.render(language);
     }
 
     /**
