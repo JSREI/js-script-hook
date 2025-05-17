@@ -4,9 +4,7 @@
 export const tipsStyles = `
     /* 提示图标容器样式 */
     .js-script-hook-tips-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        display: inline-block;
         width: 16px;
         height: 16px;
         min-width: 16px;
@@ -20,25 +18,19 @@ export const tipsStyles = `
         margin-right: 5px;
         position: relative;
         vertical-align: middle;
-        line-height: 1;
-        /* 重要：精确控制图标位置，使其与输入框完美对齐 */
-        transform: translateY(-1px);
+        text-align: center;
+        line-height: 16px;
     }
     
     /* 确保问号图标和后面的文本对齐 */
     .js-script-hook-tips-icon + span {
         vertical-align: middle;
-        display: inline-flex;
-        align-items: center;
-        line-height: normal;
-        height: 100%;
     }
     
     /* 创建一个包装器，确保问号图标与文本在水平和垂直方向上对齐 */
     td[align="right"] {
         white-space: nowrap;
-        height: 42px;
-        line-height: normal;
+        vertical-align: middle;
     }
     
     td[align="right"] .js-script-hook-tips-icon,

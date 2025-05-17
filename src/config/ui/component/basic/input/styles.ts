@@ -8,19 +8,18 @@ export const inputStyles = `
     width: 100%;
     display: inline-block;
     vertical-align: middle;
-    line-height: normal;
 }
 
 .js-script-hook-input-field {
     width: 100%;
-    height: 32px; /* 与行高匹配 */
+    height: 30px;
     padding: 0 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
     font-size: 14px;
     background-color: white;
-    line-height: 30px;
+    line-height: 28px;
     vertical-align: middle;
 }
 
@@ -40,9 +39,7 @@ export const inputStyles = `
 /* 确保输入框在表格中与其他元素对齐 */
 .debugger-component-table .js-script-hook-input-container {
     margin: 0;
-    display: inline-flex;
-    align-items: center;
-    height: 40px;
+    vertical-align: middle;
 }
 
 .debugger-component-table .js-script-hook-input-field {
