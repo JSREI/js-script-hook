@@ -63,14 +63,28 @@ interface GlobalSettingsLanguage {
     isIgnoreJsSuffixRequestTips: string;
     isIgnoreNotJsonpRequest: string;
     isIgnoreNotJsonpRequestTips: string;
-    autoJumpProjectSiteOnConfiguraion: string;
-    autoJumpProjectSiteOnConfiguraionTips: string;
 }
 
-interface Language {
+interface TabsLanguage {
+    debuggerListTab: string;
+    globalSettingsTab: string;
+    addNewBreakpoint: string;
+}
+
+// 新增确认对话框相关的语言配置
+interface ConfirmDialogLanguage {
+    deleteBreakpoint: string;
+    deleteConfirmMessage: string;
+    okButton: string;
+    cancelButton: string;
+}
+
+export interface Language {
     global_settings: GlobalSettingsLanguage;
     debugger_config: DebuggerConfigLanguage;
     console: ConsoleLanguage;
+    tabs: TabsLanguage;
+    confirm_dialog: ConfirmDialogLanguage;  // 新增
 }
 
 // 中文菜单
@@ -89,9 +103,7 @@ const chinese: Language = {
         isIgnoreJsSuffixRequest: "是否忽略.js后缀的请求：",
         isIgnoreJsSuffixRequestTips: "大多数时候.js后缀的请求都是单纯的加载JavaScript资源文件，可以选择忽略掉这类请求，当勾选的时候，控制台上也不会再打印.js请求",
         isIgnoreNotJsonpRequest: "是否忽略不是jsonp的请求：",
-        isIgnoreNotJsonpRequestTips: "如果只关注jsonp类型的请求，可以选择忽略掉其它请求，当勾选的时候，控制台上也不会再打印非jsonp请求",
-        autoJumpProjectSiteOnConfiguraion: "跳转到项目主页打开此界面以防样式错乱：",
-        autoJumpProjectSiteOnConfiguraionTips: "油猴脚本注入的界面可能会跟网页中原有的样式发生冲突或者污染，从而导致样式错乱，跳转到经过测试的项目主页打开设置界面可以有效防止布局错乱，推荐勾选此选项"
+        isIgnoreNotJsonpRequestTips: "如果只关注jsonp类型的请求，可以选择忽略掉其它请求，当勾选的时候，控制台上也不会再打印非jsonp请求"
     },
     debugger_config: {
         debuggerTitle: "断点配置",
@@ -138,6 +150,18 @@ const chinese: Language = {
         paramValue: "参数值",
         isJsonpCallback: "是否是jsonp回调函数",
         codeLocation: "代码位置"
+    },
+    tabs: {
+        debuggerListTab: "断点列表",
+        globalSettingsTab: "全局设置",
+        addNewBreakpoint: "添加新的断点"
+    },
+    // 新增确认对话框的中文翻译
+    confirm_dialog: {
+        deleteBreakpoint: "删除断点",
+        deleteConfirmMessage: "确定要删除此断点吗？删除后将无法恢复。",
+        okButton: "删除",
+        cancelButton: "取消"
     }
 };
 
@@ -157,9 +181,7 @@ const english: Language = {
         isIgnoreJsSuffixRequest: "Ignore .js Suffix Requests:",
         isIgnoreJsSuffixRequestTips: "Most of the time, requests with a .js suffix are simply loading JavaScript resource files. You can choose to ignore such requests. When checked, .js requests will not be printed on the console.",
         isIgnoreNotJsonpRequest: "Ignore Non-JSONP Requests:",
-        isIgnoreNotJsonpRequestTips: "If you are only concerned with JSONP-type requests, you can choose to ignore other requests. When checked, non-JSONP requests will not be printed on the console.",
-        autoJumpProjectSiteOnConfiguraion: "Jump to the Project Homepage to Open This Interface to Prevent Style Issues:",
-        autoJumpProjectSiteOnConfiguraionTips: "The interface injected by the Tampermonkey script may conflict with or pollute the original styles of the webpage, causing style issues. Jumping to the tested project homepage to open the settings interface can effectively prevent layout issues. It is recommended to check this option."
+        isIgnoreNotJsonpRequestTips: "If you are only concerned with JSONP-type requests, you can choose to ignore other requests. When checked, non-JSONP requests will not be printed on the console."
     },
     debugger_config: {
         debuggerTitle: "Breakpoint Configuration",
@@ -206,6 +228,18 @@ const english: Language = {
         paramValue: "Parameter Value",
         isJsonpCallback: "Is JSONP Callback Function",
         codeLocation: "Code Location"
+    },
+    tabs: {
+        debuggerListTab: "Debugger List",
+        globalSettingsTab: "Global Settings",
+        addNewBreakpoint: "Add New Breakpoint"
+    },
+    // 新增确认对话框的英文翻译
+    confirm_dialog: {
+        deleteBreakpoint: "Delete Breakpoint",
+        deleteConfirmMessage: "Are you sure you want to delete this breakpoint? This action cannot be undone.",
+        okButton: "Delete",
+        cancelButton: "Cancel"
     }
 };
 
