@@ -82,6 +82,17 @@ export function $(selector: TypeOrArray<HTMLElementOrString>): JQuery {
   return convertToJQueryObject($lite(selector));
 }
 
+/**
+ * jQuery函数 - 确保作为函数使用时的兼容性
+ * 
+ * @param selector 选择器
+ * @returns JQuery对象
+ */
+export function jQuery(selector: TypeOrArray<HTMLElementOrString>): JQuery {
+  jqueryLogger.debug(`jQuery函数调用，选择器：${selector}`);
+  return $(selector);
+}
+
 // 添加日志到jQuery-lite的html方法
 function addLoggingToJQueryLiteHtml() {
   if ($lite.fn && $lite.fn.html && !$lite.fn._originalHtml) {
@@ -109,9 +120,6 @@ function addLoggingToJQueryLiteHtml() {
 
 // 添加日志到jQuery-lite的html方法
 addLoggingToJQueryLiteHtml();
-
-// 导出jQuery兼容接口
-export const jQuery = $;
 
 // 重新导出jQuery-lite函数
 export { $ }; 
