@@ -58,28 +58,29 @@ export const tipsStyles = `
         background-color: #333;
         color: white;
         text-align: left;
-        padding: 10px 12px;
-        border-radius: 4px;
+        padding: 15px 18px;
+        border-radius: 6px;
         width: max-content;
-        max-width: 300px;
-        min-width: 180px;
-        font-size: 12px;
-        z-index: 1000;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        max-width: 350px;
+        min-width: 200px;
+        font-size: 13px;
+        z-index: 10000; /* 提高z-index确保显示在最上层 */
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
         opacity: 0;
         transition: opacity 0.3s, visibility 0.3s;
         pointer-events: none;
         white-space: normal;
-        line-height: 1.5;
+        line-height: 1.6;
         word-break: break-word;
         word-wrap: break-word;
         height: auto;
         overflow: visible;
+        margin: 5px;
     }
     
     /* 针对超长内容的样式优化 */
     .js-script-hook-tooltip.long-content {
-        max-height: 300px;
+        max-height: 350px;
         overflow-y: auto;
     }
     
@@ -158,7 +159,7 @@ export const tipsStyles = `
     /* 响应式处理长文本 */
     @media screen and (max-width: 768px) {
         .js-script-hook-tooltip {
-            max-width: 250px;
+            max-width: 300px;
         }
     }
 `; 
