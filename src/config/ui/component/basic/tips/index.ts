@@ -1,0 +1,1 @@
+export { TipsComponent } from './tips-component'; 

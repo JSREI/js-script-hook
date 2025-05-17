@@ -1,0 +1,1 @@
+export { GlobalOptionsComponent } from './global-options-component'; 
