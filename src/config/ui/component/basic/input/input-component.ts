@@ -74,20 +74,44 @@ export class InputComponent implements LanguageUpdateable {
         input.id = id;
         input.className = 'js-script-hook-input-field';
         input.type = 'text';
+        
+        // 为输入框设置特殊类名，用于识别真正为空的输入框
+        input.classList.add('js-script-hook-empty-input');
+        
         if (placeholder) {
             input.placeholder = placeholder;
         }
+        
+        // 只有当value是有效值时，才设置value并移除空输入框标记
         if (value !== undefined && value !== null && value !== '') {
             input.value = value;
+            input.classList.remove('js-script-hook-empty-input');
         }
         
         // 添加事件处理
         if (onChange) {
             input.addEventListener('input', (e) => {
                 const target = e.target as HTMLInputElement;
+                
+                // 当用户输入内容时，移除空输入框标记
+                if (target.value !== '') {
+                    target.classList.remove('js-script-hook-empty-input');
+                } else {
+                    target.classList.add('js-script-hook-empty-input');
+                }
+                
                 onChange(target.value);
             });
         }
+        
+        // 当焦点进入时，清除可能被错误填充的placeholder文本
+        input.addEventListener('focus', function() {
+            // 如果输入框标记为空但有显示的值，说明可能是placeholder被错误地作为值
+            if (this.classList.contains('js-script-hook-empty-input') && this.value !== '') {
+                // 清空并聚焦
+                this.value = '';
+            }
+        });
         
         this.containerElement.appendChild(input);
         
