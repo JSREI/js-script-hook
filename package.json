@@ -1,21 +1,31 @@
 {
   "name": "js-script-hook",
   "description": "用来给script类型的请求打断点",
-  "version": "0.3",
-  "main": "index.js",
+  "version": "0.4",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/JSREI/js-script-hook.git",
   "namespace": "https://github.com/JSREI/js-script-hook.git",
   "document": "https://github.com/JSREI/js-script-hook.git",
   "scripts": {
-    "build": "NODE_ENV=production webpack --config webpack.prod.js",
-    "watch": "webpack --watch --config webpack.dev.js"
+    "clean": "rm -rf dist/*",
+    "build": "npm run clean && NODE_ENV=production webpack --config webpack.prod.js",
+    "watch": "webpack --watch --config webpack.dev.js",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch"
   },
   "author": "CC11001100 <CC11001100@qq.com>",
   "license": "MIT",
   "devDependencies": {
+    "@types/jquery": "^3.5.32",
+    "@types/tampermonkey": "^5.0.4",
     "current-script-polyfill": "^1.0.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.8.3",
     "webpack": "5.94.0",
     "webpack-cli": "^5.1.4",
     "webpack-merge": "^5.9.0"
+  },
+  "dependencies": {
   }
 }

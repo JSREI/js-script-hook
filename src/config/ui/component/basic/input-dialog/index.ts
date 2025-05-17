@@ -1,0 +1,1 @@
+export { InputDialogComponent } from './input-dialog-component'; 

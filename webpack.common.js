@@ -5,12 +5,15 @@ const fs = require("fs");
 
 module.exports = {
     entry: {
-        index: "./src/index.js"
+        index: "./src/index.ts"
     },
     output: {
         // filename: "[name]-[hash].js",
         filename: "[name].js",
         path: path.resolve(__dirname, "dist"),
+    },
+    resolve: {
+        extensions: ['.ts', '.js']
     },
     optimization: {
     },
@@ -38,6 +41,17 @@ module.exports = {
     ],
     module: {
         rules: [
+            {
+                test: /\.tsx?$/,
+                use: {
+                    loader: 'ts-loader',
+                    options: {
+                        // 禁用类型检查，让TypeScript仅作为转译器
+                        transpileOnly: true
+                    }
+                },
+                exclude: /node_modules/
+            },
             {
                 test: /\.css$/,
                 use: ['style-loader', 'css-loader']

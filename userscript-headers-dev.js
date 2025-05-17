@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         js-script-hook
 // @namespace    https://github.com/JSREI/js-script-hook.git
-// @version      0.0.1
+// @version      0.4
 // @description  用来给script类型的请求打断点
 // @document     https://github.com/JSREI/js-script-hook.git
 // @author       CC11001100 <CC11001100@qq.com>
