@@ -1,4 +1,6 @@
-import { jQuery as $ } from '../utils/jquery-adapter';
+/**
+ * 确认对话框组件 - 原生JavaScript实现
+ */
 
 type ConfirmCallback = (confirmed: boolean) => void;
 
@@ -151,68 +153,87 @@ export class ConfirmDialogComponent {
         this.appendStyles();
 
         // 如果已经有对话框，先移除
-        $('.js-script-hook-confirm-overlay').remove();
+        const existingOverlay = document.querySelector('.js-script-hook-confirm-overlay');
+        if (existingOverlay) {
+            existingOverlay.remove();
+        }
 
-        const dialogHTML = `
-        <div class="js-script-hook-confirm-overlay">
-            <div class="js-script-hook-confirm-dialog">
-                <div class="js-script-hook-confirm-header">
-                    <span class="js-script-hook-dialog-icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                            <line x1="12" y1="9" x2="12" y2="13"></line>
-                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                        </svg>
-                    </span>
-                    ${title}
-                </div>
-                <div class="js-script-hook-confirm-body">
-                    ${message}
-                </div>
-                <div class="js-script-hook-confirm-footer">
-                    <button class="js-script-hook-confirm-btn js-script-hook-confirm-cancel-btn">${cancelText}</button>
-                    <button class="js-script-hook-confirm-btn js-script-hook-confirm-ok-btn">${okText}</button>
-                </div>
-            </div>
-        </div>
+        // 创建对话框元素
+        const overlay = document.createElement('div');
+        overlay.className = 'js-script-hook-confirm-overlay';
+
+        const dialog = document.createElement('div');
+        dialog.className = 'js-script-hook-confirm-dialog';
+
+        // 创建头部
+        const header = document.createElement('div');
+        header.className = 'js-script-hook-confirm-header';
+
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'js-script-hook-dialog-icon';
+        iconSpan.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
         `;
+        header.appendChild(iconSpan);
+        header.appendChild(document.createTextNode(title));
 
-        const $dialog = $(dialogHTML);
-        $(document.body).append($dialog);
+        // 创建内容
+        const body = document.createElement('div');
+        body.className = 'js-script-hook-confirm-body';
+        body.textContent = message;
 
-        // 绑定事件
-        $dialog.find('.js-script-hook-confirm-cancel-btn').on('click', () => {
+        // 创建底部按钮
+        const footer = document.createElement('div');
+        footer.className = 'js-script-hook-confirm-footer';
+
+        const cancelButton = document.createElement('button');
+        cancelButton.className = 'js-script-hook-confirm-btn js-script-hook-confirm-cancel-btn';
+        cancelButton.textContent = cancelText;
+        cancelButton.addEventListener('click', () => {
             this.close();
             callback(false);
         });
 
-        $dialog.find('.js-script-hook-confirm-ok-btn').on('click', () => {
+        const okButton = document.createElement('button');
+        okButton.className = 'js-script-hook-confirm-btn js-script-hook-confirm-ok-btn';
+        okButton.textContent = okText;
+        okButton.addEventListener('click', () => {
             this.close();
             callback(true);
         });
 
+        footer.appendChild(cancelButton);
+        footer.appendChild(okButton);
+
+        // 组装对话框
+        dialog.appendChild(header);
+        dialog.appendChild(body);
+        dialog.appendChild(footer);
+        overlay.appendChild(dialog);
+
         // 点击空白处关闭对话框
-        $dialog.on('click', (event) => {
-            if ($(event.target).hasClass('js-script-hook-confirm-overlay')) {
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) {
                 this.close();
                 callback(false);
             }
         });
 
-        // ESC键关闭对话框
-        $(document).on('keydown.confirm-dialog', (event) => {
-            if (event.key === 'Escape') {
-                this.close();
-                callback(false);
-            }
-        });
+        // 添加到页面
+        document.body.appendChild(overlay);
     }
 
     /**
      * 关闭对话框
      */
     private close(): void {
-        $('.js-script-hook-confirm-overlay').remove();
-        $(document).off('keydown.confirm-dialog');
+        const overlay = document.querySelector('.js-script-hook-confirm-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
     }
 } 

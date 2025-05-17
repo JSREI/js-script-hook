@@ -1,4 +1,6 @@
-import { jQuery as $, JQuery } from '../utils/jquery-adapter';
+/**
+ * 文本域组件 - 原生JavaScript实现
+ */
 
 export class TextareaComponent {
     private readonly styleCSS: string;
@@ -89,7 +91,7 @@ export class TextareaComponent {
      * @param rows 行数（可选，默认5）
      * @param maxLength 最大长度（可选，如果提供则显示计数器）
      * @param disabled 是否禁用
-     * @returns jQuery对象
+     * @returns HTMLElement
      */
     render(
         id: string, 
@@ -100,50 +102,60 @@ export class TextareaComponent {
         rows: number = 5,
         maxLength?: number,
         disabled: boolean = false
-    ): JQuery<HTMLElement> {
+    ): HTMLElement {
         // 确保样式已添加
         this.appendStyles();
         
         // 创建文本域容器
-        const container = $('<div class="js-script-hook-textarea-container"></div>');
+        const container = document.createElement('div');
+        container.className = 'js-script-hook-textarea-container';
         
         // 如果有标签，添加标签
         if (label) {
-            container.append(`<label class="js-script-hook-textarea-label" for="${id}">${label}</label>`);
+            const labelElement = document.createElement('label');
+            labelElement.className = 'js-script-hook-textarea-label';
+            labelElement.setAttribute('for', id);
+            labelElement.textContent = label;
+            container.appendChild(labelElement);
         }
         
         // 创建文本域元素
-        const textarea = $(`<textarea 
-            id="${id}" 
-            class="js-script-hook-textarea-field${disabled ? ' disabled' : ''}" 
-            placeholder="${placeholder}"
-            rows="${rows}"
-            ${maxLength ? `maxlength="${maxLength}"` : ''}
-            ${disabled ? 'disabled' : ''}
-        >${value}</textarea>`);
+        const textarea = document.createElement('textarea');
+        textarea.id = id;
+        textarea.className = `js-script-hook-textarea-field${disabled ? ' disabled' : ''}`;
+        textarea.placeholder = placeholder;
+        textarea.rows = rows;
+        textarea.value = value;
+        
+        if (maxLength) {
+            textarea.maxLength = maxLength;
+        }
+        
+        if (disabled) {
+            textarea.disabled = true;
+        }
         
         // 添加到容器
-        container.append(textarea);
+        container.appendChild(textarea);
         
         // 如果设置了最大长度，添加计数器
         if (maxLength) {
-            const counter = $(`<span class="js-script-hook-textarea-counter">0/${maxLength}</span>`);
-            container.append(counter);
+            const counter = document.createElement('span');
+            counter.className = 'js-script-hook-textarea-counter';
+            counter.textContent = `${value.length}/${maxLength}`;
+            container.appendChild(counter);
             
-            textarea.on('input', function() {
-                const currentLength = String($(this).val()).length;
-                counter.text(`${currentLength}/${maxLength}`);
+            textarea.addEventListener('input', () => {
+                const currentLength = textarea.value.length;
+                counter.textContent = `${currentLength}/${maxLength}`;
             });
-            
-            // 初始化计数
-            const initialLength = value.length;
-            counter.text(`${initialLength}/${maxLength}`);
         }
         
         // 添加事件处理
         if (onChange) {
-            textarea.on('input', function() {
-                onChange(String($(this).val()));
+            textarea.addEventListener('input', (e) => {
+                const target = e.target as HTMLTextAreaElement;
+                onChange(target.value);
             });
         }
         

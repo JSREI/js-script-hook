@@ -1,4 +1,6 @@
-import { jQuery as $, JQuery } from '../utils/jquery-adapter';
+/**
+ * 下拉选择框组件 - 原生JavaScript实现
+ */
 
 export type SelectOption = {
     value: string;
@@ -153,7 +155,7 @@ export class SelectComponent {
      * @param selectedValue 选中的值
      * @param label 标签文本（可选）
      * @param onChange 值变更回调（可选）
-     * @returns jQuery对象
+     * @returns HTMLElement
      */
     render(
         id: string, 
@@ -161,7 +163,7 @@ export class SelectComponent {
         selectedValue: string = '',
         label?: string,
         onChange?: (value: string) => void
-    ): JQuery<HTMLElement> {
+    ): HTMLElement {
         // 确保样式已添加
         this.appendStyles();
         
@@ -169,118 +171,116 @@ export class SelectComponent {
         const uniqueId = id || SelectComponent.generateId();
         
         // 创建选择框容器
-        const container = $('<div class="js-script-hook-select-container"></div>');
+        const container = document.createElement('div');
+        container.className = 'js-script-hook-select-container';
         
         // 如果有标签，添加标签
         if (label) {
-            container.append(`<label class="js-script-hook-select-label" for="${uniqueId}">${label}</label>`);
+            const labelElement = document.createElement('label');
+            labelElement.className = 'js-script-hook-select-label';
+            labelElement.setAttribute('for', uniqueId);
+            labelElement.textContent = label;
+            container.appendChild(labelElement);
         }
         
         // 查找默认选中的文本
         const selectedOption = options.find(opt => opt.value === selectedValue) || options[0];
         const selectedText = selectedOption ? selectedOption.text : '';
         
-        // 创建自定义下拉框HTML结构
-        const customSelect = $('<div class="js-script-hook-custom-select"></div>');
+        // 创建自定义下拉框结构
+        const customSelect = document.createElement('div');
+        customSelect.className = 'js-script-hook-custom-select';
         
         // 选中的选项显示区域
-        const selectedDiv = $(`<div class="js-script-hook-selected-option" data-value="${selectedValue || ''}">
-            <span class="js-script-hook-selected-text">${selectedText}</span>
-            <span class="js-script-hook-select-arrow">▼</span>
-        </div>`);
+        const selectedDiv = document.createElement('div');
+        selectedDiv.className = 'js-script-hook-selected-option';
+        selectedDiv.setAttribute('data-value', selectedValue || '');
+        
+        const selectedTextSpan = document.createElement('span');
+        selectedTextSpan.className = 'js-script-hook-selected-text';
+        selectedTextSpan.textContent = selectedText;
+        
+        const arrowSpan = document.createElement('span');
+        arrowSpan.className = 'js-script-hook-select-arrow';
+        arrowSpan.textContent = '▼';
+        
+        selectedDiv.appendChild(selectedTextSpan);
+        selectedDiv.appendChild(arrowSpan);
         
         // 选项列表容器
-        const optionsContainer = $('<div class="js-script-hook-options-container"></div>');
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'js-script-hook-options-container';
         
         // 添加选项
         options.forEach(option => {
-            const isSelected = option.value === selectedValue;
-            const optionElement = $(`<div class="js-script-hook-option${isSelected ? ' selected' : ''}" data-value="${option.value}">
-                ${option.text}
-            </div>`);
+            const optionElement = document.createElement('div');
+            optionElement.className = `js-script-hook-option${option.value === selectedValue ? ' selected' : ''}`;
+            optionElement.setAttribute('data-value', option.value);
+            optionElement.textContent = option.text;
             
-            // 点击选项时更新选中状态
-            optionElement.on('click', function() {
-                const value = $(this).data('value') as string;
-                const text = $(this).text().trim();
+            // 添加点击事件
+            optionElement.addEventListener('click', (e) => {
+                e.stopPropagation();
                 
-                // 更新显示的文本和值
-                selectedDiv.find('.js-script-hook-selected-text').text(text);
-                selectedDiv.attr('data-value', value);
+                // 更新选中状态
+                const allOptions = optionsContainer.querySelectorAll('.js-script-hook-option');
+                allOptions.forEach(opt => opt.classList.remove('selected'));
+                optionElement.classList.add('selected');
                 
-                // 更新选项的选中状态
-                optionsContainer.find('.js-script-hook-option').removeClass('selected');
-                $(this).addClass('selected');
+                // 更新显示的文本
+                selectedTextSpan.textContent = option.text;
+                selectedDiv.setAttribute('data-value', option.value);
                 
-                // 更新隐藏的原生select
-                nativeSelect.val(value);
-                
-                // 关闭下拉列表
-                optionsContainer.removeClass('open');
-                selectedDiv.removeClass('active');
-                selectedDiv.find('.js-script-hook-select-arrow').removeClass('open');
+                // 关闭选项列表
+                optionsContainer.classList.remove('open');
+                selectedDiv.classList.remove('active');
+                arrowSpan.classList.remove('open');
                 
                 // 触发onChange回调
                 if (onChange) {
-                    onChange(value);
+                    onChange(option.value);
                 }
-                
-                // 阻止事件冒泡
-                return false;
             });
             
-            optionsContainer.append(optionElement);
+            optionsContainer.appendChild(optionElement);
         });
         
-        // 创建隐藏的原生select，用于表单提交和键盘导航
-        const nativeSelect = $(`<select id="${uniqueId}" class="js-script-hook-select-native"></select>`);
-        options.forEach(option => {
-            const selected = option.value === selectedValue ? 'selected' : '';
-            nativeSelect.append(`<option value="${option.value}" ${selected}>${option.text}</option>`);
-        });
-        
-        // 点击选中区域显示/隐藏选项列表
-        selectedDiv.on('click', function(e) {
+        // 添加点击事件以显示/隐藏选项列表
+        selectedDiv.addEventListener('click', (e) => {
             e.stopPropagation();
-            const isOpen = optionsContainer.hasClass('open');
+            const isOpen = optionsContainer.classList.contains('open');
             
-            // 关闭所有其他打开的下拉列表
-            $('.js-script-hook-options-container.open').removeClass('open');
-            $('.js-script-hook-selected-option.active').removeClass('active');
-            $('.js-script-hook-select-arrow.open').removeClass('open');
-            
-            // 切换当前下拉列表的显示状态
-            if (isOpen) {
-                optionsContainer.removeClass('open');
-                selectedDiv.removeClass('active');
-                selectedDiv.find('.js-script-hook-select-arrow').removeClass('open');
-            } else {
-                optionsContainer.addClass('open');
-                selectedDiv.addClass('active');
-                selectedDiv.find('.js-script-hook-select-arrow').addClass('open');
+            if (!isOpen) {
+                // 关闭其他所有打开的选择框
+                document.querySelectorAll('.js-script-hook-options-container.open').forEach(container => {
+                    container.classList.remove('open');
+                    const parentSelect = container.closest('.js-script-hook-custom-select');
+                    if (parentSelect) {
+                        const selectedOption = parentSelect.querySelector('.js-script-hook-selected-option');
+                        const arrow = parentSelect.querySelector('.js-script-hook-select-arrow');
+                        if (selectedOption) selectedOption.classList.remove('active');
+                        if (arrow) arrow.classList.remove('open');
+                    }
+                });
             }
+            
+            // 切换当前选择框的状态
+            optionsContainer.classList.toggle('open');
+            selectedDiv.classList.toggle('active');
+            arrowSpan.classList.toggle('open');
         });
         
-        // 点击页面其他区域关闭下拉列表
-        $(document).on('click', function(e) {
-            if (!$(e.target).closest('.js-script-hook-custom-select').length) {
-                optionsContainer.removeClass('open');
-                selectedDiv.removeClass('active');
-                selectedDiv.find('.js-script-hook-select-arrow').removeClass('open');
-            }
+        // 点击外部关闭选项列表
+        document.addEventListener('click', () => {
+            optionsContainer.classList.remove('open');
+            selectedDiv.classList.remove('active');
+            arrowSpan.classList.remove('open');
         });
         
         // 组装组件
-        customSelect.append(selectedDiv).append(optionsContainer);
-        container.append(customSelect).append(nativeSelect);
-        
-        // 设置原生select的onChange事件
-        if (onChange) {
-            nativeSelect.on('change', function() {
-                const value = $(this).val() as string;
-                onChange(value);
-            });
-        }
+        customSelect.appendChild(selectedDiv);
+        customSelect.appendChild(optionsContainer);
+        container.appendChild(customSelect);
         
         return container;
     }

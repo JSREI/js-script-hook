@@ -1,11 +1,9 @@
-import { jQuery as $, JQuery } from './utils/jquery-adapter';
 import { GlobalOptionsComponent } from "./global-options-component";
 import { DebuggerManagerComponent } from "./debugger-manager-component";
 import { AboutComponent } from "./about-component";
 import { getGlobalConfig } from "../../config";
 import { getLanguage, type Language } from "./language";
 import { TabComponent, TabItem } from "./basic";
-import { safeCreateElementFromHTML, safeSetInnerHTML } from "../../../utils/dom-utils";
 import { createLogger } from "../../../logger";
 
 // 创建配置组件专用的日志记录器
@@ -156,16 +154,17 @@ export class ConfigurationComponent {
             configUILogger.debug('配置窗口已经打开，不再创建新窗口');
             
             // 如果窗口已存在但不可见，则显示它
-            if ($(existingModal).css('display') === 'none') {
+            if (existingModal.style.display === 'none') {
                 configUILogger.debug('窗口存在但不可见，将其显示');
-                $(existingModal).show();
+                existingModal.style.display = 'block';
                 configUILogger.debug('重新显示已存在的窗口');
             }
             
             // 使窗口有一个轻微闪动效果，引导用户注意
-            $(existingModal).find('.js-script-hook-scrollable-div').css('box-shadow', '0 0 15px rgba(0,123,255,0.8)');
+            const scrollableDiv = existingModal.querySelector('.js-script-hook-scrollable-div') as HTMLElement;
+            scrollableDiv.style.setProperty('box-shadow', '0 0 15px rgba(0,123,255,0.8)');
             setTimeout(() => {
-                $(existingModal).find('.js-script-hook-scrollable-div').css('box-shadow', '0 6px 16px rgba(0,0,0,0.2)');
+                scrollableDiv.style.setProperty('box-shadow', '0 6px 16px rgba(0,0,0,0.2)');
             }, 300);
             
             return;
@@ -235,7 +234,7 @@ export class ConfigurationComponent {
         // 渲染标签组件
         configUILogger.debug('渲染Tab组件...');
         const tabsContainer = this.tabComponent.render(tabItems);
-        configUILogger.debug(`Tab组件渲染完成，获得${tabsContainer.length}个元素`);
+        configUILogger.debug('Tab组件渲染完成');
         
         // 清空内容容器并添加标签组件
         configUILogger.debug('清空内容容器...');
@@ -245,7 +244,7 @@ export class ConfigurationComponent {
         
         configUILogger.debug('将Tab组件添加到内容容器...');
         try {
-            contentContainer.appendChild(tabsContainer[0]);
+            contentContainer.appendChild(tabsContainer);
             configUILogger.debug('Tab组件成功添加到内容容器');
         } catch (error) {
             configUILogger.error(`添加Tab组件时出错: ${error}`);
@@ -256,7 +255,7 @@ export class ConfigurationComponent {
         const modalWindow = document.getElementById('jsrei-js-script-hook-configuration-modal-window');
         if (modalWindow) {
             try {
-                $(modalWindow).show();
+                modalWindow.style.display = 'block';
                 configUILogger.debug('模态窗口显示成功');
             } catch (error) {
                 configUILogger.error(`显示模态窗口时出错: ${error}`);
@@ -295,9 +294,9 @@ export class ConfigurationComponent {
     /**
      * 创建断点列表Tab页内容
      * @param language 语言配置
-     * @returns 断点列表jQuery对象
+     * @returns HTMLElement
      */
-    public createDebuggerListTab(language: Language): JQuery<HTMLElement> {
+    public createDebuggerListTab(language: Language): HTMLElement {
         const debuggerManager = new DebuggerManagerComponent();
         return debuggerManager.render(language, getGlobalConfig().debuggers);
     }
@@ -305,9 +304,9 @@ export class ConfigurationComponent {
     /**
      * 创建全局设置Tab页内容
      * @param language 语言配置
-     * @returns 全局设置jQuery对象
+     * @returns HTMLElement
      */
-    public createGlobalSettingsTab(language: Language): JQuery<HTMLElement> {
+    public createGlobalSettingsTab(language: Language): HTMLElement {
         const globalOptionsComponent = new GlobalOptionsComponent();
         return globalOptionsComponent.render(language, getGlobalConfig());
     }
@@ -315,9 +314,9 @@ export class ConfigurationComponent {
     /**
      * 创建关于Tab页内容
      * @param language 语言配置
-     * @returns 关于页面jQuery对象
+     * @returns HTMLElement
      */
-    public createAboutTab(language: Language): JQuery<HTMLElement> {
+    public createAboutTab(language: Language): HTMLElement {
         const aboutComponent = new AboutComponent();
         return aboutComponent.render(language);
     }
@@ -370,103 +369,21 @@ export class ConfigurationComponent {
         configUILogger.debug('开始创建配置界面DOM');
         
         try {
-            configUILogger.debug('尝试使用safeCreateElementFromHTML创建DOM元素');
-            // 使用安全方法创建DOM元素
-            const fragmentContainer = document.createElement('div');
-            configUILogger.debug('创建容器元素成功，开始解析HTML');
-            
-            const fragment = safeCreateElementFromHTML(this.modalHTML);
-            configUILogger.debug(`成功解析HTML，得到${fragment.tagName}元素`);
-            
-            configUILogger.debug('将创建的元素添加到临时容器中');
-            try {
-                fragmentContainer.appendChild(fragment);
-                configUILogger.debug('元素添加到临时容器成功');
-            } catch (appendError) {
-                configUILogger.error(`将元素添加到临时容器时失败: ${appendError}`);
-            }
-            
-            // 创建一个根容器，将模态框模板添加到其中
-            configUILogger.debug('创建根容器元素');
+            // 创建根容器
             const rootElement = document.createElement('div');
             rootElement.id = 'js-script-hook-modal-root';
             
-            try {
-                configUILogger.debug('将根容器添加到body');
-                document.body.appendChild(rootElement);
-                configUILogger.debug('根容器添加到body成功');
-            } catch (bodyAppendError) {
-                configUILogger.error(`将根容器添加到body时失败: ${bodyAppendError}`);
+            // 创建临时容器并设置HTML
+            const tempContainer = document.createElement('div');
+            tempContainer.innerHTML = this.modalHTML;
+            
+            // 将模态框内容添加到根容器
+            while (tempContainer.firstChild) {
+                rootElement.appendChild(tempContainer.firstChild);
             }
             
-            // 安全地将HTML内容设置到根元素
-            configUILogger.debug('开始使用safeSetInnerHTML设置根元素内容');
-            configUILogger.debug(`HTML内容长度: ${fragmentContainer.innerHTML.length}`);
-            
-            try {
-                try {
-                    // 首先尝试使用jQuery设置内容
-                    configUILogger.debug('尝试使用jQuery方式设置内容');
-                    const $rootElement = $(rootElement);
-                    $rootElement.html(fragmentContainer.innerHTML);
-                    configUILogger.debug('使用jQuery成功设置内容');
-                } catch (jqueryError) {
-                    configUILogger.error(`使用jQuery设置内容失败: ${jqueryError}`);
-                    
-                    // 如果jQuery设置失败，尝试safeSetInnerHTML
-                    configUILogger.debug('回退到safeSetInnerHTML方法');
-                    safeSetInnerHTML(rootElement, fragmentContainer.innerHTML);
-                    configUILogger.debug('使用safeSetInnerHTML设置内容成功');
-                }
-            } catch (innerHTMLError) {
-                configUILogger.error(`设置根元素内容时失败: ${innerHTMLError}`);
-                
-                // 尝试获取错误的详细信息
-                if (innerHTMLError instanceof Error) {
-                    configUILogger.error(`错误名称: ${innerHTMLError.name}`);
-                    configUILogger.error(`错误消息: ${innerHTMLError.message}`);
-                    configUILogger.error(`错误堆栈: ${innerHTMLError.stack}`);
-                }
-                
-                // 最后的回退方案：直接使用DOM API
-                configUILogger.debug('尝试使用原生DOM API作为最终回退方案');
-                try {
-                    // 清空root元素
-                    while (rootElement.firstChild) {
-                        rootElement.removeChild(rootElement.firstChild);
-                    }
-                    
-                    // 创建一个简化版的模态框结构
-                    const basicModalWindow = document.createElement('div');
-                    basicModalWindow.id = 'jsrei-js-script-hook-configuration-modal-window';
-                    basicModalWindow.style.cssText = 'display:block;position:fixed;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.85);z-index:2147483646;';
-                    
-                    const scrollableDiv = document.createElement('div');
-                    scrollableDiv.className = 'js-script-hook-scrollable-div';
-                    scrollableDiv.style.cssText = 'width:auto;max-width:80%;padding:20px;margin:10px auto;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:white;border-radius:8px;';
-                    
-                    const closeBtn = document.createElement('button');
-                    closeBtn.id = 'jsrei-js-script-hook-configuration-close-btn';
-                    closeBtn.textContent = 'X';
-                    closeBtn.style.cssText = 'position:absolute;right:10px;top:10px;cursor:pointer;';
-                    closeBtn.addEventListener('click', () => {
-                        this.closeModalWindow();
-                    });
-                    
-                    const contentDiv = document.createElement('div');
-                    contentDiv.id = 'js-script-hook-configuration-content';
-                    contentDiv.textContent = '配置界面加载中...';
-                    
-                    scrollableDiv.appendChild(closeBtn);
-                    scrollableDiv.appendChild(contentDiv);
-                    basicModalWindow.appendChild(scrollableDiv);
-                    rootElement.appendChild(basicModalWindow);
-                    
-                    configUILogger.debug('使用DOM API创建的简化版模态框添加成功');
-                } catch (domError) {
-                    configUILogger.error(`DOM API回退方案失败: ${domError}`);
-                }
-            }
+            // 将根容器添加到页面
+            document.body.appendChild(rootElement);
             
             configUILogger.debug('配置界面DOM创建成功');
         } catch (error) {

@@ -1,5 +1,7 @@
-import { jQuery as $, JQuery } from '../utils/jquery-adapter';
-import { safeSetInnerHTML, safeCreateElementFromHTML } from '../../../../utils/dom-utils';
+/**
+ * 标签页组件 - 原生JavaScript实现
+ */
+
 import { createLogger } from '../../../../logger';
 
 // 创建Tab组件专用的日志记录器
@@ -11,7 +13,7 @@ const tabLogger = createLogger('tab-component');
 export interface TabItem {
     id?: string;          // 标签页ID
     title: string;        // 标签页标题
-    content: JQuery<HTMLElement>;  // 标签页内容
+    content: HTMLElement;  // 标签页内容
     active?: boolean;     // 是否激活
     icon?: string;        // 图标HTML
 }
@@ -135,9 +137,9 @@ export class TabComponent {
     /**
      * 渲染标签页组件
      * @param tabs 标签页列表
-     * @returns jQuery对象
+     * @returns HTMLElement
      */
-    render(tabs: TabItem[]): JQuery<HTMLElement> {
+    render(tabs: TabItem[]): HTMLElement {
         // 确保样式已添加
         this.appendStyles();
         
@@ -173,14 +175,16 @@ export class TabComponent {
                 tabElement.dataset.tabId = tabId;
                 
                 // 添加图标和标题
-                let tabContent = '';
                 if (tab.icon) {
-                    tabContent += `<span class="js-script-hook-tab-icon">${tab.icon}</span>`;
+                    const iconSpan = document.createElement('span');
+                    iconSpan.className = 'js-script-hook-tab-icon';
+                    iconSpan.innerHTML = tab.icon;
+                    tabElement.appendChild(iconSpan);
                 }
-                tabContent += tab.title;
                 
-                // 安全设置HTML内容
-                safeSetInnerHTML(tabElement, tabContent);
+                const titleText = document.createTextNode(tab.title);
+                tabElement.appendChild(titleText);
+                
                 tabsHeaderElement.appendChild(tabElement);
                 
                 // 创建标签页内容容器
@@ -188,32 +192,29 @@ export class TabComponent {
                 contentElement.className = `js-script-hook-tab-content ${isActive ? 'active' : ''}`;
                 contentElement.id = `tab-content-${tabId}`;
                 
-                // 添加内容（jQuery对象）
-                contentElement.appendChild(tab.content[0]);
+                // 添加内容
+                contentElement.appendChild(tab.content);
                 tabsContentElement.appendChild(contentElement);
                 
                 // 添加点击事件
-                tabElement.addEventListener('click', function() {
+                tabElement.addEventListener('click', () => {
                     // 移除所有标签页的激活状态
                     const allTabs = tabsHeaderElement.querySelectorAll('.js-script-hook-tab');
                     allTabs.forEach(t => t.classList.remove('active'));
                     
+                    // 移除所有内容的激活状态
                     const allContents = tabsContentElement.querySelectorAll('.js-script-hook-tab-content');
                     allContents.forEach(c => c.classList.remove('active'));
                     
-                    // 激活当前点击的标签页
+                    // 激活当前标签页
                     tabElement.classList.add('active');
-                    const targetContent = document.getElementById(`tab-content-${tabId}`);
-                    if (targetContent) {
-                        targetContent.classList.add('active');
-                    }
+                    contentElement.classList.add('active');
                 });
             } catch (error) {
-                tabLogger.error(`为标签页 ${tab.id || index} 创建DOM元素失败: ${error}`);
+                tabLogger.error(`创建标签页时出错: ${error}`);
             }
         });
         
-        // 将DOM元素包装为jQuery对象返回
-        return $(containerElement);
+        return containerElement;
     }
 } 

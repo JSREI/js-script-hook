@@ -1,4 +1,6 @@
-import { jQuery as $ } from '../utils/jquery-adapter';
+/**
+ * 警告对话框组件 - 原生JavaScript实现
+ */
 
 /**
  * 自定义警告对话框组件
@@ -134,62 +136,83 @@ export class AlertDialogComponent {
         this.appendStyles();
 
         // 如果已经有对话框，先移除
-        $('.js-script-hook-alert-overlay').remove();
+        const existingOverlay = document.querySelector('.js-script-hook-alert-overlay');
+        if (existingOverlay) {
+            existingOverlay.remove();
+        }
 
-        const dialogHTML = `
-        <div class="js-script-hook-alert-overlay">
-            <div class="js-script-hook-alert-dialog">
-                <div class="js-script-hook-alert-header">
-                    <span class="js-script-hook-alert-icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                    </span>
-                    ${title}
-                </div>
-                <div class="js-script-hook-alert-body">
-                    ${message}
-                </div>
-                <div class="js-script-hook-alert-footer">
-                    <button class="js-script-hook-alert-btn">${okText}</button>
-                </div>
-            </div>
-        </div>
+        // 创建对话框元素
+        const overlay = document.createElement('div');
+        overlay.className = 'js-script-hook-alert-overlay';
+
+        const dialog = document.createElement('div');
+        dialog.className = 'js-script-hook-alert-dialog';
+
+        // 创建头部
+        const header = document.createElement('div');
+        header.className = 'js-script-hook-alert-header';
+
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'js-script-hook-alert-icon';
+        iconSpan.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
         `;
+        header.appendChild(iconSpan);
+        header.appendChild(document.createTextNode(title));
 
-        const $dialog = $(dialogHTML);
-        $(document.body).append($dialog);
+        // 创建内容
+        const body = document.createElement('div');
+        body.className = 'js-script-hook-alert-body';
+        body.textContent = message;
 
-        // 绑定事件
-        $dialog.find('.js-script-hook-alert-btn').on('click', () => {
+        // 创建底部按钮
+        const footer = document.createElement('div');
+        footer.className = 'js-script-hook-alert-footer';
+
+        const okButton = document.createElement('button');
+        okButton.className = 'js-script-hook-alert-btn';
+        okButton.textContent = okText;
+        okButton.addEventListener('click', () => {
             this.close();
             if (callback) callback();
         });
-        
-        // 回车确认
-        $(document).on('keydown.alert-dialog', (event) => {
-            if (event.key === 'Enter') {
-                this.close();
-                if (callback) callback();
-            }
-        });
 
-        // ESC键关闭对话框
-        $(document).on('keydown.alert-dialog', (event) => {
-            if (event.key === 'Escape') {
+        footer.appendChild(okButton);
+
+        // 组装对话框
+        dialog.appendChild(header);
+        dialog.appendChild(body);
+        dialog.appendChild(footer);
+        overlay.appendChild(dialog);
+
+        // 添加键盘事件监听
+        const keyHandler = (event: KeyboardEvent) => {
+            if (event.key === 'Enter' || event.key === 'Escape') {
                 this.close();
                 if (callback) callback();
+                document.removeEventListener('keydown', keyHandler);
             }
-        });
+        };
+        document.addEventListener('keydown', keyHandler);
+
+        // 添加到页面
+        document.body.appendChild(overlay);
+
+        // 聚焦确认按钮
+        okButton.focus();
     }
 
     /**
      * 关闭对话框
      */
     private close(): void {
-        $('.js-script-hook-alert-overlay').remove();
-        $(document).off('keydown.alert-dialog');
+        const overlay = document.querySelector('.js-script-hook-alert-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
     }
 } 

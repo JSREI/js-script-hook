@@ -1,4 +1,6 @@
-import { jQuery as $, JQuery } from '../utils/jquery-adapter';
+/**
+ * 复选框组件 - 原生JavaScript实现
+ */
 
 export type CheckboxType = 'checkbox' | 'switch';
 
@@ -107,47 +109,46 @@ export class CheckboxComponent {
      * @param isChecked 是否选中
      * @param onChange 改变事件回调
      * @param type 组件类型：'checkbox'为标准复选框，'switch'为滑动开关
-     * @returns jQuery对象
+     * @returns HTMLElement
      */
     render(
         id: string, 
         isChecked: boolean, 
         onChange?: (isChecked: boolean) => void,
         type: CheckboxType = 'checkbox'
-    ): JQuery<HTMLElement> {
+    ): HTMLElement {
         // 确保样式已添加
         this.appendStyles();
         
-        // 创建HTML
-        let html;
+        // 创建label元素作为容器
+        const label = document.createElement('label');
+        label.className = type === 'switch' ? 'js-script-hook-switch-container' : 'js-script-hook-checkbox-container';
         
-        if (type === 'switch') {
-            // 创建开关样式HTML
-            html = `
-                <label class="js-script-hook-switch-container">
-                    <input id="${id}" type="checkbox" ${isChecked ? "checked='checked'" : ""}>
-                    <span class="js-script-hook-switch-slider"></span>
-                </label>
-            `;
-        } else {
-            // 创建标准复选框HTML
-            html = `
-                <label class="js-script-hook-checkbox-container">
-                    <input id="${id}" class="js-script-hook-input" type="checkbox" ${isChecked ? "checked='checked'" : ""}>
-                    <span class="js-script-hook-custom-checkbox"></span>
-                </label>
-            `;
+        // 创建input元素
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.id = id;
+        if (type === 'checkbox') {
+            input.className = 'js-script-hook-input';
         }
+        input.checked = isChecked;
         
-        const element = $(html);
+        // 创建自定义样式的span元素
+        const span = document.createElement('span');
+        span.className = type === 'switch' ? 'js-script-hook-switch-slider' : 'js-script-hook-custom-checkbox';
         
         // 添加事件处理
         if (onChange) {
-            element.find('input').on('change', function() {
-                onChange($(this).is(':checked'));
+            input.addEventListener('change', (e) => {
+                const target = e.target as HTMLInputElement;
+                onChange(target.checked);
             });
         }
         
-        return element;
+        // 组装组件
+        label.appendChild(input);
+        label.appendChild(span);
+        
+        return label;
     }
 } 

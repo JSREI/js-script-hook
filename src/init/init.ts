@@ -3,7 +3,7 @@ import { getUnsafeWindow } from '../utils/scope-util';
 import { DocumentHook } from '../hook/document-hook';
 import { initConfig, getGlobalConfig } from '../config/config';
 import { initLogger, LogLevel, createLogger } from '../logger';
-import { initTrustedTypesPolicy } from '../jQuery-lite';
+import { initTrustedTypesPolicy } from '../utils/dom-utils';
 
 declare function GM_getValue(key: string): any;
 declare function GM_setValue(key: string, value: any): void;

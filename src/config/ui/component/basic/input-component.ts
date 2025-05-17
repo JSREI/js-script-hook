@@ -1,4 +1,6 @@
-import { jQuery as $, JQuery } from '../utils/jquery-adapter';
+/**
+ * 输入框组件 - 原生JavaScript实现
+ */
 
 export class InputComponent {
     private readonly styleCSS: string;
@@ -59,7 +61,7 @@ export class InputComponent {
      * @param placeholder 占位符
      * @param label 标签文本（可选）
      * @param onChange 值变更回调（可选）
-     * @returns jQuery对象
+     * @returns HTMLElement
      */
     render(
         id: string, 
@@ -67,29 +69,41 @@ export class InputComponent {
         placeholder: string = '',
         label?: string,
         onChange?: (value: string) => void
-    ): JQuery<HTMLElement> {
+    ): HTMLElement {
         // 确保样式已添加
         this.appendStyles();
         
-        // 创建输入框HTML
-        let html = '<div class="js-script-hook-input-container">';
+        // 创建容器元素
+        const container = document.createElement('div');
+        container.className = 'js-script-hook-input-container';
         
+        // 如果有标签，创建标签元素
         if (label) {
-            html += `<label class="js-script-hook-input-label" for="${id}">${label}</label>`;
+            const labelElement = document.createElement('label');
+            labelElement.className = 'js-script-hook-input-label';
+            labelElement.setAttribute('for', id);
+            labelElement.textContent = label;
+            container.appendChild(labelElement);
         }
         
-        html += `<input id="${id}" class="js-script-hook-input-field" type="text" value="${value}" placeholder="${placeholder}">`;
-        html += '</div>';
-        
-        const element = $(html);
+        // 创建输入框元素
+        const input = document.createElement('input');
+        input.id = id;
+        input.className = 'js-script-hook-input-field';
+        input.type = 'text';
+        input.value = value;
+        input.placeholder = placeholder;
         
         // 添加事件处理
         if (onChange) {
-            element.find('input').on('input', function() {
-                onChange($(this).val() as string);
+            input.addEventListener('input', (e) => {
+                const target = e.target as HTMLInputElement;
+                onChange(target.value);
             });
         }
         
-        return element;
+        container.appendChild(input);
+        
+        return container;
     }
 } 

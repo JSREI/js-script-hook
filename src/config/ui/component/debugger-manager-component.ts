@@ -1,7 +1,5 @@
-import { jQuery as $, JQuery } from './utils/jquery-adapter';
 import { DebuggerComponent, Language, DebuggerConfig } from "./debugger-component";
 import { Debugger } from "../../../debugger/debugger";
-import { randomId } from "../../../utils/id-util";
 import { getGlobalConfig } from "../../config";
 
 /**
@@ -109,9 +107,9 @@ export class DebuggerManagerComponent {
      * 渲染断点管理器组件
      * @param language 语言配置
      * @param debuggers 断点配置数组
-     * @returns jQuery对象
+     * @returns HTMLElement
      */
-    render(language: Language, debuggers: Debugger[]): JQuery<HTMLElement> {
+    render(language: Language, debuggers: Debugger[]): HTMLElement {
         // 添加组件样式
         this.appendStyles();
 
@@ -122,26 +120,41 @@ export class DebuggerManagerComponent {
             return t2 - t1;
         });
 
-        const debuggerManager = $(this.html);
+        // 创建临时容器
+        const tempContainer = document.createElement('div');
+        tempContainer.innerHTML = this.html;
+        const debuggerManager = tempContainer.firstElementChild as HTMLElement;
         
         // 更新添加按钮的文本
-        debuggerManager.find("#js-script-hook-add-debugger-btn span:last-child").text(language.tabs.addNewBreakpoint || "添加新的断点");
+        const addButtonText = debuggerManager.querySelector("#js-script-hook-add-debugger-btn span:last-child");
+        if (addButtonText) {
+            addButtonText.textContent = language.tabs.addNewBreakpoint || "添加新的断点";
+        }
 
         // 渲染已经存在的断点配置信息
-        for (const debuggerInformation of debuggers) {
-            const debuggerComponent = new DebuggerComponent();
-            debuggerManager.find("#js-script-hook-debugger-list").append(debuggerComponent.render(language, debuggerInformation as unknown as DebuggerConfig));
+        const debuggerList = debuggerManager.querySelector("#js-script-hook-debugger-list");
+        if (debuggerList) {
+            for (const debuggerInformation of debuggers) {
+                const debuggerComponent = new DebuggerComponent();
+                debuggerList.appendChild(debuggerComponent.render(language, debuggerInformation as unknown as DebuggerConfig));
+            }
         }
 
         // 增加断点配置
-        debuggerManager.find("#js-script-hook-add-debugger-btn").click(() => {
-            const debuggerComponent = new DebuggerComponent();
-            const newDebuggerConfig = this.createNewDebuggerConfig();
-            debuggerManager.find("#js-script-hook-debugger-list").append(debuggerComponent.render(language, newDebuggerConfig as unknown as DebuggerConfig));
+        const addButton = debuggerManager.querySelector("#js-script-hook-add-debugger-btn");
+        if (addButton) {
+            addButton.addEventListener('click', () => {
+                const debuggerComponent = new DebuggerComponent();
+                const newDebuggerConfig = this.createNewDebuggerConfig();
+                const debuggerList = debuggerManager.querySelector("#js-script-hook-debugger-list");
+                if (debuggerList) {
+                    debuggerList.appendChild(debuggerComponent.render(language, newDebuggerConfig as unknown as DebuggerConfig));
+                }
 
-            getGlobalConfig().addDebugger(newDebuggerConfig);
-            getGlobalConfig().persist();
-        });
+                getGlobalConfig().addDebugger(newDebuggerConfig);
+                getGlobalConfig().persist();
+            });
+        }
 
         return debuggerManager;
     }

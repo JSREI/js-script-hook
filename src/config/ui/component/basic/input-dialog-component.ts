@@ -1,4 +1,6 @@
-import { jQuery as $ } from '../utils/jquery-adapter';
+/**
+ * 输入对话框组件 - 原生JavaScript实现
+ */
 
 type InputDialogCallback = (confirmed: boolean, value: string) => void;
 
@@ -171,87 +173,111 @@ export class InputDialogComponent {
         this.appendStyles();
 
         // 如果已经有对话框，先移除
-        $('.js-script-hook-input-dialog-overlay').remove();
+        const existingOverlay = document.querySelector('.js-script-hook-input-dialog-overlay');
+        if (existingOverlay) {
+            existingOverlay.remove();
+        }
 
-        const dialogHTML = `
-        <div class="js-script-hook-input-dialog-overlay">
-            <div class="js-script-hook-input-dialog">
-                <div class="js-script-hook-input-dialog-header">
-                    <span class="js-script-hook-input-dialog-icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                    </span>
-                    ${title}
-                </div>
-                <div class="js-script-hook-input-dialog-body">
-                    ${message}
-                    <input class="js-script-hook-input-dialog-input" type="text" value="${defaultValue}" placeholder="${placeholder}">
-                </div>
-                <div class="js-script-hook-input-dialog-footer">
-                    <button class="js-script-hook-input-dialog-btn js-script-hook-input-dialog-cancel-btn">${cancelText}</button>
-                    <button class="js-script-hook-input-dialog-btn js-script-hook-input-dialog-ok-btn">${okText}</button>
-                </div>
-            </div>
-        </div>
+        // 创建对话框元素
+        const overlay = document.createElement('div');
+        overlay.className = 'js-script-hook-input-dialog-overlay';
+
+        const dialog = document.createElement('div');
+        dialog.className = 'js-script-hook-input-dialog';
+
+        // 创建头部
+        const header = document.createElement('div');
+        header.className = 'js-script-hook-input-dialog-header';
+
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'js-script-hook-input-dialog-icon';
+        iconSpan.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
         `;
+        header.appendChild(iconSpan);
+        header.appendChild(document.createTextNode(title));
 
-        const $dialog = $(dialogHTML);
-        $(document.body).append($dialog);
-        
-        // 自动聚焦到输入框
-        setTimeout(() => {
-            $dialog.find('.js-script-hook-input-dialog-input').focus();
-        }, 100);
+        // 创建内容区域
+        const body = document.createElement('div');
+        body.className = 'js-script-hook-input-dialog-body';
+        body.appendChild(document.createTextNode(message));
 
-        // 获取输入值的函数
+        const input = document.createElement('input');
+        input.className = 'js-script-hook-input-dialog-input';
+        input.type = 'text';
+        input.value = defaultValue;
+        input.placeholder = placeholder;
+        body.appendChild(input);
+
+        // 创建底部按钮
+        const footer = document.createElement('div');
+        footer.className = 'js-script-hook-input-dialog-footer';
+
+        const cancelButton = document.createElement('button');
+        cancelButton.className = 'js-script-hook-input-dialog-btn js-script-hook-input-dialog-cancel-btn';
+        cancelButton.textContent = cancelText;
+
+        const okButton = document.createElement('button');
+        okButton.className = 'js-script-hook-input-dialog-btn js-script-hook-input-dialog-ok-btn';
+        okButton.textContent = okText;
+
+        footer.appendChild(cancelButton);
+        footer.appendChild(okButton);
+
+        // 组装对话框
+        dialog.appendChild(header);
+        dialog.appendChild(body);
+        dialog.appendChild(footer);
+        overlay.appendChild(dialog);
+
+        // 获取输入值的辅助函数
         const getInputValue = (): string => {
-            return $dialog.find('.js-script-hook-input-dialog-input').val() as string;
+            return input.value.trim();
         };
 
         // 绑定事件
-        $dialog.find('.js-script-hook-input-dialog-cancel-btn').on('click', () => {
+        cancelButton.addEventListener('click', () => {
             this.close();
             callback(false, getInputValue());
         });
 
-        $dialog.find('.js-script-hook-input-dialog-ok-btn').on('click', () => {
+        okButton.addEventListener('click', () => {
             this.close();
             callback(true, getInputValue());
         });
-        
-        // 输入框回车确认
-        $dialog.find('.js-script-hook-input-dialog-input').on('keydown', (event) => {
+
+        // 回车确认
+        const keyHandler = (event: KeyboardEvent) => {
             if (event.key === 'Enter') {
                 this.close();
                 callback(true, getInputValue());
-            }
-        });
-
-        // 点击空白处关闭对话框
-        $dialog.on('click', (event) => {
-            if ($(event.target).hasClass('js-script-hook-input-dialog-overlay')) {
+                document.removeEventListener('keydown', keyHandler);
+            } else if (event.key === 'Escape') {
                 this.close();
                 callback(false, getInputValue());
+                document.removeEventListener('keydown', keyHandler);
             }
-        });
+        };
+        document.addEventListener('keydown', keyHandler);
 
-        // ESC键关闭对话框
-        $(document).on('keydown.input-dialog', (event) => {
-            if (event.key === 'Escape') {
-                this.close();
-                callback(false, getInputValue());
-            }
-        });
+        // 添加到页面
+        document.body.appendChild(overlay);
+
+        // 聚焦输入框
+        input.focus();
     }
 
     /**
      * 关闭对话框
      */
     private close(): void {
-        $('.js-script-hook-input-dialog-overlay').remove();
-        $(document).off('keydown.input-dialog');
+        const overlay = document.querySelector('.js-script-hook-input-dialog-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
     }
 } 

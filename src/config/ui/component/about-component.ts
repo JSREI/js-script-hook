@@ -1,4 +1,6 @@
-import { jQuery as $, JQuery } from './utils/jquery-adapter';
+/**
+ * 关于页面组件 - 原生JavaScript实现
+ */
 import { type Language } from './language';
 
 /**
@@ -165,7 +167,7 @@ export class AboutComponent {
         .github-badge-right .star-me-text {
             font-size: 11px;
             font-weight: normal;
-            color: rgba(255, 255, 255, 0.65);  /* 更加透明的白色，在蓝色背景上显示为明显的灰色 */
+            color: rgba(255, 255, 255, 0.65);
         }
         
         .star-me-link {
@@ -351,124 +353,180 @@ export class AboutComponent {
     }
 
     /**
+     * 创建DOM元素的辅助函数
+     */
+    private createElement(tag: string, className?: string, textContent?: string): HTMLElement {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        if (textContent) element.textContent = textContent;
+        return element;
+    }
+
+    /**
      * 渲染关于组件
      * @param language 语言配置
-     * @returns jQuery对象
+     * @returns HTMLElement
      */
-    public render(language?: Language): JQuery<HTMLElement> {
+    public render(language?: Language): HTMLElement {
         this.appendStyles();
 
-        const container = $('<div class="about-container"></div>');
+        const container = this.createElement('div', 'about-container');
 
-        // 问题反馈部分 (放在最上面)
-        const feedbackSection = $('<div class="about-section"></div>');
-        feedbackSection.append(`<h2 class="about-title">${language?.about?.feedbackTitle || '问题反馈'}</h2>`);
+        // 问题反馈部分
+        const feedbackSection = this.createElement('div', 'about-section');
+        const feedbackTitle = this.createElement('h2', 'about-title', language?.about?.feedbackTitle || '问题反馈');
+        feedbackSection.appendChild(feedbackTitle);
         
-        const feedbackContent = $('<div class="about-content"></div>');
-        feedbackContent.append(`<p>${language?.about?.feedbackDescription || '当您遇到问题或有改进建议时，欢迎通过GitHub Issue反馈。我们将尽快处理您的问题。'}</p>`);
+        const feedbackContent = this.createElement('div', 'about-content');
+        const feedbackDesc = this.createElement('p', '', language?.about?.feedbackDescription || '当您遇到问题或有改进建议时，欢迎通过GitHub Issue反馈。我们将尽快处理您的问题。');
+        feedbackContent.appendChild(feedbackDesc);
         
         // 添加提交Issue按钮
-        const submitIssueBtn = $(`
-            <a href="https://github.com/${this.repoOwner}/${this.repoName}/issues/new" target="_blank" class="feedback-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                    <path fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm9 3a1 1 0 11-2 0 1 1 0 012 0zm-.25-6.25a.75.75 0 00-1.5 0v3.5a.75.75 0 001.5 0v-3.5z"></path>
-                </svg>
-                ${language?.about?.submitIssue || '提交Issue'}
-            </a>
-        `);
+        const submitIssueBtn = document.createElement('a');
+        submitIssueBtn.href = `https://github.com/${this.repoOwner}/${this.repoName}/issues/new`;
+        submitIssueBtn.target = '_blank';
+        submitIssueBtn.className = 'feedback-button';
+        submitIssueBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm9 3a1 1 0 11-2 0 1 1 0 012 0zm-.25-6.25a.75.75 0 00-1.5 0v3.5a.75.75 0 001.5 0v-3.5z"></path>
+            </svg>
+            ${language?.about?.submitIssue || '提交Issue'}
+        `;
         
-        feedbackContent.append(submitIssueBtn);
-        feedbackSection.append(feedbackContent);
-        container.append(feedbackSection);
+        feedbackContent.appendChild(submitIssueBtn);
+        feedbackSection.appendChild(feedbackContent);
+        container.appendChild(feedbackSection);
 
         // 项目信息部分
-        const projectSection = $('<div class="about-section"></div>');
-        projectSection.append(`<h2 class="about-title">${language?.about?.projectInfoTitle || '项目信息'}</h2>`);
+        const projectSection = this.createElement('div', 'about-section');
+        const projectTitle = this.createElement('h2', 'about-title', language?.about?.projectInfoTitle || '项目信息');
+        projectSection.appendChild(projectTitle);
         
-        const projectContent = $('<div class="about-content"></div>');
-        projectContent.append(`<p>${language?.about?.projectDescription || 'JS-Script-Hook 是一个用于Hook网站Script脚本请求和响应的工具，可以帮助开发者和安全研究人员分析和调试网站JavaScript代码。'}</p>`);
+        const projectContent = this.createElement('div', 'about-content');
+        const projectDesc = this.createElement('p', '', language?.about?.projectDescription || 'JS-Script-Hook 是一个用于Hook网站Script脚本请求和响应的工具，可以帮助开发者和安全研究人员分析和调试网站JavaScript代码。');
+        projectContent.appendChild(projectDesc);
         
-        // 创建包含GitHub徽标和许可证的容器，确保它们在一行显示
-        const repoInfoContainer = $('<div class="about-repo-info" style="flex-wrap: nowrap;"></div>');
+        // 创建包含GitHub徽标和许可证的容器
+        const repoInfoContainer = this.createElement('div', 'about-repo-info');
+        repoInfoContainer.style.flexWrap = 'nowrap';
         
         // GitHub徽标部分
-        const githubBadge = $(`
-            <a href="https://github.com/${this.repoOwner}/${this.repoName}" target="_blank" class="github-badge">
-                <div class="github-badge-left">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white" style="margin-right: 6px;">
-                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                    </svg>
-                    GitHub
-                </div>
-                <div class="github-badge-right">
-                    <span class="star-count">⭐️<span id="github-star-count">${this.repoStars}</span></span>
-                    <span class="star-me-text">（${language?.about?.starMeOnGithub || 'Star me on GitHub'}）</span>
-                </div>
-            </a>
-        `);
+        const githubBadge = document.createElement('a');
+        githubBadge.href = `https://github.com/${this.repoOwner}/${this.repoName}`;
+        githubBadge.target = '_blank';
+        githubBadge.className = 'github-badge';
+        githubBadge.innerHTML = `
+            <div class="github-badge-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white" style="margin-right: 6px;">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                GitHub
+            </div>
+            <div class="github-badge-right">
+                <span class="star-count">⭐️<span id="github-star-count">${this.repoStars}</span></span>
+                <span class="star-me-text">（${language?.about?.starMeOnGithub || 'Star me on GitHub'}）</span>
+            </div>
+        `;
         
         // 许可证信息
-        const licenseInfo = $(`
-            <span class="about-repo-item" style="margin: 0 0 0 15px; white-space: nowrap;">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M7.75 0a.75.75 0 01.75.75V3h3.634c.414 0 .814.147 1.13.414l2.07 1.75a1.75 1.75 0 010 2.672l-2.07 1.75a1.75 1.75 0 01-1.13.414H8.5v5.25a.75.75 0 11-1.5 0V10H2.75A1.75 1.75 0 011 8.25v-3.5C1 3.784 1.784 3 2.75 3H7V.75A.75.75 0 017.75 0zm0 8.5h4.384a.25.25 0 00.161-.06l2.07-1.75a.25.25 0 000-.38l-2.07-1.75a.25.25 0 00-.161-.06H2.75a.25.25 0 00-.25.25v3.5c0 .138.112.25.25.25h5z"></path>
-                </svg>
-                ${language?.about?.licenseLabel || '许可证: MIT'}
-            </span>
-        `);
+        const licenseInfo = this.createElement('span', 'about-repo-item');
+        licenseInfo.style.margin = '0 0 0 15px';
+        licenseInfo.style.whiteSpace = 'nowrap';
+        licenseInfo.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M7.75 0a.75.75 0 01.75.75V3h3.634c.414 0 .814.147 1.13.414l2.07 1.75a1.75 1.75 0 010 2.672l-2.07 1.75a1.75 1.75 0 01-1.13.414H8.5v5.25a.75.75 0 11-1.5 0V10H2.75A1.75 1.75 0 011 8.25v-3.5C1 3.784 1.784 3 2.75 3H7V.75A.75.75 0 017.75 0zm0 8.5h4.384a.25.25 0 00.161-.06l2.07-1.75a.25.25 0 000-.38l-2.07-1.75a.25.25 0 00-.161-.06H2.75a.25.25 0 00-.25.25v3.5c0 .138.112.25.25.25h5z"></path>
+            </svg>
+            ${language?.about?.licenseLabel || '许可证: MIT'}
+        `;
         
-        // 将GitHub徽标和许可证信息添加到同一个容器，确保它们在同一行
-        repoInfoContainer.append(githubBadge);
-        repoInfoContainer.append(licenseInfo);
-        
-        // 添加到内容区
-        projectContent.append(repoInfoContainer);
-        projectSection.append(projectContent);
-        container.append(projectSection);
+        repoInfoContainer.appendChild(githubBadge);
+        repoInfoContainer.appendChild(licenseInfo);
+        projectContent.appendChild(repoInfoContainer);
+        projectSection.appendChild(projectContent);
+        container.appendChild(projectSection);
 
         // 交流群信息
-        const groupSection = $('<div class="about-section"></div>');
-        groupSection.append(`<h2 class="about-title">${language?.about?.groupTitle || '逆向技术交流群'}</h2>`);
+        const groupSection = this.createElement('div', 'about-section');
+        const groupTitle = this.createElement('h2', 'about-title', language?.about?.groupTitle || '逆向技术交流群');
+        groupSection.appendChild(groupTitle);
         
-        const groupContent = $('<div class="about-content"></div>');
-        
-        // 创建水平排列的容器
-        const qrcodeFlexContainer = $('<div class="qrcode-flex-container"></div>');
+        const groupContent = this.createElement('div', 'about-content');
+        const qrcodeFlexContainer = this.createElement('div', 'qrcode-flex-container');
         
         // 微信交流群
-        const wxGroupItem = $('<div class="qrcode-item"></div>');
-        wxGroupItem.append(`<div class="qrcode-item-title">${language?.about?.wechatGroupScanTips || '扫码加入逆向技术交流群'}</div>`);
-        wxGroupItem.append('<img src="https://cdn.jsdelivr.net/gh/JSREI/.github/profile/README.assets/image-20241016230653669.png" class="about-qrcode" alt="微信交流群">');
-        qrcodeFlexContainer.append(wxGroupItem);
+        const wxGroupItem = this.createElement('div', 'qrcode-item');
+        const wxGroupTitle = this.createElement('div', 'qrcode-item-title', language?.about?.wechatGroupScanTips || '扫码加入逆向技术交流群');
+        wxGroupItem.appendChild(wxGroupTitle);
+        
+        const wxGroupQR = document.createElement('img');
+        wxGroupQR.src = 'https://cdn.jsdelivr.net/gh/JSREI/.github/profile/README.assets/image-20241016230653669.png';
+        wxGroupQR.className = 'about-qrcode';
+        wxGroupQR.alt = '微信交流群';
+        wxGroupItem.appendChild(wxGroupQR);
+        qrcodeFlexContainer.appendChild(wxGroupItem);
         
         // 个人微信
-        const wxPersonalItem = $('<div class="qrcode-item"></div>');
-        wxPersonalItem.append(`<div class="qrcode-item-title">${language?.about?.wechatPersonalScanTips || '加我微信，发送【逆向群】拉你进群'}</div>`);
-        wxPersonalItem.append('<img src="https://cdn.jsdelivr.net/gh/JSREI/.github/profile/README.assets/image-20231030132026541-7614065.png" class="about-qrcode" alt="个人微信">');
-        qrcodeFlexContainer.append(wxPersonalItem);
+        const wxPersonalItem = this.createElement('div', 'qrcode-item');
+        const wxPersonalTitle = this.createElement('div', 'qrcode-item-title', language?.about?.wechatPersonalScanTips || '加我微信，发送【逆向群】拉你进群');
+        wxPersonalItem.appendChild(wxPersonalTitle);
+        
+        const wxPersonalQR = document.createElement('img');
+        wxPersonalQR.src = 'https://cdn.jsdelivr.net/gh/JSREI/.github/profile/README.assets/image-20231030132026541-7614065.png';
+        wxPersonalQR.className = 'about-qrcode';
+        wxPersonalQR.alt = '个人微信';
+        wxPersonalItem.appendChild(wxPersonalQR);
+        qrcodeFlexContainer.appendChild(wxPersonalItem);
         
         // Telegram群
-        const tgGroupItem = $('<div class="qrcode-item"></div>');
-        tgGroupItem.append(`<div class="qrcode-item-title">${language?.about?.telegramGroupScanTips || '扫码或'}<a href="https://t.me/jsreijsrei" target="_blank" class="about-link">${language?.about?.clickHere || '点此'}</a>${language?.about?.telegramJoinGroup || '加入TG交流群'}</div>`);
-        tgGroupItem.append('<img src="https://cdn.jsdelivr.net/gh/JSREI/.github/profile/README.assets/image-20241016231143315.png" class="about-qrcode" alt="Telegram群">');
-        qrcodeFlexContainer.append(tgGroupItem);
+        const tgGroupItem = this.createElement('div', 'qrcode-item');
+        const tgGroupTitle = this.createElement('div', 'qrcode-item-title');
+        const tgGroupLink = document.createElement('a');
+        tgGroupLink.href = 'https://t.me/jsreijsrei';
+        tgGroupLink.target = '_blank';
+        tgGroupLink.className = 'about-link';
+        tgGroupLink.textContent = language?.about?.clickHere || '点此';
         
-        groupContent.append(qrcodeFlexContainer);
-        groupSection.append(groupContent);
-        container.append(groupSection);
+        tgGroupTitle.appendChild(document.createTextNode(language?.about?.telegramGroupScanTips || '扫码或'));
+        tgGroupTitle.appendChild(tgGroupLink);
+        tgGroupTitle.appendChild(document.createTextNode(language?.about?.telegramJoinGroup || '加入TG交流群'));
+        tgGroupItem.appendChild(tgGroupTitle);
+        
+        const tgGroupQR = document.createElement('img');
+        tgGroupQR.src = 'https://cdn.jsdelivr.net/gh/JSREI/.github/profile/README.assets/image-20241016231143315.png';
+        tgGroupQR.className = 'about-qrcode';
+        tgGroupQR.alt = 'Telegram群';
+        tgGroupItem.appendChild(tgGroupQR);
+        qrcodeFlexContainer.appendChild(tgGroupItem);
+        
+        groupContent.appendChild(qrcodeFlexContainer);
+        groupSection.appendChild(groupContent);
+        container.appendChild(groupSection);
 
         // 作者和组织信息
-        const orgSection = $('<div class="about-section"></div>');
-        orgSection.append(`<h2 class="about-title">${language?.about?.organizationTitle || '关于JSREI组织'}</h2>`);
+        const orgSection = this.createElement('div', 'about-section');
+        const orgTitle = this.createElement('h2', 'about-title', language?.about?.organizationTitle || '关于JSREI组织');
+        orgSection.appendChild(orgTitle);
         
-        const orgContent = $('<div class="about-content"></div>');
-        orgContent.append(`<p>${language?.about?.organizationDescription1 || 'JSREI (JavaScript Reverse Engineering Institute) 是一个致力于JavaScript逆向工程、Web安全研究的开源技术社区。'}</p>`);
-        orgContent.append(`<p>${language?.about?.organizationDescription2 || '我们专注于JavaScript代码分析、脱壳、混淆还原、浏览器指纹、Hook技术等方面的研究和工具开发。'}</p>`);
-        orgContent.append(`<p>${language?.about?.organizationDescription3 || '欢迎对JavaScript逆向工程感兴趣的开发者加入我们的社区，一起交流学习。'}</p>`);
-        orgContent.append(`<p>${language?.about?.organizationGithub || 'GitHub组织:'} <a href="https://github.com/JSREI" target="_blank" class="about-link">https://github.com/JSREI</a></p>`);
+        const orgContent = this.createElement('div', 'about-content');
+        const orgDesc1 = this.createElement('p', '', language?.about?.organizationDescription1 || 'JSREI (JavaScript Reverse Engineering Institute) 是一个致力于JavaScript逆向工程、Web安全研究的开源技术社区。');
+        const orgDesc2 = this.createElement('p', '', language?.about?.organizationDescription2 || '我们专注于JavaScript代码分析、脱壳、混淆还原、浏览器指纹、Hook技术等方面的研究和工具开发。');
+        const orgDesc3 = this.createElement('p', '', language?.about?.organizationDescription3 || '欢迎对JavaScript逆向工程感兴趣的开发者加入我们的社区，一起交流学习。');
         
-        orgSection.append(orgContent);
-        container.append(orgSection);
+        const orgGithub = this.createElement('p', '');
+        orgGithub.appendChild(document.createTextNode(language?.about?.organizationGithub || 'GitHub组织:'));
+        const orgLink = document.createElement('a');
+        orgLink.href = 'https://github.com/JSREI';
+        orgLink.target = '_blank';
+        orgLink.className = 'about-link';
+        orgLink.textContent = 'https://github.com/JSREI';
+        orgGithub.appendChild(orgLink);
+        
+        orgContent.appendChild(orgDesc1);
+        orgContent.appendChild(orgDesc2);
+        orgContent.appendChild(orgDesc3);
+        orgContent.appendChild(orgGithub);
+        orgSection.appendChild(orgContent);
+        container.appendChild(orgSection);
         
         // 在组件挂载后获取star数
         setTimeout(() => {

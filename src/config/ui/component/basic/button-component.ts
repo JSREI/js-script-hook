@@ -1,4 +1,4 @@
-import { jQuery as $, JQuery } from '../utils/jquery-adapter';
+import { dom } from '../../../../utils/dom-utils';
 
 export type ButtonType = 'primary' | 'secondary' | 'danger' | 'success' | 'info';
 export type ButtonSize = 'small' | 'medium' | 'large';
@@ -173,7 +173,7 @@ export class ButtonComponent {
      * @param size 按钮大小
      * @param icon 按钮图标（可选HTML字符串）
      * @param disabled 是否禁用
-     * @returns jQuery对象
+     * @returns HTMLElement 按钮元素
      */
     render(
         id: string,
@@ -183,30 +183,41 @@ export class ButtonComponent {
         size: ButtonSize = 'medium',
         icon?: string,
         disabled: boolean = false
-    ): JQuery<HTMLElement> {
+    ): HTMLElement {
         // 确保样式已添加
         this.appendStyles();
         
         // 创建按钮容器
-        const container = $('<div class="js-script-hook-button-container"></div>');
-        
-        // 创建按钮HTML
-        let buttonContent = '';
-        if (icon) {
-            buttonContent += `<span class="js-script-hook-button-icon">${icon}</span>`;
-        }
-        buttonContent += text;
+        const container = document.createElement('div');
+        container.className = 'js-script-hook-button-container';
         
         // 创建按钮元素
-        const button = $(`<button id="${id}" class="js-script-hook-button ${type} ${size}${disabled ? ' disabled' : ''}">${buttonContent}</button>`);
+        const button = document.createElement('button');
+        button.id = id;
+        button.className = `js-script-hook-button ${type} ${size}`;
         
-        // 添加点击事件
-        if (!disabled) {
-            button.on('click', onClick);
+        if (disabled) {
+            button.classList.add('disabled');
+            button.disabled = true;
         }
         
-        // 添加到容器并返回
-        container.append(button);
+        // 添加图标和文本
+        if (icon) {
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'js-script-hook-button-icon';
+            iconSpan.innerHTML = icon;
+            button.appendChild(iconSpan);
+        }
+        
+        // 添加文本节点
+        const textNode = document.createTextNode(text);
+        button.appendChild(textNode);
+        
+        // 添加点击事件
+        button.addEventListener('click', onClick);
+        
+        container.appendChild(button);
+        
         return container;
     }
 } 

@@ -1,4 +1,6 @@
-import { jQuery as $, JQuery } from './utils/jquery-adapter';
+/**
+ * 全局配置参数组件 - 原生JavaScript实现
+ */
 import { getGlobalConfig } from "../../config";
 import { Config } from "../../config";
 // 导入语言相关的函数和接口
@@ -166,259 +168,199 @@ export class GlobalOptionsComponent {
      * 
      * @param language 语言配置
      * @param oldConfig 旧的配置
-     * @returns jQuery对象
+     * @returns HTMLElement
      */
-    render(language: Language, oldConfig: Config): JQuery<HTMLElement> {
+    render(language: Language, oldConfig: Config): HTMLElement {
         // 确保样式已添加
         this.appendStyles();
         
-        const container = $('<fieldset class="global-options-fieldset"></fieldset>');
-        container.append($(`<legend class="global-options-legend">${language.global_settings.title}</legend>`));
+        // 创建容器
+        const container = document.createElement('fieldset');
+        container.className = 'global-options-fieldset';
         
-        const table = $('<table class="global-options-table"></table>');
-        container.append(table);
+        // 创建标题
+        const legend = document.createElement('legend');
+        legend.className = 'global-options-legend';
+        legend.textContent = language.global_settings.title;
+        container.appendChild(legend);
+        
+        // 创建表格
+        const table = document.createElement('table');
+        table.className = 'global-options-table';
+        container.appendChild(table);
         
         // 语言选项
-        const languageRow = $('<tr></tr>');
-        const languageLabel = $('<td align="right"></td>');
-        languageLabel.append(this.tipsComponent.render(language.global_settings.languageTips));
-        languageLabel.append($(`<span>${language.global_settings.language}</span>`));
-        languageRow.append(languageLabel);
+        const languageRow = document.createElement('tr');
+        const languageLabel = document.createElement('td');
+        languageLabel.setAttribute('align', 'right');
+        languageLabel.appendChild(this.tipsComponent.render(language.global_settings.languageTips));
+        
+        const languageSpan = document.createElement('span');
+        languageSpan.textContent = language.global_settings.language;
+        languageLabel.appendChild(languageSpan);
+        languageRow.appendChild(languageLabel);
         
         const languageOptions: SelectOption[] = [
             { value: 'english', text: 'English' },
             { value: 'chinese', text: '简体中文' }
         ];
         
-        const languageField = $('<td align="left"></td>');
-        languageField.append(this.selectComponent.render(
+        const languageField = document.createElement('td');
+        languageField.setAttribute('align', 'left');
+        
+        const languageSelect = this.selectComponent.render(
             'js-script-hook-global-config-language',
             languageOptions,
-            oldConfig.language
-        ));
-        languageRow.append(languageField);
-        table.append(languageRow);
+            oldConfig.language,
+            undefined,
+            (value: string) => {
+                if (value === 'english' || value === 'chinese') {
+                    oldConfig.language = value;
+                    oldConfig.persist();
+                    
+                    // 验证配置是否成功保存
+                    if (verifyConfigSaved()) {
+                        // 重新加载配置界面以应用新语言
+                        const configComponent = new ConfigurationComponent();
+                        configComponent.show();
+                    } else {
+                        console.error('配置保存验证失败，不重新加载界面');
+                    }
+                }
+            }
+        );
+        
+        languageField.appendChild(languageSelect);
+        languageRow.appendChild(languageField);
+        table.appendChild(languageRow);
         
         // Hook类型选项
-        const hookTypeRow = $('<tr></tr>');
-        const hookTypeLabel = $('<td align="right"></td>');
-        hookTypeLabel.append(this.tipsComponent.render(language.global_settings.responseDebuggerHookTypeTips));
-        hookTypeLabel.append($(`<span>${language.global_settings.responseDebuggerHookType}</span>`));
-        hookTypeRow.append(hookTypeLabel);
+        const hookTypeRow = document.createElement('tr');
+        const hookTypeLabel = document.createElement('td');
+        hookTypeLabel.setAttribute('align', 'right');
+        hookTypeLabel.appendChild(this.tipsComponent.render(language.global_settings.responseDebuggerHookTypeTips));
+        
+        const hookTypeSpan = document.createElement('span');
+        hookTypeSpan.textContent = language.global_settings.responseDebuggerHookType;
+        hookTypeLabel.appendChild(hookTypeSpan);
+        hookTypeRow.appendChild(hookTypeLabel);
         
         const hookTypeOptions: SelectOption[] = [
             { value: 'use-proxy-function', text: language.global_settings.responseDebuggerHookTypeUseProxyFunction },
             { value: 'use-redeclare-function', text: language.global_settings.responseDebuggerHookTypeUseRedeclareFunction }
         ];
         
-        const hookTypeField = $('<td align="left"></td>');
-        hookTypeField.append($('<div style="display: inline-block; width: 380px;"></div>').append(
-            this.selectComponent.render(
-                'js-script-hook-global-config-hook-type',
-                hookTypeOptions,
-                (oldConfig.hookType as string) || 'use-proxy-function'
-            )
-        ));
-        hookTypeRow.append(hookTypeField);
-        table.append(hookTypeRow);
+        const hookTypeField = document.createElement('td');
+        hookTypeField.setAttribute('align', 'left');
         
-        // 标志前缀选项
-        const prefixRow = $('<tr></tr>');
-        const prefixLabel = $('<td align="right"></td>');
-        prefixLabel.append(this.tipsComponent.render(language.global_settings.flagPrefixTips));
-        prefixLabel.append($(`<span>${language.global_settings.flagPrefix}</span>`));
-        prefixRow.append(prefixLabel);
-        
-        const prefixField = $('<td align="left"></td>');
-        prefixField.append($('<div style="width: 380px;"></div>').append(
-            this.inputComponent.render(
-                'js-script-hook-global-config-flag-prefix',
-                oldConfig.prefix || '',
-                language.global_settings.flagPrefixPlaceholder
-            )
-        ));
-        prefixRow.append(prefixField);
-        table.append(prefixRow);
-        
-        // 忽略JS后缀请求选项
-        const ignoreJsRow = $('<tr></tr>');
-        const ignoreJsLabel = $('<td align="right"></td>');
-        ignoreJsLabel.append(this.tipsComponent.render(language.global_settings.isIgnoreJsSuffixRequestTips));
-        ignoreJsLabel.append($(`<span>${language.global_settings.isIgnoreJsSuffixRequest}</span>`));
-        ignoreJsRow.append(ignoreJsLabel);
-        
-        const ignoreJsField = $('<td align="left"></td>');
-        ignoreJsField.append(
-            this.checkboxComponent.render(
-                'js-script-hook-global-config-isIgnoreJsSuffixRequest',
-                oldConfig.isIgnoreJsSuffixRequest
-            )
-        );
-        ignoreJsRow.append(ignoreJsField);
-        table.append(ignoreJsRow);
-        
-        // 忽略非JSONP请求选项
-        const ignoreNotJsonpRow = $('<tr></tr>');
-        const ignoreNotJsonpLabel = $('<td align="right"></td>');
-        ignoreNotJsonpLabel.append(this.tipsComponent.render(language.global_settings.isIgnoreNotJsonpRequestTips));
-        ignoreNotJsonpLabel.append($(`<span>${language.global_settings.isIgnoreNotJsonpRequest}</span>`));
-        ignoreNotJsonpRow.append(ignoreNotJsonpLabel);
-        
-        const ignoreNotJsonpField = $('<td align="left"></td>');
-        ignoreNotJsonpField.append(
-            this.checkboxComponent.render(
-                'js-script-hook-global-config-isIgnoreNotJsonpRequest',
-                oldConfig.isIgnoreNotJsonpRequest
-            )
-        );
-        ignoreNotJsonpRow.append(ignoreNotJsonpField);
-        table.append(ignoreNotJsonpRow);
-        
-        // 添加事件处理器
-        container.on('change', '#js-script-hook-global-config-language', function() {
-            const config = getGlobalConfig();
-            // 使用显式类型转换确保与Config中定义的language类型兼容
-            const langValue = ($(this).val() as string);
-            console.log('[语言切换] 用户选择了语言:', langValue);
-            
-            if (langValue === 'english' || langValue === 'chinese') {
-                console.log('[语言切换] 更改前语言:', config.language);
-                config.language = langValue;
-                console.log('[语言切换] 已更新内存中的语言设置:', config.language);
-                
-                try {
-                    console.log('[语言切换] 正在保存配置...');
-                    config.persist(); // 保存配置
-                    console.log('[语言切换] 配置已保存');
-                    
-                    // 测试保存是否成功
-                    const savedConfig = verifyConfigSaved();
-                    if (savedConfig) {
-                        console.log('[语言切换] 验证保存的语言设置:', config.language);
-                        console.log('[语言切换] 保存是否成功:', savedConfig);
-                        
-                        // 更新当前窗口内容，而不是关闭并重新打开
-                        console.log('[语言切换] 正在更新界面应用新语言');
-                        const modalWindow = $("#jsrei-js-script-hook-configuration-modal-window");
-                        if (modalWindow.length) {
-                            // 仅更新内容区域，不关闭整个窗口
-                            const contentDiv = $("#js-script-hook-configuration-content");
-                            if (contentDiv.length) {
-                                // 保存当前激活的选项卡
-                                const activeTabId = $(".js-script-hook-tab-header.active").attr("data-tab-id");
-                                console.log('[语言切换] 当前激活的选项卡:', activeTabId);
-                                
-                                // 清空内容
-                                contentDiv.empty();
-                                
-                                // 创建新的配置组件并获取更新的内容
-                                const configComponent = new ConfigurationComponent();
-                                
-                                // 更新关闭按钮文本
-                                const newLanguage = getLanguage(config.language);
-                                $("#jsrei-js-script-hook-configuration-close-btn").attr("title", newLanguage.confirm_dialog.closeWindow);
-                                
-                                // 获取和渲染新的选项卡组件
-                                const tabItems: TabItem[] = [
-                                    {
-                                        id: 'debugger-list-tab',
-                                        title: newLanguage.tabs.debuggerListTab,
-                                        content: configComponent.createDebuggerListTab(newLanguage),
-                                        active: activeTabId === 'debugger-list-tab',
-                                        icon: configComponent.getDebuggerListIcon()
-                                    },
-                                    {
-                                        id: 'global-settings-tab',
-                                        title: newLanguage.tabs.globalSettingsTab,
-                                        content: configComponent.createGlobalSettingsTab(newLanguage),
-                                        active: activeTabId === 'global-settings-tab',
-                                        icon: configComponent.getGlobalSettingsIcon()
-                                    },
-                                    {
-                                        id: 'about-tab',
-                                        title: newLanguage.tabs.aboutTab,
-                                        content: configComponent.createAboutTab(newLanguage),
-                                        active: activeTabId === 'about-tab',
-                                        icon: configComponent.getAboutIcon()
-                                    }
-                                ];
-                                
-                                // 如果没有找到活动选项卡，默认激活第一个
-                                if (!activeTabId || !tabItems.some(item => item.active)) {
-                                    tabItems[0].active = true;
-                                }
-                                
-                                // 渲染新的选项卡
-                                const tabComponent = new TabComponent();
-                                contentDiv.append(tabComponent.render(tabItems));
-                                
-                                // 轻微闪动效果，提示用户语言已更改
-                                modalWindow.find('.js-script-hook-scrollable-div').css('box-shadow', '0 0 15px rgba(40,167,69,0.8)');
-                                setTimeout(() => {
-                                    modalWindow.find('.js-script-hook-scrollable-div').css('box-shadow', '0 6px 16px rgba(0,0,0,0.2)');
-                                }, 300);
-                            }
-                        }
-                    } else {
-                        console.error('[语言切换] 无法读取保存的配置!');
-                    }
-                } catch (error) {
-                    console.error('[语言切换] 保存配置时出错:', error);
+        const hookTypeSelect = this.selectComponent.render(
+            'js-script-hook-global-config-hook-type',
+            hookTypeOptions,
+            oldConfig.hookType,
+            undefined,
+            (value: string) => {
+                if (value === 'use-proxy-function' || value === 'use-redeclare-function') {
+                    oldConfig.hookType = value as HookType;
+                    oldConfig.persist();
                 }
             }
-        });
+        );
         
-        container.on('change', '#js-script-hook-global-config-hook-type', function() {
-            const config = getGlobalConfig();
-            const hookType = $(this).val() as HookType;
-            console.log('[Hook类型更改] 用户选择:', hookType);
-            
-            config.hookType = hookType;
-            config.persist(); // 保存配置
-            
-            // 验证保存
-            const saved = verifyConfigSaved();
-            console.log('[Hook类型更改] 保存成功?', saved);
-        });
+        const hookTypeContainer = document.createElement('div');
+        hookTypeContainer.style.display = 'inline-block';
+        hookTypeContainer.style.width = '380px';
+        hookTypeContainer.appendChild(hookTypeSelect);
         
-        container.on('input', '#js-script-hook-global-config-flag-prefix', function() {
-            const config = getGlobalConfig();
-            const prefix = $(this).val() as string;
-            console.log('[前缀更改] 用户输入:', prefix);
-            
-            config.prefix = prefix;
-            config.persist(); // 保存配置
-            
-            // 验证保存
-            const saved = verifyConfigSaved();
-            console.log('[前缀更改] 保存成功?', saved);
-        });
+        hookTypeField.appendChild(hookTypeContainer);
+        hookTypeRow.appendChild(hookTypeField);
+        table.appendChild(hookTypeRow);
         
-        container.on('change', '#js-script-hook-global-config-isIgnoreJsSuffixRequest', function() {
-            const config = getGlobalConfig();
-            const isChecked = $(this).is(':checked');
-            console.log('[忽略JS后缀更改] 用户选择:', isChecked);
-            
-            config.isIgnoreJsSuffixRequest = isChecked;
-            config.persist(); // 保存配置
-            
-            // 验证保存
-            const saved = verifyConfigSaved();
-            console.log('[忽略JS后缀更改] 保存成功?', saved);
-        });
+        // 前缀选项
+        const prefixRow = document.createElement('tr');
+        const prefixLabel = document.createElement('td');
+        prefixLabel.setAttribute('align', 'right');
+        prefixLabel.appendChild(this.tipsComponent.render(language.global_settings.flagPrefixTips));
         
-        container.on('change', '#js-script-hook-global-config-isIgnoreNotJsonpRequest', function() {
-            const config = getGlobalConfig();
-            const isChecked = $(this).is(':checked');
-            console.log('[忽略非JSONP更改] 用户选择:', isChecked);
-            
-            config.isIgnoreNotJsonpRequest = isChecked;
-            config.persist(); // 保存配置
-            
-            // 验证保存
-            const saved = verifyConfigSaved();
-            console.log('[忽略非JSONP更改] 保存成功?', saved);
-        });
+        const prefixSpan = document.createElement('span');
+        prefixSpan.textContent = language.global_settings.flagPrefix;
+        prefixLabel.appendChild(prefixSpan);
+        prefixRow.appendChild(prefixLabel);
+        
+        const prefixField = document.createElement('td');
+        prefixField.setAttribute('align', 'left');
+        
+        const prefixInput = this.inputComponent.render(
+            'js-script-hook-global-config-prefix',
+            oldConfig.prefix,
+            language.global_settings.flagPrefixPlaceholder,
+            undefined,
+            (value: string) => {
+                oldConfig.prefix = value;
+                oldConfig.persist();
+            }
+        );
+        
+        const prefixContainer = document.createElement('div');
+        prefixContainer.style.width = '380px';
+        prefixContainer.appendChild(prefixInput);
+        
+        prefixField.appendChild(prefixContainer);
+        prefixRow.appendChild(prefixField);
+        table.appendChild(prefixRow);
+        
+        // 忽略.js后缀选项
+        const ignoreSuffixRow = document.createElement('tr');
+        const ignoreSuffixLabel = document.createElement('td');
+        ignoreSuffixLabel.setAttribute('align', 'right');
+        ignoreSuffixLabel.appendChild(this.tipsComponent.render(language.global_settings.isIgnoreJsSuffixRequestTips));
+        
+        const ignoreSuffixSpan = document.createElement('span');
+        ignoreSuffixSpan.textContent = language.global_settings.isIgnoreJsSuffixRequest;
+        ignoreSuffixLabel.appendChild(ignoreSuffixSpan);
+        ignoreSuffixRow.appendChild(ignoreSuffixLabel);
+        
+        const ignoreSuffixField = document.createElement('td');
+        ignoreSuffixField.setAttribute('align', 'left');
+        
+        const ignoreSuffixCheckbox = this.checkboxComponent.render(
+            'js-script-hook-global-config-ignore-js-suffix',
+            oldConfig.isIgnoreJsSuffixRequest,
+            (isChecked: boolean) => {
+                oldConfig.isIgnoreJsSuffixRequest = isChecked;
+                oldConfig.persist();
+            }
+        );
+        
+        ignoreSuffixField.appendChild(ignoreSuffixCheckbox);
+        ignoreSuffixRow.appendChild(ignoreSuffixField);
+        table.appendChild(ignoreSuffixRow);
+        
+        // 忽略非JSONP选项
+        const ignoreNotJsonpRow = document.createElement('tr');
+        const ignoreNotJsonpLabel = document.createElement('td');
+        ignoreNotJsonpLabel.setAttribute('align', 'right');
+        ignoreNotJsonpLabel.appendChild(this.tipsComponent.render(language.global_settings.isIgnoreNotJsonpRequestTips));
+        
+        const ignoreNotJsonpSpan = document.createElement('span');
+        ignoreNotJsonpSpan.textContent = language.global_settings.isIgnoreNotJsonpRequest;
+        ignoreNotJsonpLabel.appendChild(ignoreNotJsonpSpan);
+        ignoreNotJsonpRow.appendChild(ignoreNotJsonpLabel);
+        
+        const ignoreNotJsonpField = document.createElement('td');
+        ignoreNotJsonpField.setAttribute('align', 'left');
+        
+        const ignoreNotJsonpCheckbox = this.checkboxComponent.render(
+            'js-script-hook-global-config-ignore-not-jsonp',
+            oldConfig.isIgnoreNotJsonpRequest,
+            (isChecked: boolean) => {
+                oldConfig.isIgnoreNotJsonpRequest = isChecked;
+                oldConfig.persist();
+            }
+        );
+        
+        ignoreNotJsonpField.appendChild(ignoreNotJsonpCheckbox);
+        ignoreNotJsonpRow.appendChild(ignoreNotJsonpField);
+        table.appendChild(ignoreNotJsonpRow);
         
         return container;
     }

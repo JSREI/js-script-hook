@@ -1,5 +1,3 @@
-import { safeCreateElementFromHTML, safeSetInnerHTML } from "../../../../utils/dom-utils";
-import { jQuery as $, JQuery } from '../utils/jquery-adapter';
 import { createLogger } from "../../../../logger";
 
 // 创建Tips组件专用的日志记录器
@@ -93,30 +91,27 @@ export class TipsComponent {
     /**
      * 渲染提示图标组件
      * @param tipText 提示文本
-     * @returns jQuery对象
+     * @returns HTMLElement
      */
-    render(tipText: string): JQuery<HTMLElement> {
+    render(tipText: string): HTMLElement {
         // 确保样式已添加
         this.appendStyles();
         
-        // 创建提示图标HTML模板
-        const html = `
-            <div class="js-script-hook-tips-icon">
-                ?
-                <div class="js-script-hook-tooltip">
-                    ${tipText}
-                </div>
-            </div>
-        `;
-        
         try {
-            // 使用安全的DOM API创建元素
-            const fragment = safeCreateElementFromHTML(html);
+            // 创建提示图标容器
             const container = document.createElement('div');
-            container.appendChild(fragment.cloneNode(true));
+            container.className = 'js-script-hook-tips-icon';
+            container.textContent = '?';
             
-            // 将DOM元素包装为jQuery对象返回
-            return $(container.firstChild as HTMLElement);
+            // 创建工具提示
+            const tooltip = document.createElement('div');
+            tooltip.className = 'js-script-hook-tooltip';
+            tooltip.textContent = tipText;
+            
+            // 组装组件
+            container.appendChild(tooltip);
+            
+            return container;
         } catch (error) {
             tipsLogger.error(`渲染提示图标失败: ${error}`);
             
@@ -125,7 +120,7 @@ export class TipsComponent {
             fallbackElement.textContent = '?';
             fallbackElement.title = tipText;
             fallbackElement.style.cursor = 'help';
-            return $(fallbackElement);
+            return fallbackElement;
         }
     }
 } 
