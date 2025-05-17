@@ -248,11 +248,37 @@ export class GlobalOptionsComponent {
             const config = getGlobalConfig();
             // 使用显式类型转换确保与Config中定义的language类型兼容
             const langValue = ($(this).val() as string);
+            console.log('[语言切换] 用户选择了语言:', langValue);
+            
             if (langValue === 'english' || langValue === 'chinese') {
+                console.log('[语言切换] 更改前语言:', config.language);
                 config.language = langValue;
-                config.persist(); // 保存配置
+                console.log('[语言切换] 已更新内存中的语言设置:', config.language);
+                
+                try {
+                    console.log('[语言切换] 正在保存配置...');
+                    config.persist(); // 保存配置
+                    console.log('[语言切换] 配置已保存');
+                    
+                    // 测试保存是否成功
+                    const savedConfig = GM_getValue("js-script-hook-config-name");
+                    if (savedConfig) {
+                        try {
+                            const parsedConfig = JSON.parse(savedConfig as string);
+                            console.log('[语言切换] 验证保存的语言设置:', parsedConfig.language);
+                            console.log('[语言切换] 保存是否成功:', parsedConfig.language === langValue);
+                        } catch (e) {
+                            console.error('[语言切换] 解析保存的配置失败:', e);
+                        }
+                    } else {
+                        console.error('[语言切换] 无法读取保存的配置!');
+                    }
+                } catch (error) {
+                    console.error('[语言切换] 保存配置时出错:', error);
+                }
                 
                 // 关闭并重新打开配置界面以应用新的语言设置
+                console.log('[语言切换] 正在刷新界面应用新语言');
                 const modalWindow = $("#jsrei-js-script-hook-configuration-modal-window");
                 if (modalWindow.length) {
                     modalWindow.remove();
