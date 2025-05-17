@@ -12,7 +12,7 @@ export function createNewDebuggerConfig(): Debugger {
     newDebuggerConfig.urlPatternType = "match-all";
     newDebuggerConfig.enableRequestDebugger = true;
     newDebuggerConfig.enableResponseDebugger = true;
-    newDebuggerConfig.callbackFunctionName = "";
+    newDebuggerConfig.callbackFunctionName = null;
     newDebuggerConfig.comment = "";
     return newDebuggerConfig;
 } 
