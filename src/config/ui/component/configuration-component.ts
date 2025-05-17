@@ -148,6 +148,8 @@ export class ConfigurationComponent {
      * 展示配置界面
      */
     public show(): void {
+        configUILogger.debug('准备打开配置窗口...');
+        
         // 检查是否已经存在配置窗口
         const existingModal = document.getElementById("jsrei-js-script-hook-configuration-modal-window");
         if (existingModal) {
@@ -155,6 +157,7 @@ export class ConfigurationComponent {
             
             // 如果窗口已存在但不可见，则显示它
             if ($(existingModal).css('display') === 'none') {
+                configUILogger.debug('窗口存在但不可见，将其显示');
                 $(existingModal).show();
                 configUILogger.debug('重新显示已存在的窗口');
             }
@@ -169,33 +172,44 @@ export class ConfigurationComponent {
         }
         
         // 添加样式
+        configUILogger.debug('开始添加样式...');
         this.appendStyles();
+        configUILogger.debug('样式添加完成');
         
         // 确保UI元素已添加到页面
+        configUILogger.debug('开始添加UI元素...');
         this.appendUI();
         
+        configUILogger.debug('获取语言配置...');
         // i18n配置语言
         const language = getLanguage(getGlobalConfig().language);
 
         // 获取内容容器
+        configUILogger.debug('查找内容容器元素...');
         const contentContainer = document.getElementById('js-script-hook-configuration-content');
         if (!contentContainer) {
-            configUILogger.error('无法找到内容容器元素');
+            configUILogger.error('无法找到内容容器元素，无法继续显示配置界面');
             return;
         }
+        configUILogger.debug('找到内容容器元素');
         
         // 设置关闭按钮文本
+        configUILogger.debug('设置关闭按钮...');
         const closeBtn = document.getElementById('jsrei-js-script-hook-configuration-close-btn');
         if (closeBtn) {
             closeBtn.setAttribute('title', language.confirm_dialog.closeWindow);
             
             // 添加关闭按钮事件
+            configUILogger.debug('为关闭按钮添加事件监听器');
             closeBtn.addEventListener('click', () => {
                 this.closeModalWindow();
             });
+        } else {
+            configUILogger.warn('未找到关闭按钮元素');
         }
 
         // 创建Tab页内容
+        configUILogger.debug('开始创建Tab页内容...');
         const tabItems: TabItem[] = [
             {
                 id: 'debugger-list-tab',
@@ -219,22 +233,39 @@ export class ConfigurationComponent {
         ];
 
         // 渲染标签组件
+        configUILogger.debug('渲染Tab组件...');
         const tabsContainer = this.tabComponent.render(tabItems);
+        configUILogger.debug(`Tab组件渲染完成，获得${tabsContainer.length}个元素`);
         
         // 清空内容容器并添加标签组件
+        configUILogger.debug('清空内容容器...');
         while (contentContainer.firstChild) {
             contentContainer.removeChild(contentContainer.firstChild);
         }
         
-        contentContainer.appendChild(tabsContainer[0]);
-        
-        // 显示模态窗口
-        const modalWindow = document.getElementById('jsrei-js-script-hook-configuration-modal-window');
-        if (modalWindow) {
-            $(modalWindow).show();
+        configUILogger.debug('将Tab组件添加到内容容器...');
+        try {
+            contentContainer.appendChild(tabsContainer[0]);
+            configUILogger.debug('Tab组件成功添加到内容容器');
+        } catch (error) {
+            configUILogger.error(`添加Tab组件时出错: ${error}`);
         }
         
-        configUILogger.debug('配置界面已显示');
+        // 显示模态窗口
+        configUILogger.debug('显示模态窗口...');
+        const modalWindow = document.getElementById('jsrei-js-script-hook-configuration-modal-window');
+        if (modalWindow) {
+            try {
+                $(modalWindow).show();
+                configUILogger.debug('模态窗口显示成功');
+            } catch (error) {
+                configUILogger.error(`显示模态窗口时出错: ${error}`);
+            }
+        } else {
+            configUILogger.error('未找到模态窗口元素，无法显示');
+        }
+        
+        configUILogger.debug('配置界面显示流程完成');
     }
 
     /**
@@ -326,6 +357,8 @@ export class ConfigurationComponent {
      * 将UI元素添加到页面中
      */
     private appendUI(): void {
+        configUILogger.debug('开始添加UI元素到页面...');
+        
         const modalRoot = document.getElementById('js-script-hook-modal-root');
         
         // 如果已经存在则不重复创建
@@ -337,25 +370,65 @@ export class ConfigurationComponent {
         configUILogger.debug('开始创建配置界面DOM');
         
         try {
+            configUILogger.debug('尝试使用safeCreateElementFromHTML创建DOM元素');
             // 使用安全方法创建DOM元素
             const fragmentContainer = document.createElement('div');
+            configUILogger.debug('创建容器元素成功，开始解析HTML');
+            
             const fragment = safeCreateElementFromHTML(this.modalHTML);
-            fragmentContainer.appendChild(fragment);
+            configUILogger.debug(`成功解析HTML，得到${fragment.tagName}元素`);
+            
+            configUILogger.debug('将创建的元素添加到临时容器中');
+            try {
+                fragmentContainer.appendChild(fragment);
+                configUILogger.debug('元素添加到临时容器成功');
+            } catch (appendError) {
+                configUILogger.error(`将元素添加到临时容器时失败: ${appendError}`);
+            }
             
             // 创建一个根容器，将模态框模板添加到其中
+            configUILogger.debug('创建根容器元素');
             const rootElement = document.createElement('div');
             rootElement.id = 'js-script-hook-modal-root';
-            document.body.appendChild(rootElement);
+            
+            try {
+                configUILogger.debug('将根容器添加到body');
+                document.body.appendChild(rootElement);
+                configUILogger.debug('根容器添加到body成功');
+            } catch (bodyAppendError) {
+                configUILogger.error(`将根容器添加到body时失败: ${bodyAppendError}`);
+            }
             
             // 安全地将HTML内容设置到根元素
-            safeSetInnerHTML(rootElement, fragmentContainer.innerHTML);
+            configUILogger.debug('开始使用safeSetInnerHTML设置根元素内容');
+            try {
+                safeSetInnerHTML(rootElement, fragmentContainer.innerHTML);
+                configUILogger.debug('成功设置根元素内容');
+            } catch (innerHTMLError) {
+                configUILogger.error(`设置根元素内容时失败: ${innerHTMLError}`);
+                
+                // 尝试获取错误的详细信息
+                if (innerHTMLError instanceof Error) {
+                    configUILogger.error(`错误名称: ${innerHTMLError.name}`);
+                    configUILogger.error(`错误消息: ${innerHTMLError.message}`);
+                    configUILogger.error(`错误堆栈: ${innerHTMLError.stack}`);
+                }
+            }
             
             configUILogger.debug('配置界面DOM创建成功');
         } catch (error) {
             configUILogger.error(`创建配置界面DOM失败: ${error}`);
             
+            // 获取更详细的错误信息
+            if (error instanceof Error) {
+                configUILogger.error(`错误名称: ${error.name}`);
+                configUILogger.error(`错误消息: ${error.message}`);
+                configUILogger.error(`错误堆栈: ${error.stack}`);
+            }
+            
             // 降级方案：创建一个基本的模态框元素
             try {
+                configUILogger.warn('使用降级方案创建简化版配置界面');
                 const basicModal = document.createElement('div');
                 basicModal.id = 'js-script-hook-modal-root';
                 basicModal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
@@ -367,7 +440,7 @@ export class ConfigurationComponent {
                 basicModal.appendChild(modalContent);
                 document.body.appendChild(basicModal);
                 
-                configUILogger.warn('使用降级方案创建了简化版配置界面');
+                configUILogger.warn('简化版配置界面创建成功');
             } catch (fallbackError) {
                 configUILogger.error(`降级方案也失败了: ${fallbackError}`);
             }
