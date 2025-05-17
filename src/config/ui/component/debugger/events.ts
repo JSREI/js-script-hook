@@ -182,7 +182,7 @@ export function bindDebuggerEvents(
         urlPatternTextContainer.appendChild(
             inputComponent.render(
                 `${debuggerInformation.id}-url-pattern-text`,
-                debuggerInformation.urlPattern || '',
+                debuggerInformation.urlPattern,
                 language.debugger_config.urlPatternTextPlaceholder,
                 undefined,
                 (value: string) => {
@@ -207,7 +207,7 @@ export function bindDebuggerEvents(
         callbackFunctionParamNameContainer.appendChild(
             inputComponent.render(
                 `${debuggerInformation.id}-callback-function-param-name-text`,
-                debuggerInformation.callbackFunctionName || '',
+                debuggerInformation.callbackFunctionName,
                 language.debugger_config.callbackFunctionParamNamePlaceholder,
                 undefined,
                 (value: string) => {
