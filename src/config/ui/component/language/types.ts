@@ -33,6 +33,7 @@ export interface DebuggerConfigLanguage {
     enableTips: string;
     urlPattern: string;
     urlPatternTips: string;
+    urlPatternKeyword: string;
     urlPatternTypeTips: string;
     urlPatternType_EqualsThisString: string;
     urlPatternType_ContainsThisString: string;
@@ -40,10 +41,13 @@ export interface DebuggerConfigLanguage {
     urlPatternType_MatchALL: string;
     urlPatternTextTips: string;
     urlPatternTextPlaceholder: string;
+    urlPatternMatchAllDisabledText: string;
     urlPatternTest: string;
     urlPatternTestTips: string;
     urlPatternTestPrompt: string;
     urlPatternTestResult: string;
+    urlPatternTestMatch: string;
+    urlPatternTestNotMatch: string;
     enableRequestDebugger: string;
     enableRequestDebuggerTips: string;
     enableResponseDebugger: string;

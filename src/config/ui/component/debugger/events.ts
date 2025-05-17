@@ -1,6 +1,7 @@
 import { getGlobalConfig } from "../../../config";
 import { DebuggerConfig, UrlPatternType } from './types';
 import { Language } from '../language';
+import { LanguageEventManager } from '../language-event';
 import { 
     SelectComponent, 
     SelectOption,
@@ -141,9 +142,12 @@ export function bindDebuggerEvents(
                 `${debuggerInformation.id}-url-pattern-test`,
                 language.debugger_config.urlPatternTest,
                 function() {
+                    // 获取当前最新的语言设置，而不是使用闭包中的language对象
+                    const currentLanguage = LanguageEventManager.getInstance().getCurrentLanguage() || language;
+                    
                     const inputDialog = InputDialogComponent.getInstance();
                     inputDialog.show(
-                        language.debugger_config.urlPatternTestPrompt,
+                        currentLanguage.debugger_config.urlPatternTestPrompt,
                         '',
                         (confirmed: boolean, testUrl: string) => {
                             if (!confirmed || !testUrl) return;
@@ -155,18 +159,18 @@ export function bindDebuggerEvents(
                                 
                                 const alertDialog = AlertDialogComponent.getInstance();
                                 alertDialog.show(
-                                    language.debugger_config.urlPatternTestResult,
-                                    result ? '✅ Match' : '❌ Not Match',
-                                    language.basic.closeButton
+                                    currentLanguage.debugger_config.urlPatternTestResult,
+                                    result ? currentLanguage.debugger_config.urlPatternTestMatch : currentLanguage.debugger_config.urlPatternTestNotMatch,
+                                    currentLanguage.basic.closeButton
                                 );
                             } catch (e: unknown) {
                                 eventsLogger.error(`测试URL匹配模式时出错: ${e}`);
                             }
                         },
                         '',
-                        language.debugger_config.urlPatternTextPlaceholder,
-                        language.basic.testButton,
-                        language.basic.cancelButton
+                        currentLanguage.debugger_config.urlPatternTextPlaceholder,
+                        currentLanguage.basic.testButton,
+                        currentLanguage.basic.inputDialog.defaultCancelText
                     );
                 },
                 'primary',
@@ -179,26 +183,48 @@ export function bindDebuggerEvents(
     // 为URL pattern输入绑定事件
     const urlPatternTextContainer = element.querySelector(`#${debuggerInformation.id}-url-pattern-input-container`);
     if (urlPatternTextContainer) {
-        urlPatternTextContainer.appendChild(
-            inputComponent.render(
-                `${debuggerInformation.id}-url-pattern-text`,
-                debuggerInformation.urlPattern,
-                language.debugger_config.urlPatternTextPlaceholder,
-                undefined,
-                (value: string) => {
-                    debuggerInformation.urlPattern = value;
-                    
+        const inputElement = inputComponent.render(
+            `${debuggerInformation.id}-url-pattern-text`,
+            debuggerInformation.urlPattern,
+            language.debugger_config.urlPatternTextPlaceholder,
+            undefined,
+            (value: string) => {
+                debuggerInformation.urlPattern = value;
+                
+                // 保存配置
+                const config = getGlobalConfig();
+                const debuggerItem = config.findDebuggerById(debuggerInformation.id);
+                if (debuggerItem) {
+                    debuggerItem.urlPattern = value;
+                    debuggerItem.updateTime = new Date().getTime();
+                    config.persist();
+                }
+            }
+        );
+        
+        urlPatternTextContainer.appendChild(inputElement);
+        
+        // 在初始化时检查是否需要禁用输入框
+        setTimeout(() => {
+            const urlPatternInput = element.querySelector(`#${debuggerInformation.id}-url-pattern-text`) as HTMLInputElement;
+            if (urlPatternInput && debuggerInformation.urlPatternType === 'match-all') {
+                urlPatternInput.disabled = true;
+                urlPatternInput.value = '';
+                urlPatternInput.placeholder = language.debugger_config.urlPatternMatchAllDisabledText;
+                // 清空配置中的URL匹配关键字
+                if (debuggerInformation.urlPattern) {
+                    debuggerInformation.urlPattern = '';
                     // 保存配置
                     const config = getGlobalConfig();
                     const debuggerItem = config.findDebuggerById(debuggerInformation.id);
                     if (debuggerItem) {
-                        debuggerItem.urlPattern = value;
+                        debuggerItem.urlPattern = '';
                         debuggerItem.updateTime = new Date().getTime();
                         config.persist();
                     }
                 }
-            )
-        );
+            }
+        }, 0);
     }
 
     // 为callback函数名绑定事件
@@ -289,6 +315,31 @@ export function bindDebuggerEvents(
                                 debuggerItem.urlPatternType = debuggerInformation.urlPatternType;
                                 debuggerItem.updateTime = new Date().getTime();
                                 config.persist();
+                            }
+                            
+                            // 根据选择值控制URL匹配关键字输入框的禁用状态
+                            const urlPatternInput = element.querySelector(`#${debuggerInformation.id}-url-pattern-text`) as HTMLInputElement;
+                            if (urlPatternInput) {
+                                // 获取当前最新的语言设置
+                                const currentLanguage = LanguageEventManager.getInstance().getCurrentLanguage() || language;
+                                
+                                if (value === 'match-all') {
+                                    // 当选择"匹配所有"时，禁用输入框
+                                    urlPatternInput.disabled = true;
+                                    urlPatternInput.value = '';
+                                    // 添加说明性的占位符文本，使用当前语言
+                                    urlPatternInput.placeholder = currentLanguage.debugger_config.urlPatternMatchAllDisabledText;
+                                    // 清空配置中的URL匹配关键字
+                                    debuggerInformation.urlPattern = '';
+                                    if (debuggerItem) {
+                                        debuggerItem.urlPattern = '';
+                                        config.persist();
+                                    }
+                                } else {
+                                    // 启用输入框并恢复原始占位符，使用当前语言
+                                    urlPatternInput.disabled = false;
+                                    urlPatternInput.placeholder = currentLanguage.debugger_config.urlPatternTextPlaceholder;
+                                }
                             }
                         }
                     }
