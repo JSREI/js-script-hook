@@ -60,13 +60,16 @@ export const debuggerStyles = `
 
 .debugger-component-table tr {
     height: 42px; /* 略微增加行高，给UI元素更多呼吸空间 */
-    line-height: 42px; /* 行高与高度保持一致 */
+    min-height: 42px; /* 确保最小高度 */
+    line-height: normal; /* 重要：使用normal而不是固定值 */
+    vertical-align: middle;
 }
 
 .debugger-component-table td {
     padding: 6px 8px;
     vertical-align: middle;
     line-height: normal;
+    height: 42px; /* 确保单元格高度一致 */
 }
 
 .debugger-component-table td[align="right"] {
@@ -87,24 +90,43 @@ export const debuggerStyles = `
     vertical-align: middle;
 }
 
+/* 针对特定行的特殊样式调整 */
+.debugger-component-table tr:has([id$="-url-pattern-input-container"]) {
+    height: 42px;
+    display: flex;
+    align-items: center;
+}
+
+.debugger-component-table tr:has([id$="-url-pattern-input-container"]) td {
+    display: flex;
+    align-items: center;
+}
+
+.debugger-component-table tr:has([id$="-url-pattern-input-container"]) td[align="right"] {
+    justify-content: flex-end;
+}
+
 /* 修正输入框与问号图标的对齐 */
 .js-script-hook-input-container {
-    display: inline-block;
+    display: inline-flex;
     vertical-align: middle;
+    align-items: center;
 }
 
 /* 确保测试按钮与问号图标对齐 */
 .js-script-hook-button-container {
-    display: inline-block;
+    display: inline-flex;
     vertical-align: middle;
     margin: 0;
+    align-items: center;
+    height: 42px;
 }
 
 /* 调整输入框的高度，使其与行高匹配 */
 .js-script-hook-input-field {
     box-sizing: border-box;
-    height: 30px;
-    line-height: 28px;
+    height: 32px;
+    line-height: 30px;
     padding: 0 10px;
 }
 `; 

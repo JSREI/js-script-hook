@@ -8,18 +8,19 @@ export const inputStyles = `
     width: 100%;
     display: inline-block;
     vertical-align: middle;
+    line-height: normal;
 }
 
 .js-script-hook-input-field {
     width: 100%;
-    height: 30px;
+    height: 32px; /* 与行高匹配 */
     padding: 0 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
     font-size: 14px;
     background-color: white;
-    line-height: 28px;
+    line-height: 30px;
     vertical-align: middle;
 }
 
@@ -39,9 +40,27 @@ export const inputStyles = `
 /* 确保输入框在表格中与其他元素对齐 */
 .debugger-component-table .js-script-hook-input-container {
     margin: 0;
+    display: inline-flex;
+    align-items: center;
+    height: 40px;
 }
 
 .debugger-component-table .js-script-hook-input-field {
     vertical-align: middle;
+}
+
+/* 特别处理URL匹配关键字输入框 */
+[id$="-url-pattern-input-container"] .js-script-hook-input-container {
+    display: inline-flex;
+    align-items: center;
+}
+
+[id$="-url-pattern-input-container"] .js-script-hook-input-field {
+    height: 32px;
+}
+
+/* 确保输入框placeholder不影响高度 */
+.js-script-hook-input-field::placeholder {
+    line-height: normal;
 }
 `; 
