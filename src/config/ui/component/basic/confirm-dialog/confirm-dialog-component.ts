@@ -249,69 +249,86 @@ export class ConfirmDialogComponent implements LanguageUpdateable {
                 return;
             }
             
-            // 直接更新对话框上的文本，而不是重新创建对话框
-            // 这样可以避免对话框闪烁并保持用户交互状态
-            
-            // 更新标题
-            const header = document.getElementById('js-script-hook-confirm-header');
-            if (header) {
-                // 保留图标
-                const icon = header.querySelector('.js-script-hook-dialog-icon');
-                if (icon) {
-                    // 清除标题文本
-                    header.textContent = '';
-                    // 重新添加图标
-                    header.appendChild(icon);
-                    // 添加新的标题文本
-                    header.appendChild(document.createTextNode(this.currentDialogInfo.title));
-                }
-            }
-            
-            // 更新消息
-            const body = document.getElementById('js-script-hook-confirm-body');
-            if (body) {
-                body.textContent = this.currentDialogInfo.message;
-            }
-            
-            // 更新取消按钮
-            const cancelButton = document.getElementById('js-script-hook-confirm-cancel-btn');
-            if (cancelButton) {
-                cancelButton.textContent = this.currentDialogInfo.cancelText || language.basic.confirmDialog.defaultCancelText || 'Cancel';
-            }
-            
-            // 更新确定按钮
-            const okButton = document.getElementById('js-script-hook-confirm-ok-btn');
-            if (okButton) {
-                okButton.textContent = this.currentDialogInfo.okText || language.basic.confirmDialog.defaultOkText || 'OK';
-            }
+            logger.debug(`更新确认对话框语言：当前标题=${this.currentDialogInfo.title}, 消息=${this.currentDialogInfo.message}`);
             
             // 特殊处理删除断点的确认对话框
-            // 通过消息内容识别对话框类型
-            if (this.currentDialogInfo.message.includes('delete this breakpoint') || 
-                this.currentDialogInfo.message.includes('删除此断点')) {
+            // 不再根据消息内容判断，而是更直接的识别对话框类型
+            if (this.currentDialogInfo.title === 'Delete Breakpoint' || 
+                this.currentDialogInfo.title === '删除断点') {
                 
                 // 更新标题
+                const header = document.getElementById('js-script-hook-confirm-header');
                 if (header) {
+                    // 保留图标
                     const icon = header.querySelector('.js-script-hook-dialog-icon');
                     if (icon) {
+                        // 清除标题文本
                         header.textContent = '';
+                        // 重新添加图标
                         header.appendChild(icon);
+                        // 添加新的标题文本
                         header.appendChild(document.createTextNode(language.confirm_dialog.deleteBreakpoint));
+                        
+                        logger.debug(`更新确认对话框标题为: ${language.confirm_dialog.deleteBreakpoint}`);
                     }
                 }
                 
                 // 更新消息
+                const body = document.getElementById('js-script-hook-confirm-body');
                 if (body) {
                     body.textContent = language.confirm_dialog.deleteConfirmMessage;
+                    logger.debug(`更新确认对话框消息为: ${language.confirm_dialog.deleteConfirmMessage}`);
                 }
                 
-                // 更新按钮
+                // 更新取消按钮
+                const cancelButton = document.getElementById('js-script-hook-confirm-cancel-btn');
                 if (cancelButton) {
                     cancelButton.textContent = language.confirm_dialog.cancelButton;
+                    logger.debug(`更新取消按钮为: ${language.confirm_dialog.cancelButton}`);
                 }
                 
+                // 更新确定按钮
+                const okButton = document.getElementById('js-script-hook-confirm-ok-btn');
                 if (okButton) {
                     okButton.textContent = language.confirm_dialog.okButton;
+                    logger.debug(`更新确认按钮为: ${language.confirm_dialog.okButton}`);
+                }
+            } else {
+                // 处理其他类型的确认对话框
+                // 直接更新对话框上的文本，而不是重新创建对话框
+                // 这样可以避免对话框闪烁并保持用户交互状态
+                
+                // 更新标题
+                const header = document.getElementById('js-script-hook-confirm-header');
+                if (header) {
+                    // 保留图标
+                    const icon = header.querySelector('.js-script-hook-dialog-icon');
+                    if (icon) {
+                        // 清除标题文本
+                        header.textContent = '';
+                        // 重新添加图标
+                        header.appendChild(icon);
+                        // 添加新的标题文本
+                        header.appendChild(document.createTextNode(this.currentDialogInfo.title));
+                    }
+                }
+                
+                // 更新消息
+                const body = document.getElementById('js-script-hook-confirm-body');
+                if (body) {
+                    body.textContent = this.currentDialogInfo.message;
+                }
+                
+                // 更新取消按钮
+                const cancelButton = document.getElementById('js-script-hook-confirm-cancel-btn');
+                if (cancelButton) {
+                    cancelButton.textContent = this.currentDialogInfo.cancelText || language.basic.confirmDialog.defaultCancelText || 'Cancel';
+                }
+                
+                // 更新确定按钮
+                const okButton = document.getElementById('js-script-hook-confirm-ok-btn');
+                if (okButton) {
+                    okButton.textContent = this.currentDialogInfo.okText || language.basic.confirmDialog.defaultOkText || 'OK';
                 }
             }
         } catch (error) {
