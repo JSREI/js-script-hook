@@ -20,13 +20,10 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
     <table class="debugger-component-table">
         <tr>
             <td align="right">
-                <div class="js-script-hook-tips-icon">
-                    ?
-                    <div class="js-script-hook-tooltip">
-                        ${language.debugger_config.enableTips}
-                    </div>
+                <div class="tips-label-container">
+                    <span id="${debuggerConfig.id}-enable-tip-container" class="tip-container"></span>
+                    <span class="label-text">${language.debugger_config.enable}</span>
                 </div>
-                <span>${language.debugger_config.enable}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-enable-checkbox-container">
                 <!-- 复选框组件将在render方法中添加 -->
@@ -34,13 +31,10 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
         </tr>
         <tr>
             <td align="right">
-                <div class="js-script-hook-tips-icon">
-                    ?
-                    <div class="js-script-hook-tooltip">
-                        ${language.debugger_config.urlPatternTips}
-                    </div>
+                <div class="tips-label-container">
+                    <span id="${debuggerConfig.id}-url-pattern-tip-container" class="tip-container"></span>
+                    <span class="label-text">${language.debugger_config.urlPattern}</span>
                 </div>
-                <span>${language.debugger_config.urlPattern}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-url-pattern-type-container">
                 <!-- URL匹配方式选择器将在render方法中添加 -->
@@ -48,13 +42,10 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
         </tr>
         <tr>
             <td align="right">
-                <div class="js-script-hook-tips-icon">
-                    ?
-                    <div class="js-script-hook-tooltip">
-                        ${language.debugger_config.urlPatternTextTips}
-                    </div>
+                <div class="tips-label-container">
+                    <span id="${debuggerConfig.id}-url-pattern-text-tip-container" class="tip-container"></span>
+                    <span class="label-text">${language.debugger_config.urlPatternKeyword}</span>
                 </div>
-                <span>${language.debugger_config.urlPatternKeyword}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-url-pattern-input-container">
                 <!-- URL匹配输入框将在render方法中添加 -->
@@ -62,13 +53,10 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
         </tr>
         <tr>
             <td align="right">
-                <div class="js-script-hook-tips-icon">
-                    ?
-                    <div class="js-script-hook-tooltip">
-                        ${language.debugger_config.urlPatternTestTips}
-                    </div>
+                <div class="tips-label-container">
+                    <span id="${debuggerConfig.id}-url-pattern-test-tip-container" class="tip-container"></span>
+                    <span class="label-text">${language.debugger_config.urlPatternTest}</span>
                 </div>
-                <span>${language.debugger_config.urlPatternTest}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-url-pattern-test-container">
                 <!-- URL测试按钮将在render方法中添加 -->
@@ -76,13 +64,10 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
         </tr>
         <tr>
             <td align="right">
-                <div class="js-script-hook-tips-icon">
-                    ?
-                    <div class="js-script-hook-tooltip">
-                        ${language.debugger_config.enableRequestDebuggerTips}
-                    </div>
+                <div class="tips-label-container">
+                    <span id="${debuggerConfig.id}-enable-request-debugger-tip-container" class="tip-container"></span>
+                    <span class="label-text">${language.debugger_config.enableRequestDebugger}</span>
                 </div>
-                <span>${language.debugger_config.enableRequestDebugger}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-enable-request-debugger-container">
                 <!-- 请求断点复选框将在render方法中添加 -->
@@ -90,13 +75,10 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
         </tr>
         <tr>
             <td align="right">
-                <div class="js-script-hook-tips-icon">
-                    ?
-                    <div class="js-script-hook-tooltip">
-                        ${language.debugger_config.enableResponseDebuggerTips}
-                    </div>
+                <div class="tips-label-container">
+                    <span id="${debuggerConfig.id}-enable-response-debugger-tip-container" class="tip-container"></span>
+                    <span class="label-text">${language.debugger_config.enableResponseDebugger}</span>
                 </div>
-                <span>${language.debugger_config.enableResponseDebugger}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-enable-response-debugger-container">
                 <!-- 响应断点复选框将在render方法中添加 -->
@@ -104,13 +86,10 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
         </tr>
         <tr>
             <td align="right">
-                <div class="js-script-hook-tips-icon">
-                    ?
-                    <div class="js-script-hook-tooltip">
-                        ${language.debugger_config.callbackFunctionParamNameTips}
-                    </div>
+                <div class="tips-label-container">
+                    <span id="${debuggerConfig.id}-callback-function-param-name-tip-container" class="tip-container"></span>
+                    <span class="label-text">${language.debugger_config.callbackFunctionParamName}</span>
                 </div>
-                <span>${language.debugger_config.callbackFunctionParamName}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-callback-function-param-name-container">
                 <!-- 回调函数参数名输入框将在render方法中添加 -->
@@ -118,13 +97,10 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
         </tr>
         <tr>
             <td align="right">
-                <div class="js-script-hook-tips-icon">
-                    ?
-                    <div class="js-script-hook-tooltip">
-                        ${language.debugger_config.commentTips}
-                    </div>
+                <div class="tips-label-container">
+                    <span id="${debuggerConfig.id}-comment-tip-container" class="tip-container"></span>
+                    <span class="label-text">${language.debugger_config.comment}</span>
                 </div>
-                <span>${language.debugger_config.comment}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-comment-container">
                 <!-- 备注输入框将在render方法中添加 -->

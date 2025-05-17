@@ -68,22 +68,14 @@ export function updateDebuggerLanguage(
             // 强制更新每一行的标签文本
             updateRowLabel(rows[0], language.debugger_config.enable);
             updateRowLabel(rows[1], language.debugger_config.urlPattern);
-            updateRowLabel(rows[2], language.debugger_config.urlPattern);
+            updateRowLabel(rows[2], language.debugger_config.urlPatternKeyword);
             updateRowLabel(rows[3], language.debugger_config.urlPatternTest);
             updateRowLabel(rows[4], language.debugger_config.enableRequestDebugger);
             updateRowLabel(rows[5], language.debugger_config.enableResponseDebugger);
             updateRowLabel(rows[6], language.debugger_config.callbackFunctionParamName);
             updateRowLabel(rows[7], language.debugger_config.comment);
             
-            // 更新提示信息
-            updateRowTooltip(rows[0], language.debugger_config.enableTips);
-            updateRowTooltip(rows[1], language.debugger_config.urlPatternTips);
-            updateRowTooltip(rows[2], language.debugger_config.urlPatternTextTips);
-            updateRowTooltip(rows[3], language.debugger_config.urlPatternTestTips);
-            updateRowTooltip(rows[4], language.debugger_config.enableRequestDebuggerTips);
-            updateRowTooltip(rows[5], language.debugger_config.enableResponseDebuggerTips);
-            updateRowTooltip(rows[6], language.debugger_config.callbackFunctionParamNameTips);
-            updateRowTooltip(rows[7], language.debugger_config.commentTips);
+            // 不再需要直接更新提示信息，因为TipsComponent会处理这部分
         }
 
         // 更新子组件的语言
@@ -112,9 +104,7 @@ export function updateDebuggerLanguage(
         if (textareaComponent) {
             textareaComponent.updateLanguage(language);
         }
-        if (tipsComponent) {
-            tipsComponent.updateLanguage(language);
-        }
+        // tipsComponent由DebuggerComponent中的renderTipsComponents方法更新，无需在此处理
         
         // 直接更新所有输入框的placeholder
         updateAllInputPlaceholders(componentElement, language, currentConfig, inputComponent);
@@ -138,25 +128,10 @@ export function updateDebuggerLanguage(
 function updateRowLabel(row: Element | null, text: string): void {
     if (!row) return;
     
-    // 获取右侧单元格中的span标签
-    const label = row.querySelector('td[align="right"] span:last-child');
+    // 获取右侧单元格中的标签文本元素
+    const label = row.querySelector('td[align="right"] .label-text');
     if (label) {
         label.textContent = text;
-    }
-}
-
-/**
- * 更新行中的提示信息
- * @param row 表格行
- * @param tooltipText 提示文本
- */
-function updateRowTooltip(row: Element | null, tooltipText: string): void {
-    if (!row) return;
-    
-    // 获取提示元素
-    const tooltip = row.querySelector('.js-script-hook-tooltip');
-    if (tooltip) {
-        tooltip.textContent = tooltipText;
     }
 }
 
@@ -169,8 +144,8 @@ function updateRowTooltip(row: Element | null, tooltipText: string): void {
 function forceUpdateAllTextLabels(componentElement: HTMLElement, language: Language): void {
     if (!componentElement) return;
 
-    // 1. 获取所有字段标签并根据内容标识它们
-    const allLabelSpans = componentElement.querySelectorAll('td[align="right"] span');
+    // 获取所有字段标签并根据内容标识它们
+    const allLabelSpans = componentElement.querySelectorAll('td[align="right"] .label-text');
     
     allLabelSpans.forEach(span => {
         const text = span.textContent?.trim() || '';
@@ -198,45 +173,6 @@ function forceUpdateAllTextLabels(componentElement: HTMLElement, language: Langu
             span.textContent = language.debugger_config.urlPatternTest;
         }
     });
-    
-    // 2. 对于嵌套在表格行中的标签，使用行索引方法再次更新
-    const rows = componentElement.querySelectorAll('.debugger-component-table tr');
-    if (rows && rows.length > 0) {
-        // 对关键行强制更新
-        if (rows[4]) {
-            updateRowLabel(rows[4], language.debugger_config.enableRequestDebugger);
-        }
-        if (rows[5]) {
-            updateRowLabel(rows[5], language.debugger_config.enableResponseDebugger);
-        }
-        if (rows[6]) {
-            updateRowLabel(rows[6], language.debugger_config.callbackFunctionParamName);
-        }
-        if (rows[7]) {
-            updateRowLabel(rows[7], language.debugger_config.comment);
-        }
-    }
-    
-    // 3. 检查是否有特定ID的字段可以直接更新
-    const requestLabel = componentElement.querySelector('#request-debugger-label');
-    if (requestLabel) {
-        requestLabel.textContent = language.debugger_config.enableRequestDebugger;
-    }
-    
-    const responseLabel = componentElement.querySelector('#response-debugger-label');
-    if (responseLabel) {
-        responseLabel.textContent = language.debugger_config.enableResponseDebugger;
-    }
-    
-    const callbackLabel = componentElement.querySelector('#callback-function-label');
-    if (callbackLabel) {
-        callbackLabel.textContent = language.debugger_config.callbackFunctionParamName;
-    }
-    
-    const commentLabel = componentElement.querySelector('#comment-label');
-    if (commentLabel) {
-        commentLabel.textContent = language.debugger_config.comment;
-    }
 }
 
 /**

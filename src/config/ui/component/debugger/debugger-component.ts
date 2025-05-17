@@ -34,6 +34,7 @@ export class DebuggerComponent implements LanguageUpdateable {
     private currentLanguage: Language | undefined;
     private currentConfig: DebuggerConfig | undefined;
     private componentElement: HTMLElement | null = null;
+    private tipsInstances: { [key: string]: TipsComponent } = {}; // 存储tips实例的映射表
     
     constructor() {
         this.componentId = 'debugger-component';
@@ -96,6 +97,11 @@ export class DebuggerComponent implements LanguageUpdateable {
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = createDebuggerTemplate(language, debuggerInformation);
         this.componentElement = tempContainer.firstElementChild as HTMLElement;
+        
+        // 渲染所有的tips组件
+        if (this.componentElement) {
+            this.renderTipsComponents(language, debuggerInformation.id);
+        }
 
         // 绑定事件处理
         bindDebuggerEvents(
@@ -114,6 +120,53 @@ export class DebuggerComponent implements LanguageUpdateable {
 
         return this.componentElement;
     }
+    
+    /**
+     * 渲染所有tips组件
+     * @param language 语言配置
+     * @param debuggerId 断点ID
+     */
+    private renderTipsComponents(language: Language, debuggerId: string): void {
+        if (!this.componentElement) return;
+        
+        // 为每个提示容器渲染TipsComponent
+        const tipsConfig = [
+            { containerId: `${debuggerId}-enable-tip-container`, tipText: language.debugger_config.enableTips },
+            { containerId: `${debuggerId}-url-pattern-tip-container`, tipText: language.debugger_config.urlPatternTips },
+            { containerId: `${debuggerId}-url-pattern-text-tip-container`, tipText: language.debugger_config.urlPatternTextTips },
+            { containerId: `${debuggerId}-url-pattern-test-tip-container`, tipText: language.debugger_config.urlPatternTestTips },
+            { containerId: `${debuggerId}-enable-request-debugger-tip-container`, tipText: language.debugger_config.enableRequestDebuggerTips },
+            { containerId: `${debuggerId}-enable-response-debugger-tip-container`, tipText: language.debugger_config.enableResponseDebuggerTips },
+            { containerId: `${debuggerId}-callback-function-param-name-tip-container`, tipText: language.debugger_config.callbackFunctionParamNameTips },
+            { containerId: `${debuggerId}-comment-tip-container`, tipText: language.debugger_config.commentTips }
+        ];
+        
+        // 清理旧的tips实例
+        for (const key in this.tipsInstances) {
+            if (this.tipsInstances[key]) {
+                this.tipsInstances[key].destroy();
+            }
+        }
+        this.tipsInstances = {};
+        
+        for (const config of tipsConfig) {
+            const container = this.componentElement.querySelector(`#${config.containerId}`);
+            if (container) {
+                // 先清空容器内容
+                container.innerHTML = '';
+                
+                // 创建新的TipsComponent实例
+                const tipComponent = new TipsComponent();
+                const tipElement = tipComponent.render(config.tipText);
+                
+                // 保存tips实例以便后续管理
+                this.tipsInstances[config.containerId] = tipComponent;
+                
+                // 将tip元素添加到容器中
+                container.appendChild(tipElement);
+            }
+        }
+    }
 
     /**
      * 实现LanguageUpdateable接口
@@ -130,6 +183,9 @@ export class DebuggerComponent implements LanguageUpdateable {
         if (!this.componentElement || !this.currentConfig) {
             return;
         }
+
+        // 更新语言时重新渲染所有tips组件
+        this.renderTipsComponents(language, this.currentConfig.id);
 
         updateDebuggerLanguage(
             this.componentElement,
@@ -171,6 +227,14 @@ export class DebuggerComponent implements LanguageUpdateable {
             if (this.tipsComponent) {
                 this.tipsComponent.destroy();
             }
+            
+            // 销毁所有tips实例
+            for (const key in this.tipsInstances) {
+                if (this.tipsInstances[key]) {
+                    this.tipsInstances[key].destroy();
+                }
+            }
+            this.tipsInstances = {};
 
             // 移除DOM元素
             if (this.componentElement) {
