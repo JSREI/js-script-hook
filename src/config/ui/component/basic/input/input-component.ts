@@ -128,14 +128,46 @@ export class InputComponent implements LanguageUpdateable {
                 }
             }
 
-            // 更新占位符文本 - 这个方法只应用已经保存的占位符
-            // 通常在语言切换时，需要由父组件调用setPlaceholder重新设置适合当前语言的占位符
+            // 获取输入框元素
+            const input = this.containerElement.querySelector('.js-script-hook-input-field') as HTMLInputElement;
+            if (!input) {
+                return;
+            }
+
+            // 根据输入框ID或当前placeholder识别特定类型的输入框，并应用正确的语言资源
+            const inputId = input.id || '';
+            const currentPlaceholder = input.placeholder || this.currentPlaceholder || '';
+
+            // 处理URL匹配方式输入框
+            if (inputId.includes('url-pattern-text') || 
+                currentPlaceholder.includes('Enter a keyword or expression') ||
+                currentPlaceholder.includes('输入关键字或者表达式')) {
+                
+                // 更新为当前语言的URL匹配方式占位符
+                const newPlaceholder = language.debugger_config.urlPatternTextPlaceholder;
+                input.placeholder = newPlaceholder;
+                this.currentPlaceholder = newPlaceholder;
+                inputLogger.debug(`识别为URL匹配方式输入框，更新占位符为: ${newPlaceholder}`);
+                return;
+            }
+            
+            // 处理JSONP回调函数参数名输入框
+            if (inputId.includes('callback-function-param-name-text') || 
+                currentPlaceholder.includes('If not specified, the built-in engine will automatically infer') ||
+                currentPlaceholder.includes('不指定的话会使用内置引擎自动推测')) {
+                
+                // 更新为当前语言的JSONP回调函数参数名占位符
+                const newPlaceholder = language.debugger_config.callbackFunctionParamNamePlaceholder;
+                input.placeholder = newPlaceholder;
+                this.currentPlaceholder = newPlaceholder;
+                inputLogger.debug(`识别为JSONP回调函数参数名输入框，更新占位符为: ${newPlaceholder}`);
+                return;
+            }
+            
+            // 处理通用输入框 - 仅使用保存的占位符
             if (this.currentPlaceholder) {
-                const input = this.containerElement.querySelector('.js-script-hook-input-field') as HTMLInputElement;
-                if (input) {
-                    input.placeholder = this.currentPlaceholder;
-                    inputLogger.debug(`更新输入框占位符为: ${this.currentPlaceholder}`);
-                }
+                input.placeholder = this.currentPlaceholder;
+                inputLogger.debug(`更新通用输入框占位符为: ${this.currentPlaceholder}`);
             }
         } catch (error) {
             inputLogger.error(`更新输入框语言时出错: ${error}`);

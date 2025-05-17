@@ -117,7 +117,7 @@ export function updateDebuggerLanguage(
         }
         
         // 直接更新所有输入框的placeholder
-        updateAllInputPlaceholders(componentElement, language, currentConfig);
+        updateAllInputPlaceholders(componentElement, language, currentConfig, inputComponent);
         
         // 更新按钮文本
         updateAllButtonTexts(componentElement, language, currentConfig);
@@ -245,10 +245,12 @@ function forceUpdateAllTextLabels(componentElement: HTMLElement, language: Langu
  * @param language 语言配置
  * @param currentConfig 当前配置
  */
-function updateAllInputPlaceholders(componentElement: HTMLElement, language: Language, currentConfig: DebuggerConfig): void {
+function updateAllInputPlaceholders(componentElement: HTMLElement, language: Language, currentConfig: DebuggerConfig, inputComponent?: any): void {
     if (!componentElement) return;
 
     try {
+        languageUpdateLogger.debug(`正在更新所有输入框的placeholder，调试器ID: ${currentConfig.id}`);
+        
         // 查找所有输入框并直接更新它们的placeholder
         const allInputs = componentElement.querySelectorAll('input[type="text"]');
         allInputs.forEach(input => {
@@ -258,8 +260,10 @@ function updateAllInputPlaceholders(componentElement: HTMLElement, language: Lan
             // 根据输入框ID判断它是什么类型的输入框
             if (inputId && inputId.includes('url-pattern-text')) {
                 inputEl.placeholder = language.debugger_config.urlPatternTextPlaceholder;
+                languageUpdateLogger.debug(`更新URL匹配方式输入框placeholder为: ${language.debugger_config.urlPatternTextPlaceholder}`);
             } else if (inputId && inputId.includes('callback-function-param-name-text')) {
                 inputEl.placeholder = language.debugger_config.callbackFunctionParamNamePlaceholder;
+                languageUpdateLogger.debug(`更新回调函数参数名输入框placeholder为: ${language.debugger_config.callbackFunctionParamNamePlaceholder}`);
             }
         });
 
@@ -267,12 +271,32 @@ function updateAllInputPlaceholders(componentElement: HTMLElement, language: Lan
         const urlPatternInput = componentElement.querySelector(`#${currentConfig.id}-url-pattern-text`) as HTMLInputElement;
         if (urlPatternInput) {
             urlPatternInput.placeholder = language.debugger_config.urlPatternTextPlaceholder;
+            
+            // 如果有提供InputComponent实例，使用其setPlaceholder方法更新
+            if (inputComponent) {
+                const inputCompInstance = inputComponent;
+                // 使用setTimeout确保DOM操作完成后再调用
+                setTimeout(() => {
+                    inputCompInstance.setPlaceholder(language.debugger_config.urlPatternTextPlaceholder);
+                    languageUpdateLogger.debug(`通过InputComponent更新URL匹配方式输入框placeholder为: ${language.debugger_config.urlPatternTextPlaceholder}`);
+                }, 0);
+            }
         }
 
         // 查找回调函数参数名输入框并更新placeholder
         const callbackInput = componentElement.querySelector(`#${currentConfig.id}-callback-function-param-name-text`) as HTMLInputElement;
         if (callbackInput) {
             callbackInput.placeholder = language.debugger_config.callbackFunctionParamNamePlaceholder;
+            
+            // 如果有提供InputComponent实例，使用其setPlaceholder方法更新
+            if (inputComponent) {
+                const inputCompInstance = inputComponent;
+                // 使用setTimeout确保DOM操作完成后再调用
+                setTimeout(() => {
+                    inputCompInstance.setPlaceholder(language.debugger_config.callbackFunctionParamNamePlaceholder);
+                    languageUpdateLogger.debug(`通过InputComponent更新回调函数参数名输入框placeholder为: ${language.debugger_config.callbackFunctionParamNamePlaceholder}`);
+                }, 0);
+            }
         }
 
         // 查找备注文本区域并更新placeholder
@@ -286,8 +310,9 @@ function updateAllInputPlaceholders(componentElement: HTMLElement, language: Lan
         allDialogInputs.forEach(input => {
             const inputEl = input as HTMLInputElement;
             // 根据输入对话框的用途更新placeholder
-            if (inputEl.placeholder && inputEl.placeholder.includes('Enter a keyword or expression')) {
+            if (inputEl.placeholder && (inputEl.placeholder.includes('Enter a keyword or expression') || inputEl.placeholder.includes('输入关键字或者表达式'))) {
                 inputEl.placeholder = language.debugger_config.urlPatternTextPlaceholder;
+                languageUpdateLogger.debug(`更新对话框输入框placeholder为: ${language.debugger_config.urlPatternTextPlaceholder}`);
             }
         });
     } catch (error) {
