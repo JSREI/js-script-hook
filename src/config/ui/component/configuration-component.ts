@@ -1,10 +1,15 @@
-import $ from 'jquery';
+import { jQuery as $, JQuery } from './utils/jquery-adapter';
 import { GlobalOptionsComponent } from "./global-options-component";
 import { DebuggerManagerComponent } from "./debugger-manager-component";
 import { AboutComponent } from "./about-component";
 import { getGlobalConfig } from "../../config";
 import { getLanguage, type Language } from "./language";
 import { TabComponent, TabItem } from "./basic";
+import { safeCreateElementFromHTML, safeSetInnerHTML } from "../../../utils/dom-utils";
+import { createLogger } from "../../../logger";
+
+// 创建配置组件专用的日志记录器
+const configUILogger = createLogger('config-ui');
 
 /**
  * 配置组件
@@ -146,11 +151,12 @@ export class ConfigurationComponent {
         // 检查是否已经存在配置窗口
         const existingModal = document.getElementById("jsrei-js-script-hook-configuration-modal-window");
         if (existingModal) {
-            console.log('[配置窗口] 配置窗口已经打开，不再创建新窗口');
+            configUILogger.debug('配置窗口已经打开，不再创建新窗口');
+            
             // 如果窗口已存在但不可见，则显示它
             if ($(existingModal).css('display') === 'none') {
                 $(existingModal).show();
-                console.log('[配置窗口] 重新显示已存在的窗口');
+                configUILogger.debug('重新显示已存在的窗口');
             }
             
             // 使窗口有一个轻微闪动效果，引导用户注意
@@ -165,11 +171,29 @@ export class ConfigurationComponent {
         // 添加样式
         this.appendStyles();
         
+        // 确保UI元素已添加到页面
+        this.appendUI();
+        
         // i18n配置语言
         const language = getLanguage(getGlobalConfig().language);
 
-        // 将模态框添加到body元素中
-        $(document.body).append($(this.modalHTML.replace('关闭', language.confirm_dialog.closeWindow)));
+        // 获取内容容器
+        const contentContainer = document.getElementById('js-script-hook-configuration-content');
+        if (!contentContainer) {
+            configUILogger.error('无法找到内容容器元素');
+            return;
+        }
+        
+        // 设置关闭按钮文本
+        const closeBtn = document.getElementById('jsrei-js-script-hook-configuration-close-btn');
+        if (closeBtn) {
+            closeBtn.setAttribute('title', language.confirm_dialog.closeWindow);
+            
+            // 添加关闭按钮事件
+            closeBtn.addEventListener('click', () => {
+                this.closeModalWindow();
+            });
+        }
 
         // 创建Tab页内容
         const tabItems: TabItem[] = [
@@ -194,15 +218,23 @@ export class ConfigurationComponent {
             }
         ];
 
-        // 渲染Tab组件
-        const tabComponent = this.tabComponent.render(tabItems);
-        $("#js-script-hook-configuration-content").append(tabComponent);
-
-        // 关闭按钮事件处理
-        $("#jsrei-js-script-hook-configuration-close-btn").click(() => this.closeModalWindow());
+        // 渲染标签组件
+        const tabsContainer = this.tabComponent.render(tabItems);
         
-        // 显示模态框
-        $("#jsrei-js-script-hook-configuration-modal-window").show();
+        // 清空内容容器并添加标签组件
+        while (contentContainer.firstChild) {
+            contentContainer.removeChild(contentContainer.firstChild);
+        }
+        
+        contentContainer.appendChild(tabsContainer[0]);
+        
+        // 显示模态窗口
+        const modalWindow = document.getElementById('jsrei-js-script-hook-configuration-modal-window');
+        if (modalWindow) {
+            $(modalWindow).show();
+        }
+        
+        configUILogger.debug('配置界面已显示');
     }
 
     /**
@@ -287,6 +319,58 @@ export class ConfigurationComponent {
         const element = document.getElementById("jsrei-js-script-hook-configuration-modal-window");
         if (element && element.parentNode) {
             element.parentNode.removeChild(element);
+        }
+    }
+
+    /**
+     * 将UI元素添加到页面中
+     */
+    private appendUI(): void {
+        const modalRoot = document.getElementById('js-script-hook-modal-root');
+        
+        // 如果已经存在则不重复创建
+        if (modalRoot) {
+            configUILogger.debug('模态框DOM已存在，无需再次创建');
+            return;
+        }
+        
+        configUILogger.debug('开始创建配置界面DOM');
+        
+        try {
+            // 使用安全方法创建DOM元素
+            const fragmentContainer = document.createElement('div');
+            const fragment = safeCreateElementFromHTML(this.modalHTML);
+            fragmentContainer.appendChild(fragment);
+            
+            // 创建一个根容器，将模态框模板添加到其中
+            const rootElement = document.createElement('div');
+            rootElement.id = 'js-script-hook-modal-root';
+            document.body.appendChild(rootElement);
+            
+            // 安全地将HTML内容设置到根元素
+            safeSetInnerHTML(rootElement, fragmentContainer.innerHTML);
+            
+            configUILogger.debug('配置界面DOM创建成功');
+        } catch (error) {
+            configUILogger.error(`创建配置界面DOM失败: ${error}`);
+            
+            // 降级方案：创建一个基本的模态框元素
+            try {
+                const basicModal = document.createElement('div');
+                basicModal.id = 'js-script-hook-modal-root';
+                basicModal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.cssText = 'background:white;padding:20px;border-radius:5px;max-width:80%;max-height:80%;overflow:auto;';
+                modalContent.textContent = '配置界面加载失败，请刷新页面重试。';
+                
+                basicModal.appendChild(modalContent);
+                document.body.appendChild(basicModal);
+                
+                configUILogger.warn('使用降级方案创建了简化版配置界面');
+            } catch (fallbackError) {
+                configUILogger.error(`降级方案也失败了: ${fallbackError}`);
+            }
         }
     }
 } 

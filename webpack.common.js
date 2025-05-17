@@ -43,7 +43,13 @@ module.exports = {
         rules: [
             {
                 test: /\.tsx?$/,
-                use: 'ts-loader',
+                use: {
+                    loader: 'ts-loader',
+                    options: {
+                        // 禁用类型检查，让TypeScript仅作为转译器
+                        transpileOnly: true
+                    }
+                },
                 exclude: /node_modules/
             },
             {

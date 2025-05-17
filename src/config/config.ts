@@ -1,7 +1,11 @@
 import { DebuggerTester } from "../debugger/debugger-tester";
 import { Debugger, UrlPatternType } from "../debugger/debugger";
 import { ScriptContext } from "../context/script/script-context";
-import { loadValue, saveValue } from "../utils/storage-util";
+import { createLogger } from "../logger";
+import { loadValue, saveValue } from "../storage";
+
+// 创建配置模块专用的日志记录器
+const configLogger = createLogger('config');
 
 // 保留原始声明用于兼容性，但实际使用我们自己的存储工具
 declare const GM_getValue: (key: string) => string | undefined;
@@ -57,13 +61,13 @@ export class Config {
 
     public load(): Config {
         try {
-            console.log('[DEBUG] 正在加载配置...');
+            configLogger.info('正在加载配置...');
             // 使用新的存储工具，已自动处理JSON解析
             const configJson = loadValue(GM_config_name);
-            console.log('[DEBUG] 从存储加载的配置:', configJson);
+            configLogger.debug(`从存储加载的配置: ${JSON.stringify(configJson)}`);
             
             if (!configJson) {
-                console.log('[DEBUG] 没有找到存储的配置，使用默认配置');
+                configLogger.info('没有找到存储的配置，使用默认配置');
                 return this;
             }
             
@@ -109,33 +113,33 @@ export class Config {
                     this.debuggers.push(debuggerInformation);
                 }
             }
-            console.log('[DEBUG] 配置加载完成，当前语言:', this.language);
+            configLogger.info(`配置加载完成，当前语言: ${this.language}`);
             return this;
         } catch (error) {
-            console.error('[ERROR] 加载配置时出错:', error);
+            configLogger.error(`加载配置时出错: ${error}`);
             return this;
         }
     }
 
     public persist(): void {
         try {
-            console.log('[DEBUG] 正在保存配置...');
-            console.log('[DEBUG] 当前语言设置:', this.language);
+            configLogger.info('正在保存配置...');
+            configLogger.debug(`当前语言设置: ${this.language}`);
             
             // 直接将对象传递给saveValue，saveValue会处理序列化
             saveValue(GM_config_name, this);
             
             // 验证设置是否成功（loadValue已自动解析JSON）
             const savedConfig = loadValue(GM_config_name);
-            console.log('[DEBUG] 验证保存结果:', savedConfig);
+            configLogger.debug(`验证保存结果: ${JSON.stringify(savedConfig)}`);
             
             if (savedConfig && savedConfig.language === this.language) {
-                console.log('[DEBUG] 配置保存验证成功');
+                configLogger.debug('配置保存验证成功');
             } else {
-                console.error('[ERROR] 配置保存验证失败！');
+                configLogger.error('配置保存验证失败！');
             }
         } catch (error) {
-            console.error('[ERROR] 保存配置时出错:', error);
+            configLogger.error(`保存配置时出错: ${error}`);
         }
     }
 
@@ -173,16 +177,16 @@ export class Config {
 let globalConfig = new Config();
 
 export function initConfig(): void {
-    console.log('[DEBUG] 初始化配置开始');
+    configLogger.info('初始化配置开始');
     const configBefore = JSON.stringify(globalConfig);
-    console.log('[DEBUG] 初始化前配置:', configBefore);
+    configLogger.debug(`初始化前配置: ${configBefore}`);
     
     globalConfig.load();
     
     const configAfter = JSON.stringify(globalConfig);
-    console.log('[DEBUG] 初始化后配置:', configAfter);
-    console.log('[DEBUG] 配置是否改变:', configBefore !== configAfter);
-    console.log('[DEBUG] 当前语言设置:', globalConfig.language);
+    configLogger.debug(`初始化后配置: ${configAfter}`);
+    configLogger.debug(`配置是否改变: ${configBefore !== configAfter}`);
+    configLogger.debug(`当前语言设置: ${globalConfig.language}`);
 }
 
 export function getGlobalConfig(): Config {

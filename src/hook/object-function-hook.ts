@@ -2,6 +2,10 @@ import { getGlobalConfig } from "../config/config";
 import { getFunctionBody, getParameterNames, generateRandomFunctionName } from "../utils/code-util";
 import { getUnsafeWindow } from "../utils/scope-util";
 import { getLanguage } from "../config/ui/component/language";
+import { createLogger } from "../logger";
+
+// 创建对象函数钩子专用的日志记录器
+const objectHookLogger = createLogger('object-hook');
 
 export const hookTypeUseProxyFunction = 1;
 export const hookTypeUseDeclareFunction = 2;
@@ -50,8 +54,7 @@ export class ObjectFunctionHook {
         // 要Hook的函数必须存在
         const functionHolder = this.object[this.functionName];
         if (!functionHolder) {
-            // TODO 2024-12-20 01:04:00 统一日志
-            console.log(`hook失败，函数不存在： ${this.functionName}`);
+            objectHookLogger.warn(`hook失败，函数不存在： ${this.functionName}`);
             return;
         }
 
@@ -61,17 +64,23 @@ export class ObjectFunctionHook {
         const prefix = "JSREI_js_script_hook";
         const hookDoneFlag = prefix + "_hookDoneFlag";
         if ((functionHolder as any)[hookDoneFlag]) {
+            objectHookLogger.debug(`函数 ${this.functionName} 已经被hook过，跳过`);
             return;
         }
 
+        objectHookLogger.debug(`开始为函数 ${this.functionName} 添加hook`);
+        
         if (this.hookType === hookTypeUseProxyFunction) {
+            objectHookLogger.debug(`使用代理函数方式实现hook: ${this.functionName}`);
             this.hookUseProxyFunction(functionHolder, hookCallbackFunction);
         } else {
+            objectHookLogger.debug(`使用重声明函数方式实现hook: ${this.functionName}`);
             this.hookUseRedeclareFunction(functionHolder, hookCallbackFunction);
         }
 
         // 设置标记位，防止重复Hook
         (this.object[this.functionName] as any)[hookDoneFlag] = true;
+        objectHookLogger.info(`函数 ${this.functionName} hook添加完成`);
     }
 
     /**
@@ -82,9 +91,14 @@ export class ObjectFunctionHook {
      */
     private hookUseRedeclareFunction(functionHolder: Function, hookCallbackFunction: Function): void {
         const hookCallbackFunctionGlobalName = generateRandomFunctionName(100);
+        objectHookLogger.debug(`生成全局回调函数名: ${hookCallbackFunctionGlobalName}`);
+        
         (getUnsafeWindow() as UnsafeWindow)[hookCallbackFunctionGlobalName] = hookCallbackFunction;
         const functionBodyCode = getFunctionBody(functionHolder);
         const parameterNames = getParameterNames(functionHolder);
+        
+        objectHookLogger.debug(`提取原函数参数: [${parameterNames.join(', ')}]`);
+        
         // TODO 2025-01-07 23:41:26 调用 hookCallbackFunction
         // TODO 2025-01-06 03:19:19 提示语也国际化，根据设置的语言选择
         // TODO 2025-01-09 02:58:29 暂不删除函数，否则第二次运行就可能报错了，暂不考虑函数溢出的问题
@@ -105,6 +119,8 @@ export class ObjectFunctionHook {
         ${functionBodyCode}
         
         `;
+        
+        objectHookLogger.debug('重新构建函数');
         this.object[this.functionName] = new Function(...parameterNames, newFunctionCode);
     }
 
@@ -118,24 +134,29 @@ export class ObjectFunctionHook {
         const _this = this;
         // 为函数添加Hook
         this.object[this.functionName] = function (this: any, ...args: any[]): any {
+            objectHookLogger.debug(`代理函数被调用: ${_this.functionName}`);
+            
             if (_this.callByHookCallbackFunction) {
                 // 由hook函数自行调用被hook函数
                 try {
+                    objectHookLogger.debug('调用回调函数处理，由回调函数负责调用原函数');
                     hookCallbackFunction.apply(this, [{
                         hookFunctionHolder: functionHolder,
                         args: arguments
                     } as HookCallbackArgs]);
                 } catch (e) {
-                    console.error(e);
+                    objectHookLogger.error(`回调函数执行出错: ${e}`);
                 }
             } else {
                 // 不干扰流程，hook函数只作为观测
                 try {
+                    objectHookLogger.debug('调用回调函数进行观测，然后继续执行原函数');
                     // TODO 2023-8-21 22:15:09 在函数执行的时候尝试触发各种断点
                     hookCallbackFunction.apply(this, args);
                 } catch (e) {
-                    console.error(e);
+                    objectHookLogger.error(`回调函数执行出错: ${e}`);
                 }
+                objectHookLogger.debug('执行原始函数');
                 return functionHolder.apply(this, args);
             }
         };

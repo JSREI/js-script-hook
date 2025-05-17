@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import { jQuery as $, JQuery } from '../utils/jquery-adapter';
 
 export class InputComponent {
     private readonly styleCSS: string;

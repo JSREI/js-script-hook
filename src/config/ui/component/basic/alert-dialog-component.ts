@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import { jQuery as $ } from '../utils/jquery-adapter';
 
 /**
  * 自定义警告对话框组件

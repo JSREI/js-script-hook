@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import { jQuery as $, JQuery } from './utils/jquery-adapter';
 import { getGlobalConfig } from "../../config";
 import { Config } from "../../config";
 // 导入语言相关的函数和接口
@@ -6,7 +6,7 @@ import { getLanguage, getLanguageByGlobalConfig, type Language } from "./languag
 import { TipsComponent, CheckboxComponent, SelectComponent, SelectOption, InputComponent, TabComponent, TabItem } from './basic';
 // 导入show函数用于重新加载配置界面
 import { show } from "../../ui/menu";
-import { loadValue } from "../../../utils/storage-util";
+import { loadValue } from "../../../storage";
 import { ConfigurationComponent } from './configuration-component';
 
 type HookType = "use-proxy-function" | "use-redeclare-function";

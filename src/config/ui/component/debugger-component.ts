@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import { jQuery as $, JQuery } from './utils/jquery-adapter';
 import { getGlobalConfig } from "../../config";
 import { DebuggerTester } from "../../../debugger/debugger-tester";
 import { ScriptContext } from "../../../context/script/script-context";
@@ -16,6 +16,10 @@ import {
     InputDialogComponent,
     AlertDialogComponent
 } from './basic';
+import { createLogger } from '../../../logger';
+
+// 创建DebuggerComponent专用的日志记录器
+const debuggerCompLogger = createLogger('debugger-component');
 
 type UrlPatternType = 'equals-string' | 'contains-string' | 'match-regexp' | 'match-all';
 type HookType = 'redeclare' | 'proxy';
@@ -338,240 +342,256 @@ export class DebuggerComponent {
     }
 
     /**
-     * 渲染一条断点规则
-     *
+     * 渲染断点组件
      * @param language 语言配置
      * @param debuggerInformation 断点信息
-     * @return jQuery对象
+     * @returns jQuery对象
      */
     public render(language: Language, debuggerInformation: DebuggerConfig): JQuery<HTMLElement> {
         // 添加样式
         this.appendStyles();
-        
-        const $debuggerComponent = $(this.template(language, debuggerInformation));
 
-        // 绑定事件
         const localDebuggerInformation = { ...debuggerInformation };
-
-        // 添加复选框组件 - 启用/禁用断点
-        $debuggerComponent.find(`#${debuggerInformation.id}-enable-checkbox-container`).append(
-            this.checkboxComponent.render(
-                `${debuggerInformation.id}-enable-checkbox`,
-                debuggerInformation.enable,
-                (isChecked: boolean) => {
-                    localDebuggerInformation.enable = isChecked;
-                    // 保存配置
-                    const config = getGlobalConfig();
-                    const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-                    if (debuggerItem) {
-                        debuggerItem.enable = localDebuggerInformation.enable;
-                        debuggerItem.updateTime = new Date().getTime();
-                        config.persist();
-                    }
-                }
-            )
-        );
-
-        // 添加输入框组件 - URL匹配文本
-        $debuggerComponent.find(`#${debuggerInformation.id}-url-pattern-text-container`).append(
-            this.inputComponent.render(
-                `${debuggerInformation.id}-url-pattern-text`,
-                debuggerInformation.urlPattern || '',
-                language.debugger_config.urlPatternTextPlaceholder,
-                undefined,
-                (value: string) => {
-                    localDebuggerInformation.urlPattern = value;
-                    // 保存配置
-                    const config = getGlobalConfig();
-                    const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-                    if (debuggerItem) {
-                        debuggerItem.urlPattern = localDebuggerInformation.urlPattern;
-                        debuggerItem.updateTime = new Date().getTime();
-                        config.persist();
-                    }
-                }
-            )
-        );
-
-        // 添加复选框组件 - 启用请求断点
-        $debuggerComponent.find(`#${debuggerInformation.id}-enableRequestDebugger-checkbox-container`).append(
-            this.checkboxComponent.render(
-                `${debuggerInformation.id}-enableRequestDebugger-checkbox`,
-                debuggerInformation.enableRequestDebugger,
-                (isChecked: boolean) => {
-                    localDebuggerInformation.enableRequestDebugger = isChecked;
-                    // 保存配置
-                    const config = getGlobalConfig();
-                    const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-                    if (debuggerItem) {
-                        debuggerItem.enableRequestDebugger = localDebuggerInformation.enableRequestDebugger;
-                        debuggerItem.updateTime = new Date().getTime();
-                        config.persist();
-                    }
-                }
-            )
-        );
-
-        // 添加复选框组件 - 启用响应断点
-        $debuggerComponent.find(`#${debuggerInformation.id}-enableResponseDebugger-checkbox-container`).append(
-            this.checkboxComponent.render(
-                `${debuggerInformation.id}-enableResponseDebugger-checkbox`,
-                debuggerInformation.enableResponseDebugger,
-                (isChecked: boolean) => {
-                    localDebuggerInformation.enableResponseDebugger = isChecked;
-                    // 保存配置
-                    const config = getGlobalConfig();
-                    const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-                    if (debuggerItem) {
-                        debuggerItem.enableResponseDebugger = localDebuggerInformation.enableResponseDebugger;
-                        debuggerItem.updateTime = new Date().getTime();
-                        config.persist();
-                    }
-                }
-            )
-        );
-
-        // 添加输入框组件 - 回调函数参数名
-        $debuggerComponent.find(`#${debuggerInformation.id}-callbackFunctionParamName-container`).append(
-            this.inputComponent.render(
-                `${debuggerInformation.id}-callbackFunctionParamName-text`,
-                debuggerInformation.callbackFunctionName || '',
-                language.debugger_config.callbackFunctionParamNamePlaceholder,
-                undefined,
-                (value: string) => {
-                    localDebuggerInformation.callbackFunctionName = value;
-                    // 保存配置
-                    const config = getGlobalConfig();
-                    const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-                    if (debuggerItem) {
-                        debuggerItem.callbackFunctionName = localDebuggerInformation.callbackFunctionName;
-                        debuggerItem.updateTime = new Date().getTime();
-                        config.persist();
-                    }
-                }
-            )
-        );
-
-        // 添加文本区域组件 - 备注
-        $debuggerComponent.find(`#${debuggerInformation.id}-comment-container`).append(
-            this.textareaComponent.render(
-                `${debuggerInformation.id}-comment-text`,
-                debuggerInformation.comment || '',
-                language.debugger_config.commentPlaceholder,
-                undefined, // 无标签
-                (value: string) => {
-                    localDebuggerInformation.comment = value;
-                    // 保存配置
-                    const config = getGlobalConfig();
-                    const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-                    if (debuggerItem) {
-                        debuggerItem.comment = localDebuggerInformation.comment;
-                        debuggerItem.updateTime = new Date().getTime();
-                        config.persist();
-                    }
-                },
-                5, // 行数
-                undefined // 无最大长度限制
-            )
-        );
-
-        // 初始化URL匹配方式下拉菜单
-        const urlPatternOptions: SelectOption[] = [
-            { value: 'equals-string', text: language.debugger_config.urlPatternType_EqualsThisString },
-            { value: 'contains-string', text: language.debugger_config.urlPatternType_ContainsThisString },
-            { value: 'match-regexp', text: language.debugger_config.urlPatternType_MatchThisRegexp },
-            { value: 'match-all', text: language.debugger_config.urlPatternType_MatchALL }
-        ];
         
-        // 在DOM准备好后渲染SelectComponent
-        setTimeout(() => {
-            const selectContainer = $debuggerComponent.find(`#${debuggerInformation.id}-url-pattern-container`);
-            if (selectContainer.length) {
-                selectContainer.append(
-                    this.selectComponent.render(
-                        `${debuggerInformation.id}-url-pattern`,
-                        urlPatternOptions,
-                        debuggerInformation.urlPatternType || 'match-all',
-                        undefined,
-                        (value: string) => {
-                            if (value === 'equals-string' || value === 'contains-string' || 
-                                value === 'match-regexp' || value === 'match-all') {
-                                localDebuggerInformation.urlPatternType = value as UrlPatternType;
-                                // 保存配置
-                                const config = getGlobalConfig();
-                                const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
-                                if (debuggerItem) {
-                                    debuggerItem.urlPatternType = localDebuggerInformation.urlPatternType;
-                                    debuggerItem.updateTime = new Date().getTime();
-                                    config.persist();
+        try {
+            // 使用安全的DOM操作创建组件
+            const templateHTML = this.template(language, localDebuggerInformation);
+            const $debuggerComponent = $(templateHTML);
+            
+            debuggerCompLogger.debug(`正在渲染断点组件 ID: ${debuggerInformation.id}`);
+            
+            // 绑定删除事件
+            $debuggerComponent.find(`#${debuggerInformation.id}-remove-btn`).on('click', () => {
+                const confirmDialog = ConfirmDialogComponent.getInstance();
+                confirmDialog.show(
+                    language.confirm_dialog.deleteBreakpoint,
+                    language.confirm_dialog.deleteConfirmMessage,
+                    (confirmed: boolean) => {
+                        if (confirmed) {
+                            // 确认删除
+                            const config = getGlobalConfig();
+                            config.removeDebuggerById(debuggerInformation.id);
+                            config.persist();
+                            $debuggerComponent.remove();
+                        }
+                    },
+                    language.confirm_dialog.okButton,
+                    language.confirm_dialog.cancelButton
+                );
+            });
+
+            // 为checkbox绑定事件
+            $debuggerComponent.find(`#${debuggerInformation.id}-enable-checkbox-container`).append(
+                this.checkboxComponent.render(
+                    `${debuggerInformation.id}-enable-checkbox`,
+                    debuggerInformation.enable,
+                    (isChecked: boolean) => {
+                        localDebuggerInformation.enable = isChecked;
+                        
+                        // 保存配置
+                        const config = getGlobalConfig();
+                        const debuggerItem = config.findDebuggerById(debuggerInformation.id);
+                        if (debuggerItem) {
+                            debuggerItem.enable = isChecked;
+                            debuggerItem.updateTime = new Date().getTime();
+                            config.persist();
+                        }
+                    }
+                )
+            );
+
+            $debuggerComponent.find(`#${debuggerInformation.id}-enableRequestDebugger-checkbox-container`).append(
+                this.checkboxComponent.render(
+                    `${debuggerInformation.id}-enableRequestDebugger-checkbox`,
+                    debuggerInformation.enableRequestDebugger,
+                    (isChecked: boolean) => {
+                        localDebuggerInformation.enableRequestDebugger = isChecked;
+                        
+                        // 保存配置
+                        const config = getGlobalConfig();
+                        const debuggerItem = config.findDebuggerById(debuggerInformation.id);
+                        if (debuggerItem) {
+                            debuggerItem.enableRequestDebugger = isChecked;
+                            debuggerItem.updateTime = new Date().getTime();
+                            config.persist();
+                        }
+                    }
+                )
+            );
+            
+            $debuggerComponent.find(`#${debuggerInformation.id}-enableResponseDebugger-checkbox-container`).append(
+                this.checkboxComponent.render(
+                    `${debuggerInformation.id}-enableResponseDebugger-checkbox`,
+                    debuggerInformation.enableResponseDebugger,
+                    (isChecked: boolean) => {
+                        localDebuggerInformation.enableResponseDebugger = isChecked;
+                        
+                        // 保存配置
+                        const config = getGlobalConfig();
+                        const debuggerItem = config.findDebuggerById(debuggerInformation.id);
+                        if (debuggerItem) {
+                            debuggerItem.enableResponseDebugger = isChecked;
+                            debuggerItem.updateTime = new Date().getTime();
+                            config.persist();
+                        }
+                    }
+                )
+            );
+
+            // 为URL模式测试按钮绑定事件
+            $debuggerComponent.find(`#${debuggerInformation.id}-url-pattern-test-container`).append(
+                this.buttonComponent.render(
+                    `${debuggerInformation.id}-url-pattern-test`,
+                    language.debugger_config.urlPatternTest,
+                    function() {
+                        const inputDialog = InputDialogComponent.getInstance();
+                        inputDialog.show(
+                            language.debugger_config.urlPatternTest,
+                            language.debugger_config.urlPatternTestPrompt,
+                            (confirmed: boolean, url: string) => {
+                                if (!confirmed || !url) return;
+                                
+                                try {
+                                    const dummyContext = new ScriptContext(url, null, null);
+                                    const tester = new DebuggerTester();
+                                    const result = tester.testUrl(localDebuggerInformation.urlPatternType, localDebuggerInformation.urlPattern, url);
+                                    
+                                    const resultDialog = AlertDialogComponent.getInstance();
+                                    const resultText = `${language.debugger_config.urlPatternTestResult} ${result ? '✓' : '✗'}`;
+                                    resultDialog.show('URL Pattern Test', resultText);
+                                } catch (e: unknown) {
+                                    console.error('Error testing URL pattern:', e);
+                                    const errorDialog = AlertDialogComponent.getInstance();
+                                    const errorMessage = e instanceof Error ? e.message : String(e);
+                                    errorDialog.show('Error', `Test failed: ${errorMessage}`);
+                                }
+                            },
+                            'https://example.com/api/data.js'
+                        );
+                    },
+                    'primary',
+                    'small',
+                    '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>'
+                )
+            );
+
+            // 为URL pattern输入绑定事件
+            $debuggerComponent.find(`#${debuggerInformation.id}-url-pattern-text-container`).append(
+                this.inputComponent.render(
+                    `${debuggerInformation.id}-url-pattern-text`,
+                    debuggerInformation.urlPattern || '',
+                    language.debugger_config.urlPatternTextPlaceholder,
+                    undefined,
+                    (value: string) => {
+                        localDebuggerInformation.urlPattern = value;
+                        
+                        // 保存配置
+                        const config = getGlobalConfig();
+                        const debuggerItem = config.findDebuggerById(debuggerInformation.id);
+                        if (debuggerItem) {
+                            debuggerItem.urlPattern = value;
+                            debuggerItem.updateTime = new Date().getTime();
+                            config.persist();
+                        }
+                    }
+                )
+            );
+
+            // 为callback函数名绑定事件
+            $debuggerComponent.find(`#${debuggerInformation.id}-callbackFunctionParamName-container`).append(
+                this.inputComponent.render(
+                    `${debuggerInformation.id}-callbackFunctionParamName-text`,
+                    debuggerInformation.callbackFunctionName || '',
+                    language.debugger_config.callbackFunctionParamNamePlaceholder,
+                    undefined,
+                    (value: string) => {
+                        localDebuggerInformation.callbackFunctionName = value;
+                        
+                        // 保存配置
+                        const config = getGlobalConfig();
+                        const debuggerItem = config.findDebuggerById(debuggerInformation.id);
+                        if (debuggerItem) {
+                            debuggerItem.callbackFunctionName = value;
+                            debuggerItem.updateTime = new Date().getTime();
+                            config.persist();
+                        }
+                    }
+                )
+            );
+
+            // 为comment绑定事件
+            $debuggerComponent.find(`#${debuggerInformation.id}-comment-container`).append(
+                this.textareaComponent.render(
+                    `${debuggerInformation.id}-comment-text`,
+                    debuggerInformation.comment || '',
+                    language.debugger_config.commentPlaceholder,
+                    undefined,
+                    (value: string) => {
+                        localDebuggerInformation.comment = value;
+                        
+                        // 保存配置
+                        const config = getGlobalConfig();
+                        const debuggerItem = config.findDebuggerById(debuggerInformation.id);
+                        if (debuggerItem) {
+                            debuggerItem.comment = value;
+                            debuggerItem.updateTime = new Date().getTime();
+                            config.persist();
+                        }
+                    },
+                    5,
+                    undefined
+                )
+            );
+            
+            // 在DOM准备好后渲染SelectComponent
+            setTimeout(() => {
+                const selectContainer = $debuggerComponent.find(`#${debuggerInformation.id}-url-pattern-container`);
+                if (selectContainer.length) {
+                    const urlPatternOptions: SelectOption[] = [
+                        { value: 'equals-string', text: language.debugger_config.urlPatternType_EqualsThisString },
+                        { value: 'contains-string', text: language.debugger_config.urlPatternType_ContainsThisString },
+                        { value: 'match-regexp', text: language.debugger_config.urlPatternType_MatchThisRegexp },
+                        { value: 'match-all', text: language.debugger_config.urlPatternType_MatchALL }
+                    ];
+                    
+                    selectContainer.append(
+                        this.selectComponent.render(
+                            `${debuggerInformation.id}-url-pattern`,
+                            urlPatternOptions,
+                            debuggerInformation.urlPatternType || 'match-all',
+                            undefined,
+                            (value: string) => {
+                                if (value === 'equals-string' || value === 'contains-string' || 
+                                    value === 'match-regexp' || value === 'match-all') {
+                                    localDebuggerInformation.urlPatternType = value as UrlPatternType;
+                                    // 保存配置
+                                    const config = getGlobalConfig();
+                                    const debuggerItem = config.findDebuggerById(localDebuggerInformation.id);
+                                    if (debuggerItem) {
+                                        debuggerItem.urlPatternType = localDebuggerInformation.urlPatternType;
+                                        debuggerItem.updateTime = new Date().getTime();
+                                        config.persist();
+                                    }
                                 }
                             }
-                        }
-                    )
-                );
-            }
-        }, 0);
-
-        // 添加按钮组件 - URL匹配测试
-        $debuggerComponent.find(`#${debuggerInformation.id}-url-pattern-test-container`).append(
-            this.buttonComponent.render(
-                `${debuggerInformation.id}-url-pattern-test`,
-                language.debugger_config.urlPatternTest,
-                function() {
-                    // 使用InputDialogComponent替代原生prompt
-                    const inputDialog = InputDialogComponent.getInstance();
-                    inputDialog.show(
-                        language.debugger_config.urlPatternTest,
-                        language.debugger_config.urlPatternTestPrompt,
-                        (confirmed, testUrl) => {
-                            if (confirmed && testUrl) {
-                                const debuggerTester = new DebuggerTester();
-                                const isMatch = debuggerTester.testUrl(localDebuggerInformation.urlPatternType, localDebuggerInformation.urlPattern, testUrl);
-                                
-                                // 使用AlertDialogComponent替代原生alert
-                                const alertDialog = AlertDialogComponent.getInstance();
-                                alertDialog.show(
-                                    language.debugger_config.urlPatternTest,
-                                    `${language.debugger_config.urlPatternTestResult} ${isMatch}`
-                                );
-                            }
-                        },
-                        '', // 默认值为空
-                        'https://' // 提示输入URL的占位符
+                        )
                     );
-                },
-                'primary', // 使用主按钮样式
-                'small',   // 使用小尺寸按钮
-                '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>' // 测试图标
-            )
-        );
+                }
+            }, 0);
 
-        // 删除断点 - 使用自定义确认对话框
-        $debuggerComponent.find(`#${debuggerInformation.id}-remove-btn`).on("click", function () {
-            // 获取确认对话框实例
-            const confirmDialog = ConfirmDialogComponent.getInstance();
+            return $debuggerComponent;
             
-            // 显示确认对话框
-            confirmDialog.show(
-                language.confirm_dialog.deleteBreakpoint,
-                language.confirm_dialog.deleteConfirmMessage,
-                (confirmed: boolean) => {
-                    if (confirmed) {
-                        // 用户确认删除
-                        const config = getGlobalConfig();
-                        config.removeDebuggerById(localDebuggerInformation.id);
-                        config.persist();
-                        
-                        // 移除DOM元素
-                        $debuggerComponent.remove();
-                    }
-                },
-                language.confirm_dialog.okButton,
-                language.confirm_dialog.cancelButton
-            );
-        });
-
-        return $debuggerComponent;
+        } catch (error: unknown) {
+            debuggerCompLogger.error(`渲染断点组件失败: ${error instanceof Error ? error.message : String(error)}`);
+            
+            // 降级方案：创建一个简单的错误提示
+            const errorElement = document.createElement('div');
+            errorElement.className = 'debugger-component-error';
+            errorElement.style.color = 'red';
+            errorElement.textContent = `无法渲染断点组件 (ID: ${debuggerInformation.id}): ${error instanceof Error ? error.message : String(error)}`;
+            
+            return $(errorElement);
+        }
     }
 
     private bindEvents() {

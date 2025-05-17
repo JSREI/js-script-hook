@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import { jQuery as $ } from '../utils/jquery-adapter';
 
 type InputDialogCallback = (confirmed: boolean, value: string) => void;
 

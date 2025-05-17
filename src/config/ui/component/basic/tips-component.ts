@@ -1,52 +1,77 @@
-import $ from 'jquery';
+import { safeCreateElementFromHTML, safeSetInnerHTML } from "../../../../utils/dom-utils";
+import { jQuery as $, JQuery } from '../utils/jquery-adapter';
+import { createLogger } from "../../../../logger";
+
+// 创建Tips组件专用的日志记录器
+const tipsLogger = createLogger('tips-component');
 
 export class TipsComponent {
     private readonly styleCSS: string;
 
     constructor() {
         this.styleCSS = `
-        /* 问号提示图标样式 */
-        .js-script-hook-tips-icon {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            line-height: 20px;
-            text-align: center;
-            border-radius: 50%;
-            background-color: #f7f7f7;
-            color: #aaa;
-            cursor: help;
-            margin-right: 5px;
-            position: relative;
-            font-weight: bold;
-        }
-        
-        .js-script-hook-tips-icon:hover {
-            background-color: #f0f0f0;
-            color: #888;
-        }
-        
-        /* 问号提示内容 */
-        .js-script-hook-tooltip {
-            display: none;
-            position: absolute;
-            z-index: 100;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            width: 300px;
-            top: -5px;
-            left: 25px;
-            font-weight: normal;
-            text-align: left;
-            font-size: 12px;
-        }
-        
-        .js-script-hook-tips-icon:hover .js-script-hook-tooltip {
-            display: block;
-        }
+            /* 提示图标容器样式 */
+            .js-script-hook-tips-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                background-color: #007bff;
+                color: white;
+                font-size: 12px;
+                font-weight: bold;
+                cursor: help;
+                margin-left: 5px;
+                position: relative;
+                vertical-align: middle;
+            }
+            
+            /* 工具提示样式 */
+            .js-script-hook-tooltip {
+                visibility: hidden;
+                position: absolute;
+                bottom: 125%;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: #333;
+                color: white;
+                text-align: center;
+                padding: 6px 10px;
+                border-radius: 4px;
+                width: max-content;
+                max-width: 250px;
+                font-size: 12px;
+                z-index: 1000;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                opacity: 0;
+                transition: opacity 0.3s;
+                pointer-events: none;
+                white-space: normal;
+                line-height: 1.4;
+            }
+            
+            /* 工具提示箭头 */
+            .js-script-hook-tooltip::after {
+                content: "";
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                margin-left: -5px;
+                border-width: 5px;
+                border-style: solid;
+                border-color: #333 transparent transparent transparent;
+            }
+            
+            /* 显示工具提示 */
+            .js-script-hook-tips-icon:hover .js-script-hook-tooltip {
+                visibility: visible;
+                opacity: 1;
+            }
         `;
+        
+        this.appendStyles();
     }
 
     /**
@@ -74,7 +99,7 @@ export class TipsComponent {
         // 确保样式已添加
         this.appendStyles();
         
-        // 创建提示图标HTML
+        // 创建提示图标HTML模板
         const html = `
             <div class="js-script-hook-tips-icon">
                 ?
@@ -84,6 +109,23 @@ export class TipsComponent {
             </div>
         `;
         
-        return $(html);
+        try {
+            // 使用安全的DOM API创建元素
+            const fragment = safeCreateElementFromHTML(html);
+            const container = document.createElement('div');
+            container.appendChild(fragment.cloneNode(true));
+            
+            // 将DOM元素包装为jQuery对象返回
+            return $(container.firstChild as HTMLElement);
+        } catch (error) {
+            tipsLogger.error(`渲染提示图标失败: ${error}`);
+            
+            // 降级处理：创建一个简单的提示图标
+            const fallbackElement = document.createElement('span');
+            fallbackElement.textContent = '?';
+            fallbackElement.title = tipText;
+            fallbackElement.style.cursor = 'help';
+            return $(fallbackElement);
+        }
     }
 } 

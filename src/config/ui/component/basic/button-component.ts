@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import { jQuery as $, JQuery } from '../utils/jquery-adapter';
 
 export type ButtonType = 'primary' | 'secondary' | 'danger' | 'success' | 'info';
 export type ButtonSize = 'small' | 'medium' | 'large';
@@ -178,7 +178,7 @@ export class ButtonComponent {
     render(
         id: string,
         text: string,
-        onClick: (e: JQuery.ClickEvent) => void,
+        onClick: (e: Event) => void,
         type: ButtonType = 'primary',
         size: ButtonSize = 'medium',
         icon?: string,

@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import { jQuery as $, JQuery } from './utils/jquery-adapter';
 import { DebuggerComponent, Language, DebuggerConfig } from "./debugger-component";
 import { Debugger } from "../../../debugger/debugger";
 import { randomId } from "../../../utils/id-util";
@@ -125,7 +125,7 @@ export class DebuggerManagerComponent {
         const debuggerManager = $(this.html);
         
         // 更新添加按钮的文本
-        debuggerManager.find("#js-script-hook-add-debugger-btn span:last").text(language.tabs.addNewBreakpoint || "添加新的断点");
+        debuggerManager.find("#js-script-hook-add-debugger-btn span:last-child").text(language.tabs.addNewBreakpoint || "添加新的断点");
 
         // 渲染已经存在的断点配置信息
         for (const debuggerInformation of debuggers) {
