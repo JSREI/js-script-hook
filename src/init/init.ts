@@ -3,7 +3,7 @@ import { getUnsafeWindow } from '../utils/scope-util';
 import { DocumentHook } from '../hook/document-hook';
 import { initConfig, getGlobalConfig } from '../config/config';
 import { initLogger, LogLevel, createLogger } from '../logger';
-import { initJQuerySafeExtensions } from '../jQuery-lite/jquery-ext';
+import { initTrustedTypesPolicy } from '../jQuery-lite';
 
 declare function GM_getValue(key: string): any;
 declare function GM_setValue(key: string, value: any): void;
@@ -71,8 +71,8 @@ export function init(): void {
     // 记录初始化开始
     appLogger.info('JS-Script-Hook 开始初始化');
     
-    // 初始化jQuery安全扩展
-    initJQuerySafeExtensions();
+    // 初始化TrustedTypes策略
+    initTrustedTypesPolicy();
     
     // 验证脚本环境
     validateScriptEnvironment();

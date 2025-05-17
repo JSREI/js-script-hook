@@ -1,93 +1,64 @@
 # jQuery-lite
 
-轻量级jQuery替代库，专为JSREI项目设计，支持Trusted Types安全策略。
+## 简介
 
-## 特点
+这是一个超轻量级的DOM操作工具，提供类似jQuery的基本功能，同时确保所有HTML操作都符合Trusted Types安全策略。
 
-- 轻量级：只包含jQuery核心功能
-- 安全：与Trusted Types兼容
-- 现代：使用现代JavaScript和DOM API
-- TypeScript友好：完整的类型定义
+## 主要特性
 
-## 模块结构
+- 简单的选择器功能
+- 安全的HTML操作（兼容Trusted Types）
+- 轻量级DOM操作API
+- 基本的样式操作
 
-- `index.ts`: 主入口，导出`$`和`$safe`函数
-- `core.ts`: DOM元素集合类实现
-- `dom.ts`: DOM操作相关工具函数
-- `types.ts`: 类型定义
-- `utils.ts`: 工具函数
+## 核心文件
 
-## 基本用法
+- `index.ts`: 提供核心选择器功能和DOM操作方法
+- `dom.ts`: 处理Trusted Types和HTML安全
+
+## 使用方法
 
 ```typescript
-import $ from '../jQuery-lite';
+import $ from './jQuery-lite';
+import { initTrustedTypesPolicy } from './jQuery-lite';
+
+// 初始化Trusted Types策略
+initTrustedTypesPolicy();
 
 // 选择器
 const elements = $('.my-class');
-const divs = $('div');
 
-// 创建元素
-const button = $('<button>点击我</button>');
+// 设置HTML内容
+elements.html('<p>安全的HTML内容</p>');
 
-// DOM操作
-$('.container').append(button);
-$('.old-element').remove();
+// 添加内容
+elements.append('<span>更多内容</span>');
 
-// CSS操作
-$('p').addClass('highlighted');
-$('.box').css('color', 'blue');
-
-// 事件
-$('.button').on('click', () => {
-  console.log('按钮被点击');
+// 样式操作
+elements.css('color', 'red');
+elements.css({ 
+  backgroundColor: 'blue',
+  fontSize: '16px'
 });
 
-// 安全创建元素 (Trusted Types安全)
-import { $safe } from '../jQuery-lite';
-const safeElement = $safe('<div class="safe">安全的HTML内容</div>');
+// 显示/隐藏
+elements.show();
+elements.hide();
+
+// 查找元素
+const childElements = elements.find('.child');
+
+// DOM准备完成后执行
+$.ready(() => {
+  console.log('DOM已准备完成');
+});
 ```
 
-## 支持的方法
+## 安全特性
 
-### 选择器
-- `find(selector)`: 查找后代元素
-- `filter(predicate)`: 过滤元素集合
-- `parent()`: 获取父元素
-- `children()`: 获取子元素
-- `closest(selector)`: 查找最近的匹配祖先
+jQuery-lite通过以下方式确保HTML操作的安全性：
 
-### DOM操作
-- `append(content)`: 追加内容
-- `prepend(content)`: 前置内容
-- `before(content)`: 在元素前插入内容
-- `after(content)`: 在元素后插入内容
-- `remove()`: 移除元素
-- `empty()`: 清空元素内容
-- `html(content?)`: 获取/设置HTML
-- `text(content?)`: 获取/设置文本
-
-### 属性操作
-- `attr(name, value?)`: 获取/设置属性
-- `removeAttr(name)`: 删除属性
-- `data(key, value?)`: 获取/设置数据
-
-### CSS操作
-- `addClass(className)`: 添加类
-- `removeClass(className)`: 移除类
-- `toggleClass(className)`: 切换类
-- `hasClass(className)`: 检查是否有类
-- `css(property, value?)`: 获取/设置样式
-- `show()`: 显示元素
-- `hide()`: 隐藏元素
-
-### 事件处理
-- `on(event, handler)`: 绑定事件
-- `off(event, handler?)`: 解绑事件
-- `click(handler?)`: 点击事件
-
-### 遍历
-- `each(callback)`: 遍历元素
-- `get(index?)`: 获取原始元素
-- `eq(index)`: 获取指定索引的元素
-- `first()`: 获取第一个元素
-- `last()`: 获取最后一个元素 
+1. 所有HTML字符串都通过Trusted Types策略处理
+2. 拦截标准的innerHTML操作，确保安全
+3. 提供备用方案处理不支持Trusted Types的浏览器
+4. 详细的错误日志记录，便于调试 

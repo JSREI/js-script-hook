@@ -1,45 +1,54 @@
 /**
- * jQuery-lite DOM操作功能
+ * jQuery-lite DOM操作功能 - 精简版
  */
 
 import { createLogger } from '../logger';
 
 const domLogger = createLogger('jquery-lite:dom');
 
-// Trusted Types 相关变量和工具函数
+// Trusted Types 策略
 let htmlPolicy: any = null;
 
 /**
  * 初始化Trusted Types策略
  */
 export function initTrustedTypesPolicy(): void {
-  // 尝试强制禁用Trusted Types检查
-  disableTrustedTypesEnforcement();
+  domLogger.debug('初始化Trusted Types策略');
   
   // 检查浏览器是否支持Trusted Types
   if (typeof window.trustedTypes === 'undefined') {
-    domLogger.info('浏览器不支持Trusted Types，使用polyfill');
+    domLogger.info('浏览器不支持Trusted Types，使用简单polyfill');
     
-    // 创建一个简单的polyfill
+    // 创建简单polyfill
     (window as any).trustedTypes = {
       createPolicy: (name: string, rules: any) => {
         domLogger.info(`创建Trusted Types策略: ${name}`);
         return rules;
-      },
-      emptyHTML: '',
-      emptyScript: ''
+      }
     };
   }
   
   try {
     // 创建HTML策略
     const trustedTypes = window.trustedTypes!;
+    
+    // 尝试创建默认策略
+    try {
+      window.trustedTypes.createPolicy('default', {
+        createHTML: (s: string) => s
+      });
+      domLogger.info('创建默认TrustedTypes策略成功');
+    } catch (e) {
+      // 忽略错误，默认策略可能已存在
+    }
+    
+    // 创建我们自己的策略
     htmlPolicy = trustedTypes.createPolicy('js-script-hook-html', {
       createHTML: (html: string) => html
     });
     
-    // 全局拦截所有innerHTML操作
-    installInnerHTMLInterceptor();
+    // 安装全局拦截器
+    installTrustedTypesInterceptors();
     
     domLogger.info('Trusted Types策略初始化完成');
   } catch (error) {
@@ -48,367 +57,76 @@ export function initTrustedTypesPolicy(): void {
 }
 
 /**
- * 尝试强制禁用Trusted Types的强制检查
- * 这是一种比较激进的解决方案，通过修改CSP策略或使用别的方法使浏览器不再严格检查TrustedHTML
+ * 安装必要的TrustedTypes拦截器
  */
-function disableTrustedTypesEnforcement(): void {
+function installTrustedTypesInterceptors(): void {
+  // 拦截innerHTML
   try {
-    domLogger.debug('尝试禁用TrustedTypes强制检查...');
-    
-    // 1. 尝试覆盖Document.prototype.createElement
-    const originalCreateElement = Document.prototype.createElement;
-    Document.prototype.createElement = function(tagName: string, options?: ElementCreationOptions): HTMLElement {
-      const element = originalCreateElement.call(this, tagName, options);
-      
-      // 为元素定义innerHTML setter，绕过TrustedTypes检查
-      try {
-        // 获取当前的innerHTML描述符
-        const currentDescriptor = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
-        if (currentDescriptor) {
-          Object.defineProperty(element, 'innerHTML', {
-            get: function() {
-              return this.textContent || '';
-            },
-            set: function(value: any) {
-              try {
-                // 尝试使用TrustedTypes
-                const trusted = htmlPolicy ? htmlPolicy.createHTML(value) : value;
-                // 使用标准方式设置getter
-                Object.defineProperty(this, 'innerHTML', {
-                  get: function() { return value; },
-                  configurable: true
-                });
-                this.textContent = value;
-              } catch (e) {
-                domLogger.error(`设置innerHTML失败: ${e}`);
-                this.textContent = value;
-              }
-              return value;
-            },
-            configurable: true
-          });
-          domLogger.debug('已为元素覆盖innerHTML定义');
-        }
-      } catch (e) {
-        domLogger.error(`覆盖innerHTML定义失败: ${e}`);
-      }
-      
-      return element;
-    };
-    
-    // 2. 尝试创建一个默认的策略处理所有内容
-    if (window.trustedTypes && window.trustedTypes.createPolicy) {
-      try {
-        window.trustedTypes.createPolicy('default', {
-          createHTML: (s: string) => s,
-          createScriptURL: (s: string) => s,
-          createScript: (s: string) => s
-        });
-        domLogger.info('成功创建默认TrustedTypes策略');
-      } catch (e) {
-        domLogger.error(`创建默认TrustedTypes策略失败: ${e}`);
-      }
-    }
-    
-    domLogger.info('TrustedTypes强制检查禁用尝试完成');
-  } catch (error) {
-    domLogger.error(`尝试禁用TrustedTypes强制检查失败: ${error}`);
-  }
-}
-
-/**
- * 安装全局innerHTML拦截器，确保所有innerHTML操作都通过TrustedHTML
- */
-function installInnerHTMLInterceptor(): void {
-  try {
-    // 1. 拦截innerHTML
     const originalInnerHTMLDescriptor = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
     if (originalInnerHTMLDescriptor && originalInnerHTMLDescriptor.set) {
-      domLogger.debug('开始安装innerHTML拦截器');
+      const originalSetter = originalInnerHTMLDescriptor.set;
       
-      const originalInnerHTMLSetter = originalInnerHTMLDescriptor.set;
-      
-      // 重新定义innerHTML的setter
       Object.defineProperty(Element.prototype, 'innerHTML', {
         ...originalInnerHTMLDescriptor,
         set: function(html: string) {
-          // 尝试使用TrustedHTML处理
           try {
             const trusted = createTrustedHTML(html);
-            originalInnerHTMLSetter.call(this, trusted);
-            return;
+            originalSetter.call(this, trusted);
           } catch (error) {
-            domLogger.error(`拦截器中处理innerHTML失败: ${error}`);
+            domLogger.error(`拦截器处理innerHTML失败: ${error}`);
             
-            // 如果直接设置失败，尝试备用方案
+            // 备用方案
             try {
-              // 清空元素
+              const nodes = parseHTML(html);
               while (this.firstChild) {
                 this.removeChild(this.firstChild);
               }
-              
-              // 使用parseHTML和appendChild
-              const nodes = parseHTML(html);
-              nodes.forEach(node => {
-                this.appendChild(node);
-              });
+              nodes.forEach(node => this.appendChild(node));
             } catch (fallbackError) {
-              domLogger.error(`innerHTML拦截器备用方案也失败: ${fallbackError}`);
-              // 最后尝试原始方法
-              try {
-                originalInnerHTMLSetter.call(this, html);
-              } catch (finalError) {
-                domLogger.error(`所有innerHTML设置方法都失败: ${finalError}`);
-              }
+              domLogger.error(`innerHTML备用方案失败: ${fallbackError}`);
             }
           }
         }
       });
       
-      domLogger.info('innerHTML拦截器安装完成');
-    } else {
-      domLogger.warn('无法获取innerHTML原始描述符，拦截器安装失败');
+      domLogger.debug('innerHTML拦截器安装完成');
     }
-    
-    // 2. 拦截outerHTML
-    const originalOuterHTMLDescriptor = Object.getOwnPropertyDescriptor(Element.prototype, 'outerHTML');
-    if (originalOuterHTMLDescriptor && originalOuterHTMLDescriptor.set) {
-      domLogger.debug('开始安装outerHTML拦截器');
-      
-      const originalOuterHTMLSetter = originalOuterHTMLDescriptor.set;
-      
-      Object.defineProperty(Element.prototype, 'outerHTML', {
-        ...originalOuterHTMLDescriptor,
-        set: function(html: string) {
-          try {
-            const trusted = createTrustedHTML(html);
-            originalOuterHTMLSetter.call(this, trusted);
-          } catch (error) {
-            domLogger.error(`拦截器中处理outerHTML失败: ${error}`);
-            
-            // 尝试创建新元素并替换
-            try {
-              if (this.parentNode) {
-                const temp = document.createElement('div');
-                temp.innerHTML = createTrustedHTML(html);
-                const fragment = document.createDocumentFragment();
-                
-                Array.from(temp.childNodes).forEach(node => {
-                  fragment.appendChild(node);
-                });
-                
-                this.parentNode.replaceChild(fragment, this);
-              } else {
-                domLogger.error('无法使用备用方案设置outerHTML：元素没有父节点');
-                originalOuterHTMLSetter.call(this, html);
-              }
-            } catch (fallbackError) {
-              domLogger.error(`outerHTML拦截器备用方案也失败: ${fallbackError}`);
-              try {
-                originalOuterHTMLSetter.call(this, html);
-              } catch (finalError) {
-                domLogger.error(`所有outerHTML设置方法都失败: ${finalError}`);
-              }
-            }
-          }
-        }
-      });
-      
-      domLogger.info('outerHTML拦截器安装完成');
-    } else {
-      domLogger.warn('无法获取outerHTML原始描述符，拦截器安装失败');
-    }
-    
-    // 3. 拦截insertAdjacentHTML
-    const originalInsertAdjacentHTML = Element.prototype.insertAdjacentHTML;
-    if (originalInsertAdjacentHTML) {
-      domLogger.debug('开始安装insertAdjacentHTML拦截器');
-      
-      Element.prototype.insertAdjacentHTML = function(position: InsertPosition, html: string): void {
-        try {
-          const trusted = createTrustedHTML(html);
-          originalInsertAdjacentHTML.call(this, position, trusted);
-        } catch (error) {
-          domLogger.error(`拦截器中处理insertAdjacentHTML失败: ${error}`);
-          
-          // 备用方案
-          try {
-            // 创建临时元素并解析HTML
-            const temp = document.createElement('div');
-            temp.innerHTML = createTrustedHTML(html);
-            const fragment = document.createDocumentFragment();
-            
-            Array.from(temp.childNodes).forEach(node => {
-              fragment.appendChild(node.cloneNode(true));
-            });
-            
-            // 根据位置插入节点
-            switch (position.toLowerCase()) {
-              case 'beforebegin':
-                if (this.parentNode) {
-                  this.parentNode.insertBefore(fragment, this);
-                }
-                break;
-              case 'afterbegin':
-                this.insertBefore(fragment, this.firstChild);
-                break;
-              case 'beforeend':
-                this.appendChild(fragment);
-                break;
-              case 'afterend':
-                if (this.parentNode) {
-                  this.parentNode.insertBefore(fragment, this.nextSibling);
-                }
-                break;
-            }
-          } catch (fallbackError) {
-            domLogger.error(`insertAdjacentHTML拦截器备用方案也失败: ${fallbackError}`);
-            try {
-              originalInsertAdjacentHTML.call(this, position, html);
-            } catch (finalError) {
-              domLogger.error(`所有insertAdjacentHTML设置方法都失败: ${finalError}`);
-            }
-          }
-        }
-      };
-      
-      domLogger.info('insertAdjacentHTML拦截器安装完成');
-    } else {
-      domLogger.warn('无法获取insertAdjacentHTML方法，拦截器安装失败');
-    }
-    
-    // 4. 拦截document.write和document.writeln
-    if (Document.prototype.write) {
-      domLogger.debug('开始安装document.write拦截器');
-      
-      const originalWrite = Document.prototype.write;
-      Document.prototype.write = function(...args: string[]): void {
-        try {
-          const safeArgs = args.map(arg => createTrustedHTML(arg));
-          originalWrite.apply(this, safeArgs);
-        } catch (error) {
-          domLogger.error(`拦截器中处理document.write失败: ${error}`);
-          
-          // 备用方案：创建一个脚本元素并插入到文档中
-          try {
-            const content = args.join('');
-            const range = this.createRange();
-            const fragment = range.createContextualFragment(createTrustedHTML(content));
-            this.body.appendChild(fragment);
-          } catch (fallbackError) {
-            domLogger.error(`document.write拦截器备用方案也失败: ${fallbackError}`);
-            try {
-              originalWrite.apply(this, args);
-            } catch (finalError) {
-              domLogger.error(`所有document.write设置方法都失败: ${finalError}`);
-            }
-          }
-        }
-      };
-      
-      domLogger.info('document.write拦截器安装完成');
-    } else {
-      domLogger.warn('无法获取document.write方法，拦截器安装失败');
-    }
-    
-    if (Document.prototype.writeln) {
-      domLogger.debug('开始安装document.writeln拦截器');
-      
-      const originalWriteln = Document.prototype.writeln;
-      Document.prototype.writeln = function(...args: string[]): void {
-        try {
-          const safeArgs = args.map(arg => createTrustedHTML(arg + '\n'));
-          originalWriteln.apply(this, safeArgs);
-        } catch (error) {
-          domLogger.error(`拦截器中处理document.writeln失败: ${error}`);
-          
-          // 备用方案：使用document.write
-          try {
-            const content = args.join('') + '\n';
-            if (Document.prototype.write) {
-              this.write(content);
-            } else {
-              domLogger.error('document.write不可用，无法使用备用方案');
-              originalWriteln.apply(this, args);
-            }
-          } catch (fallbackError) {
-            domLogger.error(`document.writeln拦截器备用方案也失败: ${fallbackError}`);
-            try {
-              originalWriteln.apply(this, args);
-            } catch (finalError) {
-              domLogger.error(`所有document.writeln设置方法都失败: ${finalError}`);
-            }
-          }
-        }
-      };
-      
-      domLogger.info('document.writeln拦截器安装完成');
-    } else {
-      domLogger.warn('无法获取document.writeln方法，拦截器安装失败');
-    }
-    
-    domLogger.info('全局HTML操作拦截器安装完成');
-  } catch (interceptorError) {
-    domLogger.error(`安装HTML操作拦截器失败: ${interceptorError}`);
+  } catch (error) {
+    domLogger.error(`安装innerHTML拦截器失败: ${error}`);
   }
 }
 
 /**
  * 使用Trusted Types策略创建安全的HTML
- * 这是一个关键函数，确保所有HTML内容在使用前都被TrustedTypes安全处理
  */
 function createTrustedHTML(html: string): any {
   try {
-    // 如果存在策略，使用策略创建安全HTML
     if (htmlPolicy) {
       return htmlPolicy.createHTML(html);
     } 
     
-    // 如果没有策略但存在trustedTypes，尝试创建一个临时策略
-    if (window.trustedTypes) {
+    // 尝试使用默认策略
+    if (window.trustedTypes && (window.trustedTypes as any).defaultPolicy) {
       try {
-        // 尝试创建一个临时策略
-        const tempPolicy = window.trustedTypes.createPolicy('temp-js-script-hook-html-' + Math.random().toString(36).substring(2), {
-          createHTML: (s: string) => s
-        });
-        return tempPolicy.createHTML(html);
-      } catch (policyError) {
-        domLogger.error(`创建临时策略失败: ${policyError}`);
-        // 继续执行，尝试其他方法
-      }
-      
-      // 尝试使用默认策略
-      try {
-        const defaultPolicy = (window.trustedTypes as any).defaultPolicy;
-        if (defaultPolicy && typeof defaultPolicy.createHTML === 'function') {
-          return defaultPolicy.createHTML(html);
-        }
-      } catch (defaultPolicyError) {
-        domLogger.error(`使用默认策略失败: ${defaultPolicyError}`);
+        return (window.trustedTypes as any).defaultPolicy.createHTML(html);
+      } catch (e) {
+        // 继续尝试其他方法
       }
     }
     
-    // 最后的回退：如果所有TrustedTypes方法都失败，直接返回字符串
-    // 注意：这可能在严格模式下仍会失败，但我们已经尽可能尝试了所有方法
-    domLogger.warn('无法使用TrustedTypes处理HTML，直接返回原始字符串');
+    // 最后的回退
     return html;
   } catch (error) {
     domLogger.error(`创建安全HTML失败: ${error}`);
-    
-    // 出错时返回原始字符串，调用者可能有备用处理方法
     return html;
   }
 }
 
 /**
  * 安全地解析HTML字符串
- * 
- * @param html HTML字符串
- * @returns 解析后的节点数组
  */
 export function parseHTML(html: string): Node[] {
   try {
-    // 使用安全的方式解析HTML
     const template = document.createElement('template');
     template.innerHTML = createTrustedHTML(html.trim());
     return Array.from(template.content.childNodes);
@@ -420,132 +138,23 @@ export function parseHTML(html: string): Node[] {
 
 /**
  * 安全地设置innerHTML
- * 
- * @param element 目标元素
- * @param html HTML内容
  */
 export function safeInnerHTML(element: Element, html: string): void {
-  domLogger.debug(`开始执行safeInnerHTML, 目标元素: ${element.tagName}`);
-  domLogger.debug(`HTML内容(前100字符): ${html.substring(0, 100)}${html.length > 100 ? '...' : ''}`);
-  
   try {
     const trusted = createTrustedHTML(html);
-    domLogger.debug(`创建的trusted对象类型: ${typeof trusted}`);
+    element.innerHTML = trusted;
+  } catch (error) {
+    domLogger.error(`safeInnerHTML失败: ${error}`);
     
-    // 尝试直接设置innerHTML
+    // 备用方案
     try {
-      element.innerHTML = trusted;
-      domLogger.debug('直接设置innerHTML成功');
-    } catch (innerError) {
-      domLogger.error(`直接设置innerHTML失败: ${innerError}`);
-      
-      // 回退方案：清空元素并逐个添加节点
-      domLogger.debug('使用回退方案');
       while (element.firstChild) {
         element.removeChild(element.firstChild);
       }
-      
-      const nodes = parseHTML(html);
-      domLogger.debug(`解析得到节点数量: ${nodes.length}`);
-      nodes.forEach(node => {
-        try {
-          element.appendChild(node);
-          domLogger.debug(`添加节点成功: ${node.nodeName}`);
-        } catch (appendError) {
-          domLogger.error(`添加节点失败: ${appendError}`);
-        }
-      });
+      parseHTML(html).forEach(node => element.appendChild(node));
+    } catch (fallbackError) {
+      domLogger.error(`safeInnerHTML备用方案失败: ${fallbackError}`);
     }
-  } catch (error) {
-    domLogger.error(`设置innerHTML失败: ${error}`);
-    domLogger.error(`错误堆栈: ${error.stack}`);
-  }
-}
-
-/**
- * 检查元素是否和选择器匹配
- * 
- * @param element 要检查的元素
- * @param selector CSS选择器
- * @returns 是否匹配
- */
-export function matchesSelector(element: Element, selector: string): boolean {
-  return element.matches(selector);
-}
-
-/**
- * 获取元素的计算样式
- * 
- * @param element 目标元素
- * @param property CSS属性名
- * @returns 计算后的CSS值
- */
-export function getComputedStyle(element: Element, property: string): string {
-  return window.getComputedStyle(element).getPropertyValue(property);
-}
-
-/**
- * 安全地设置元素样式
- * 
- * @param element 目标元素
- * @param property CSS属性名
- * @param value CSS属性值
- */
-export function setStyle(element: HTMLElement, property: string, value: string): void {
-  element.style.setProperty(property, value);
-}
-
-/**
- * 从元素的dataset获取数据
- * 
- * @param element 目标元素
- * @param key 数据键名
- * @returns 获取到的数据
- */
-export function getDataFromElement(element: HTMLElement, key: string): any {
-  // 将key转换为camelCase (data-foo-bar => fooBar)
-  const camelKey = key.replace(/-([a-z])/g, (_: string, letter: string) => letter.toUpperCase());
-  
-  if (element.dataset && camelKey in element.dataset) {
-    const value = element.dataset[camelKey];
-    // 尝试解析JSON
-    try {
-      return JSON.parse(value as string);
-    } catch (e) {
-      return value;
-    }
-  }
-  
-  // 尝试从data-*属性获取
-  const attrName = `data-${key}`;
-  const attrValue = element.getAttribute(attrName);
-  if (attrValue !== null) {
-    // 尝试解析JSON
-    try {
-      return JSON.parse(attrValue);
-    } catch (e) {
-      return attrValue;
-    }
-  }
-  
-  return undefined;
-}
-
-/**
- * 为元素设置数据
- * 
- * @param element 目标元素
- * @param key 数据键名
- * @param value 数据值
- */
-export function setDataToElement(element: HTMLElement, key: string, value: any): void {
-  const valueStr = typeof value === 'object' ? JSON.stringify(value) : String(value);
-  const camelKey = key.replace(/-([a-z])/g, (_: string, letter: string) => letter.toUpperCase());
-  
-  if (element.dataset) {
-    element.dataset[camelKey] = valueStr;
-  } else {
-    element.setAttribute(`data-${key}`, valueStr);
   }
 }
 
@@ -554,8 +163,7 @@ declare global {
   interface Window {
     trustedTypes?: {
       createPolicy: (name: string, rules: any) => any;
-      emptyHTML: string;
-      emptyScript: string;
+      defaultPolicy?: any;
     };
   }
 } 

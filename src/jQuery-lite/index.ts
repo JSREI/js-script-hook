@@ -1,122 +1,152 @@
 /**
- * jQuery-lite - 轻量级jQuery替代库的主入口
- * 
- * 提供类似jQuery的基本DOM操作功能，但确保所有HTML操作都符合Trusted Types安全策略
+ * jQuery-lite - 超轻量级DOM操作工具
  */
 
 import { createLogger } from '../logger';
-import { DOMCollection } from './core';
-import { parseHTML, safeInnerHTML, initTrustedTypesPolicy } from './dom';
-import { JQueryLite } from './types';
+import { safeInnerHTML, initTrustedTypesPolicy } from './dom';
 
-// 导入实用工具函数
-import * as utils from './utils';
+const jQueryLiteLogger = createLogger('jquery-lite');
 
-// 创建jquery-lite专用的日志记录器
-const jqueryLiteLogger = createLogger('jquery-lite');
+// 导出Trusted Types初始化函数
+export { initTrustedTypesPolicy };
 
-// 初始化Trusted Types策略
-initTrustedTypesPolicy();
-jqueryLiteLogger.info('jQuery安全扩展已初始化');
-
-/**
- * 从CSS选择器、HTML字符串、DOM元素或数组创建JQueryLite实例
- */
-export function $(selector: string | Element | Document | DocumentFragment | Node[] | NodeListOf<Element> | HTMLCollection | JQueryLite | null | undefined): JQueryLite {
-  // 如果已经是JQueryLite对象，直接返回
-  if (selector && typeof selector === 'object' && 'length' in selector && 'each' in selector) {
-    return selector as JQueryLite;
-  }
-  
-  // 处理null或undefined
-  if (!selector) {
-    return new DOMCollection([]);
-  }
-  
-  // 处理已有元素或元素数组
-  if (selector instanceof Element || selector instanceof Document || selector instanceof DocumentFragment) {
-    return new DOMCollection([selector as Element]);
-  }
-  
-  if (Array.isArray(selector)) {
-    return new DOMCollection(selector.filter(el => el instanceof Element) as Element[]);
-  }
-  
-  if (selector instanceof NodeList || selector instanceof HTMLCollection) {
-    return new DOMCollection(selector);
-  }
-  
-  // 处理字符串
-  if (typeof selector === 'string') {
-    selector = selector.trim();
-    
-    // HTML字符串
-    if (selector.startsWith('<') && selector.endsWith('>')) {
-      try {
-        const nodes = parseHTML(selector);
-        const elements = nodes.filter((node) => node.nodeType === Node.ELEMENT_NODE) as Element[];
-        return new DOMCollection(elements);
-      } catch (error) {
-        jqueryLiteLogger.error(`解析HTML字符串失败: ${error}`);
-        return new DOMCollection([]);
-      }
-    }
-    
-    // CSS选择器
-    try {
-      const elements = document.querySelectorAll(selector);
-      return new DOMCollection(elements);
-    } catch (error) {
-      jqueryLiteLogger.error(`无效的选择器: ${error}`);
-      return new DOMCollection([]);
-    }
-  }
-  
-  // 其他情况，返回空结果
-  return new DOMCollection([]);
+// 定义jQuery-lite集合类型
+interface JQueryLiteCollection {
+  length: number;
+  elements: Element[];
+  [index: number]: Element;
+  html: (content?: string) => JQueryLiteCollection;
+  append: (content: string | Element | DocumentFragment) => JQueryLiteCollection;
+  css: (prop: string | Record<string, string>, value?: string) => JQueryLiteCollection | string;
+  show: () => JQueryLiteCollection;
+  hide: () => JQueryLiteCollection;
+  find: (selector: string) => JQueryLiteCollection;
 }
 
-// 添加静态方法
-$.parseHTML = parseHTML;
-$.matches = utils.matches;
-$.extend = utils.extend;
-$.isElement = utils.isElement;
-$.create = function(tag: string, attributes?: Record<string, string>, content?: string) {
-  const element = document.createElement(tag);
-  
-  if (attributes) {
-    for (const key in attributes) {
-      if (Object.prototype.hasOwnProperty.call(attributes, key)) {
-        element.setAttribute(key, attributes[key]);
-      }
-    }
-  }
-  
-  if (content !== undefined) {
-    element.textContent = content;
-  }
-  
-  return $(element);
-};
-$.ready = utils.documentReady;
-$.uniqueId = utils.uniqueId;
-
 /**
- * 安全地从HTML字符串创建JQueryLite对象
- * 这是一个针对Trusted Types优化的特殊函数
+ * 核心选择器函数
  */
-export function $safe(html: string): JQueryLite {
+function $(selector: string | Element | Element[] | Document | DocumentFragment): JQueryLiteCollection {
+  let elements: Element[] = [];
+
   try {
-    const template = document.createElement('template');
-    // 使用安全的innerHTML设置
-    safeInnerHTML(template, html.trim());
-    const elements = Array.from(template.content.children) as Element[];
-    return new DOMCollection(elements);
+    if (typeof selector === 'string') {
+      elements = Array.from(document.querySelectorAll(selector));
+    } else if (selector instanceof Element) {
+      elements = [selector];
+    } else if (Array.isArray(selector)) {
+      elements = selector.filter(el => el instanceof Element) as Element[];
+    } else if (selector instanceof Document || selector instanceof DocumentFragment) {
+      elements = [selector as unknown as Element];
+    }
   } catch (error) {
-    jqueryLiteLogger.error(`从HTML字符串创建JQueryLite对象失败: ${error}`);
-    return new DOMCollection([]);
+    jQueryLiteLogger.error(`选择器查询失败: ${error}`);
   }
+
+  // 创建集合对象
+  const collection: JQueryLiteCollection = {
+    length: elements.length,
+    elements,
+
+    html(content?: string) {
+      if (content === undefined) {
+        return this.elements[0]?.innerHTML || '';
+      }
+      
+      this.elements.forEach(el => {
+        try {
+          safeInnerHTML(el, content);
+        } catch (error) {
+          jQueryLiteLogger.error(`设置HTML失败: ${error}`);
+        }
+      });
+      
+      return this;
+    },
+    
+    append(content: string | Element | DocumentFragment) {
+      this.elements.forEach(el => {
+        try {
+          if (typeof content === 'string') {
+            const temp = document.createElement('template');
+            safeInnerHTML(temp, content);
+            el.appendChild(temp.content);
+          } else if (content instanceof Element || content instanceof DocumentFragment) {
+            el.appendChild(content);
+          }
+        } catch (error) {
+          jQueryLiteLogger.error(`添加内容失败: ${error}`);
+        }
+      });
+      return this;
+    },
+    
+    css(prop: string | Record<string, string>, value?: string) {
+      if (typeof prop === 'string' && value !== undefined) {
+        this.elements.forEach(el => {
+          (el as HTMLElement).style.setProperty(prop, value);
+        });
+        return this;
+      } else if (typeof prop === 'string') {
+        return window.getComputedStyle(this.elements[0]).getPropertyValue(prop);
+      } else if (typeof prop === 'object') {
+        this.elements.forEach(el => {
+          for (const p in prop) {
+            if (Object.prototype.hasOwnProperty.call(prop, p)) {
+              (el as HTMLElement).style.setProperty(p, prop[p]);
+            }
+          }
+        });
+        return this;
+      }
+      return this;
+    },
+    
+    show() {
+      this.elements.forEach(el => {
+        (el as HTMLElement).style.display = '';
+      });
+      return this;
+    },
+    
+    hide() {
+      this.elements.forEach(el => {
+        (el as HTMLElement).style.display = 'none';
+      });
+      return this;
+    },
+    
+    find(selector: string) {
+      const result: Element[] = [];
+      this.elements.forEach(el => {
+        try {
+          const found = el.querySelectorAll(selector);
+          result.push(...Array.from(found));
+        } catch (error) {
+          jQueryLiteLogger.error(`查找元素失败: ${error}`);
+        }
+      });
+      return $(result);
+    },
+  } as JQueryLiteCollection; // 使用类型断言确保类型匹配
+  
+  // 添加索引访问
+  for (let i = 0; i < elements.length; i++) {
+    collection[i] = elements[i];
+  }
+  
+  return collection;
 }
 
-export { JQueryLite };
-export default $; 
+// 添加DOM准备工具方法
+$.ready = function(callback: () => void) {
+  if (document.readyState !== 'loading') {
+    setTimeout(callback, 0);
+  } else {
+    document.addEventListener('DOMContentLoaded', callback);
+  }
+};
+
+// 导出
+export default $;
+export { safeInnerHTML }; 
