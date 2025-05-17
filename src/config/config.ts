@@ -3,6 +3,8 @@ import { Debugger, UrlPatternType } from "../debugger/debugger";
 import { ScriptContext } from "../context/script/script-context";
 import { createLogger } from "../logger";
 import { loadValue, saveValue } from "../storage";
+import { LanguageEventManager } from "./ui/component/language-event";
+import { getLanguage } from "./ui/component/language";
 
 // 创建配置模块专用的日志记录器
 const configLogger = createLogger('config');
@@ -13,8 +15,8 @@ declare const GM_setValue: (key: string, value: string) => void;
 
 const GM_config_name = "js-script-hook-config-name";
 
-type HookType = "use-proxy-function" | "use-redeclare-function";
-type Language = "english" | "chinese";
+export type HookType = "use-proxy-function" | "use-redeclare-function";
+export type Language = "english" | "chinese";
 
 /**
  * 支持的相关配置
@@ -26,6 +28,7 @@ export class Config {
     public isIgnoreJsSuffixRequest: boolean;
     public isIgnoreNotJsonpRequest: boolean;
     public debuggers: Debugger[];
+    private lastSavedConfig: string;
 
     constructor() {
         // 默认为英文的操作界面
@@ -39,6 +42,33 @@ export class Config {
         this.isIgnoreNotJsonpRequest = false;
         // 所有的断点
         this.debuggers = [];
+        // 保存初始配置的快照
+        this.lastSavedConfig = JSON.stringify(this.toJSON());
+    }
+
+    /**
+     * 将配置转换为纯对象
+     */
+    public toJSON(): object {
+        return {
+            language: this.language,
+            prefix: this.prefix,
+            hookType: this.hookType,
+            isIgnoreJsSuffixRequest: this.isIgnoreJsSuffixRequest,
+            isIgnoreNotJsonpRequest: this.isIgnoreNotJsonpRequest,
+            debuggers: this.debuggers.map(dbg => ({
+                id: dbg.id,
+                enable: dbg.enable,
+                urlPattern: dbg.urlPattern,
+                urlPatternType: dbg.urlPatternType,
+                enableRequestDebugger: dbg.enableRequestDebugger,
+                enableResponseDebugger: dbg.enableResponseDebugger,
+                callbackFunctionName: dbg.callbackFunctionName,
+                comment: dbg.comment,
+                createTime: dbg.createTime,
+                updateTime: dbg.updateTime
+            }))
+        };
     }
 
     public findDebuggerById(id: string): Debugger | null {
@@ -73,6 +103,7 @@ export class Config {
             
             // configJson已经是解析后的对象，无需再次调用JSON.parse
             const o = configJson;
+            const oldLanguage = this.language;
             
             // 确保加载的配置有效
             if (o.language && (o.language === 'english' || o.language === 'chinese')) {
@@ -113,6 +144,16 @@ export class Config {
                     this.debuggers.push(debuggerInformation);
                 }
             }
+
+            // 更新配置快照
+            this.lastSavedConfig = JSON.stringify(this.toJSON());
+            
+            // 如果语言发生变化，触发语言更新事件
+            if (oldLanguage !== this.language) {
+                const newLanguage = getLanguage(this.language);
+                LanguageEventManager.getInstance().notifyLanguageUpdate(newLanguage);
+            }
+
             configLogger.info(`配置加载完成，当前语言: ${this.language}`);
             return this;
         } catch (error) {
@@ -121,25 +162,40 @@ export class Config {
         }
     }
 
-    public persist(): void {
+    public persist(): boolean {
         try {
             configLogger.info('正在保存配置...');
             configLogger.debug(`当前语言设置: ${this.language}`);
             
-            // 直接将对象传递给saveValue，saveValue会处理序列化
-            saveValue(GM_config_name, this);
+            // 获取当前配置的JSON表示
+            const currentConfig = this.toJSON();
+            const currentConfigStr = JSON.stringify(currentConfig);
             
-            // 验证设置是否成功（loadValue已自动解析JSON）
+            // 如果配置没有变化，不需要保存
+            if (currentConfigStr === this.lastSavedConfig) {
+                configLogger.debug('配置未发生变化，无需保存');
+                return true;
+            }
+            
+            // 保存配置
+            saveValue(GM_config_name, currentConfig);
+            
+            // 验证设置是否成功
             const savedConfig = loadValue(GM_config_name);
-            configLogger.debug(`验证保存结果: ${JSON.stringify(savedConfig)}`);
+            const savedConfigStr = JSON.stringify(savedConfig);
+            configLogger.debug(`验证保存结果: ${savedConfigStr}`);
             
-            if (savedConfig && savedConfig.language === this.language) {
+            if (savedConfigStr === currentConfigStr) {
                 configLogger.debug('配置保存验证成功');
+                this.lastSavedConfig = currentConfigStr;
+                return true;
             } else {
                 configLogger.error('配置保存验证失败！');
+                return false;
             }
         } catch (error) {
             configLogger.error(`保存配置时出错: ${error}`);
+            return false;
         }
     }
 
@@ -178,12 +234,12 @@ let globalConfig = new Config();
 
 export function initConfig(): void {
     configLogger.info('初始化配置开始');
-    const configBefore = JSON.stringify(globalConfig);
+    const configBefore = JSON.stringify(globalConfig.toJSON());
     configLogger.debug(`初始化前配置: ${configBefore}`);
     
     globalConfig.load();
     
-    const configAfter = JSON.stringify(globalConfig);
+    const configAfter = JSON.stringify(globalConfig.toJSON());
     configLogger.debug(`初始化后配置: ${configAfter}`);
     configLogger.debug(`配置是否改变: ${configBefore !== configAfter}`);
     configLogger.debug(`当前语言设置: ${globalConfig.language}`);

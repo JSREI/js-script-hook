@@ -1,6 +1,6 @@
-import { ConfigurationComponent } from "./component/configuration-component";
+import { ConfigurationComponent } from "./component/configuration";
 import { getGlobalConfig } from "../config";
-import { LanguageEventManager } from "./component/language-event-manager";
+import { LanguageEventManager } from "./component/language-event";
 import { getLanguage } from "./component/language";
 import { createLogger } from "../../logger";
 
