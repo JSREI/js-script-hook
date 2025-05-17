@@ -5,6 +5,7 @@
 import { createLogger } from '../logger';
 import { JQueryLite } from './types';
 import * as dom from './dom';
+import { safeInnerHTML } from '../../../../jQuery-lite/dom';
 
 // 创建核心组件专用的日志记录器
 const coreLogger = createLogger('jquery-lite:core');
@@ -274,20 +275,7 @@ export class DOMCollection<T extends Element = Element> implements JQueryLite<T>
     }
     
     this.each((_, el) => {
-      try {
-        el.innerHTML = content;
-      } catch (error) {
-        // 如果直接设置innerHTML失败（可能是由于内容安全策略）,
-        // 先清空元素，然后逐个添加解析后的节点
-        while (el.firstChild) {
-          el.removeChild(el.firstChild);
-        }
-        
-        const nodes = dom.parseHTML(content);
-        nodes.forEach(node => {
-          el.appendChild(node);
-        });
-      }
+      safeInnerHTML(el, content);
     });
     
     return this;

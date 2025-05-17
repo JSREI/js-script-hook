@@ -6,7 +6,7 @@
 
 import { createLogger } from '../logger';
 import { DOMCollection } from './core';
-import { parseHTML, initTrustedTypesPolicy } from './dom';
+import { parseHTML, safeInnerHTML, initTrustedTypesPolicy } from './dom';
 import { JQueryLite } from './types';
 
 // 导入实用工具函数
@@ -108,7 +108,8 @@ $.uniqueId = utils.uniqueId;
 export function $safe(html: string): JQueryLite {
   try {
     const template = document.createElement('template');
-    template.innerHTML = html.trim();
+    // 使用安全的innerHTML设置
+    safeInnerHTML(template, html.trim());
     const elements = Array.from(template.content.children) as Element[];
     return new DOMCollection(elements);
   } catch (error) {
