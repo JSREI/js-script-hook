@@ -1,7 +1,9 @@
 import { DebuggerTester } from "../debugger/debugger-tester";
 import { Debugger, UrlPatternType } from "../debugger/debugger";
 import { ScriptContext } from "../context/script/script-context";
+import { loadValue, saveValue } from "../utils/storage-util";
 
+// 保留原始声明用于兼容性，但实际使用我们自己的存储工具
 declare const GM_getValue: (key: string) => string | undefined;
 declare const GM_setValue: (key: string, value: string) => void;
 
@@ -56,7 +58,8 @@ export class Config {
     public load(): Config {
         try {
             console.log('[DEBUG] 正在加载配置...');
-            const configJsonString = GM_getValue(GM_config_name);
+            // 使用新的存储工具
+            const configJsonString = loadValue(GM_config_name);
             console.log('[DEBUG] 从存储加载的配置字符串:', configJsonString);
             
             if (!configJsonString) {
@@ -67,25 +70,44 @@ export class Config {
             const o = JSON.parse(configJsonString);
             console.log('[DEBUG] 解析后的配置对象:', o);
             
-            this.language = o.language;
-            this.prefix = o.prefix;
-            this.hookType = o.hookType;
-            this.isIgnoreJsSuffixRequest = o.isIgnoreJsSuffixRequest;
-            this.isIgnoreNotJsonpRequest = o.isIgnoreNotJsonpRequest;
-            this.debuggers = [];
-            for (const debuggerInformationObject of o.debuggers) {
-                const debuggerInformation = new Debugger();
-                debuggerInformation.createTime = debuggerInformationObject.createTime;
-                debuggerInformation.updateTime = debuggerInformationObject.updateTime;
-                debuggerInformation.id = debuggerInformationObject.id;
-                debuggerInformation.enable = debuggerInformationObject.enable;
-                debuggerInformation.urlPattern = debuggerInformationObject.urlPattern;
-                debuggerInformation.urlPatternType = debuggerInformationObject.urlPatternType;
-                debuggerInformation.enableRequestDebugger = debuggerInformationObject.enableRequestDebugger;
-                debuggerInformation.enableResponseDebugger = debuggerInformationObject.enableResponseDebugger;
-                debuggerInformation.callbackFunctionName = debuggerInformationObject.callbackFunctionName;
-                debuggerInformation.comment = debuggerInformationObject.comment;
-                this.debuggers.push(debuggerInformation);
+            // 确保加载的配置有效
+            if (o.language && (o.language === 'english' || o.language === 'chinese')) {
+                this.language = o.language;
+            }
+            
+            if (typeof o.prefix === 'string') {
+                this.prefix = o.prefix;
+            }
+            
+            if (o.hookType && (o.hookType === 'use-proxy-function' || o.hookType === 'use-redeclare-function')) {
+                this.hookType = o.hookType;
+            }
+            
+            if (typeof o.isIgnoreJsSuffixRequest === 'boolean') {
+                this.isIgnoreJsSuffixRequest = o.isIgnoreJsSuffixRequest;
+            }
+            
+            if (typeof o.isIgnoreNotJsonpRequest === 'boolean') {
+                this.isIgnoreNotJsonpRequest = o.isIgnoreNotJsonpRequest;
+            }
+            
+            // 处理断点数组
+            if (Array.isArray(o.debuggers)) {
+                this.debuggers = [];
+                for (const debuggerInformationObject of o.debuggers) {
+                    const debuggerInformation = new Debugger();
+                    debuggerInformation.createTime = debuggerInformationObject.createTime;
+                    debuggerInformation.updateTime = debuggerInformationObject.updateTime;
+                    debuggerInformation.id = debuggerInformationObject.id;
+                    debuggerInformation.enable = debuggerInformationObject.enable;
+                    debuggerInformation.urlPattern = debuggerInformationObject.urlPattern;
+                    debuggerInformation.urlPatternType = debuggerInformationObject.urlPatternType;
+                    debuggerInformation.enableRequestDebugger = debuggerInformationObject.enableRequestDebugger;
+                    debuggerInformation.enableResponseDebugger = debuggerInformationObject.enableResponseDebugger;
+                    debuggerInformation.callbackFunctionName = debuggerInformationObject.callbackFunctionName;
+                    debuggerInformation.comment = debuggerInformationObject.comment;
+                    this.debuggers.push(debuggerInformation);
+                }
             }
             console.log('[DEBUG] 配置加载完成，当前语言:', this.language);
             return this;
@@ -102,18 +124,19 @@ export class Config {
             console.log('[DEBUG] 要保存的配置JSON:', configJsonString);
             console.log('[DEBUG] 当前语言设置:', this.language);
             
-            // 检查GM_setValue是否可用
-            if (typeof GM_setValue !== 'function') {
-                console.error('[ERROR] GM_setValue 不是一个函数！', typeof GM_setValue);
-                return;
-            }
-            
-            GM_setValue(GM_config_name, configJsonString);
+            // 使用新的存储工具保存配置
+            saveValue(GM_config_name, configJsonString);
             
             // 验证设置是否成功
-            const savedValue = GM_getValue(GM_config_name);
-            console.log('[DEBUG] 验证保存后的值:', savedValue);
-            console.log('[DEBUG] 保存成功？', savedValue === configJsonString);
+            const savedValue = loadValue(GM_config_name);
+            const saveSuccessful = savedValue === configJsonString;
+            console.log('[DEBUG] 保存成功？', saveSuccessful);
+            
+            if (!saveSuccessful) {
+                console.error('[ERROR] 配置保存验证失败！');
+                console.log('[DEBUG] 期望值:', configJsonString);
+                console.log('[DEBUG] 实际保存值:', savedValue);
+            }
         } catch (error) {
             console.error('[ERROR] 保存配置时出错:', error);
         }

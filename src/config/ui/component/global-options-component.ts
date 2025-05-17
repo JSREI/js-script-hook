@@ -6,8 +6,27 @@ import { getLanguage, getLanguageByGlobalConfig, type Language } from "./languag
 import { TipsComponent, CheckboxComponent, SelectComponent, SelectOption, InputComponent } from './basic';
 // 导入show函数用于重新加载配置界面
 import { show } from "../../ui/menu";
+import { loadValue } from "../../../utils/storage-util";
 
 type HookType = "use-proxy-function" | "use-redeclare-function";
+
+// 配置保存验证
+function verifyConfigSaved() {
+    try {
+        // 验证配置是否确实被保存
+        const savedConfig = loadValue("js-script-hook-config-name");
+        if (savedConfig) {
+            const parsedConfig = JSON.parse(savedConfig);
+            console.log('[配置验证] 当前内存中的配置:', getGlobalConfig());
+            console.log('[配置验证] 存储中的配置:', parsedConfig);
+            return true;
+        }
+        return false;
+    } catch (e) {
+        console.error('[配置验证] 错误:', e);
+        return false;
+    }
+}
 
 /**
  * 全局配置参数组件
@@ -261,15 +280,10 @@ export class GlobalOptionsComponent {
                     console.log('[语言切换] 配置已保存');
                     
                     // 测试保存是否成功
-                    const savedConfig = GM_getValue("js-script-hook-config-name");
+                    const savedConfig = verifyConfigSaved();
                     if (savedConfig) {
-                        try {
-                            const parsedConfig = JSON.parse(savedConfig as string);
-                            console.log('[语言切换] 验证保存的语言设置:', parsedConfig.language);
-                            console.log('[语言切换] 保存是否成功:', parsedConfig.language === langValue);
-                        } catch (e) {
-                            console.error('[语言切换] 解析保存的配置失败:', e);
-                        }
+                        console.log('[语言切换] 验证保存的语言设置:', config.language);
+                        console.log('[语言切换] 保存是否成功:', savedConfig);
                     } else {
                         console.error('[语言切换] 无法读取保存的配置!');
                     }
@@ -292,26 +306,54 @@ export class GlobalOptionsComponent {
         
         container.on('change', '#js-script-hook-global-config-hook-type', function() {
             const config = getGlobalConfig();
-            config.hookType = $(this).val() as HookType;
+            const hookType = $(this).val() as HookType;
+            console.log('[Hook类型更改] 用户选择:', hookType);
+            
+            config.hookType = hookType;
             config.persist(); // 保存配置
+            
+            // 验证保存
+            const saved = verifyConfigSaved();
+            console.log('[Hook类型更改] 保存成功?', saved);
         });
         
         container.on('input', '#js-script-hook-global-config-flag-prefix', function() {
             const config = getGlobalConfig();
-            config.prefix = $(this).val() as string;
+            const prefix = $(this).val() as string;
+            console.log('[前缀更改] 用户输入:', prefix);
+            
+            config.prefix = prefix;
             config.persist(); // 保存配置
+            
+            // 验证保存
+            const saved = verifyConfigSaved();
+            console.log('[前缀更改] 保存成功?', saved);
         });
         
         container.on('change', '#js-script-hook-global-config-isIgnoreJsSuffixRequest', function() {
             const config = getGlobalConfig();
-            config.isIgnoreJsSuffixRequest = $(this).is(':checked');
+            const isChecked = $(this).is(':checked');
+            console.log('[忽略JS后缀更改] 用户选择:', isChecked);
+            
+            config.isIgnoreJsSuffixRequest = isChecked;
             config.persist(); // 保存配置
+            
+            // 验证保存
+            const saved = verifyConfigSaved();
+            console.log('[忽略JS后缀更改] 保存成功?', saved);
         });
         
         container.on('change', '#js-script-hook-global-config-isIgnoreNotJsonpRequest', function() {
             const config = getGlobalConfig();
-            config.isIgnoreNotJsonpRequest = $(this).is(':checked');
+            const isChecked = $(this).is(':checked');
+            console.log('[忽略非JSONP更改] 用户选择:', isChecked);
+            
+            config.isIgnoreNotJsonpRequest = isChecked;
             config.persist(); // 保存配置
+            
+            // 验证保存
+            const saved = verifyConfigSaved();
+            console.log('[忽略非JSONP更改] 保存成功?', saved);
         });
         
         return container;
