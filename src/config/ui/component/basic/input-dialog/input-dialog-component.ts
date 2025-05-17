@@ -242,6 +242,25 @@ export class InputDialogComponent implements LanguageUpdateable {
             if (cancelButton) {
                 cancelButton.textContent = this.currentConfig.cancelText;
             }
+            
+            // 更新输入框的placeholder
+            const inputField = this.dialogElement.querySelector('.js-script-hook-input-dialog-input') as HTMLInputElement;
+            if (inputField && this.currentConfig.placeholder) {
+                // 如果当前placeholder是URL pattern相关的提示文本
+                if (this.currentConfig.placeholder.includes('Enter a keyword') || 
+                    this.currentConfig.placeholder.includes('输入关键字')) {
+                    inputField.placeholder = language.debugger_config.urlPatternTextPlaceholder;
+                } 
+                // 如果当前placeholder是JSONP回调函数参数名相关的提示文本
+                else if (this.currentConfig.placeholder.includes('If not specified') || 
+                        this.currentConfig.placeholder.includes('不指定的话')) {
+                    inputField.placeholder = language.debugger_config.callbackFunctionParamNamePlaceholder;
+                }
+                // 如果是其他类型的placeholder，保持原样
+                else {
+                    inputField.placeholder = this.currentConfig.placeholder;
+                }
+            }
         } catch (error) {
             logger.error(`更新输入对话框语言时出错: ${error}`);
         }

@@ -153,19 +153,34 @@ export class TextareaComponent implements LanguageUpdateable {
      */
     public updateLanguage(language: Language): void {
         try {
-            // 更新标签
-            const labelElement = this.containerElement.querySelector('.js-script-hook-textarea-label') as HTMLLabelElement;
+            if (!this.containerElement) {
+                return;
+            }
+            
+            // 更新标签文本
+            const labelElement = this.containerElement.querySelector('.js-script-hook-textarea-label');
             if (labelElement && this.currentLabel) {
                 labelElement.textContent = this.currentLabel;
             }
-
-            // 更新占位符
+            
+            // 更新文本区域的 placeholder
             const textareaElement = this.containerElement.querySelector('.js-script-hook-textarea-field') as HTMLTextAreaElement;
-            if (textareaElement && this.currentPlaceholder) {
-                textareaElement.placeholder = this.currentPlaceholder;
+            if (textareaElement) {
+                // 根据当前placeholder的内容判断其类型并更新
+                const currentPlaceholder = textareaElement.placeholder;
+                
+                // 如果是备注区域的placeholder
+                if (currentPlaceholder.includes('A good memory') || 
+                    currentPlaceholder.includes('好记性不如烂笔头')) {
+                    textareaElement.placeholder = language.debugger_config.commentPlaceholder;
+                } 
+                // 其他类型的placeholder保持不变
+                else {
+                    textareaElement.placeholder = this.currentPlaceholder;
+                }
             }
         } catch (error) {
-            logger.error(`更新语言时出错: ${error}`);
+            logger.error(`更新文本区域语言时出错: ${error}`);
         }
     }
 

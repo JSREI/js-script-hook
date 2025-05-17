@@ -280,6 +280,16 @@ function updateAllInputPlaceholders(componentElement: HTMLElement, language: Lan
         if (commentTextarea) {
             commentTextarea.placeholder = language.debugger_config.commentPlaceholder;
         }
+        
+        // 查找并直接通过DOM更新InputDialog中的placeholder
+        const allDialogInputs = document.querySelectorAll('.js-script-hook-input-dialog-input');
+        allDialogInputs.forEach(input => {
+            const inputEl = input as HTMLInputElement;
+            // 根据输入对话框的用途更新placeholder
+            if (inputEl.placeholder && inputEl.placeholder.includes('Enter a keyword or expression')) {
+                inputEl.placeholder = language.debugger_config.urlPatternTextPlaceholder;
+            }
+        });
     } catch (error) {
         languageUpdateLogger.error(`更新输入框placeholder时出错: ${error}`);
     }
