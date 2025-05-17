@@ -15,9 +15,19 @@ export const tipsStyles = `
         font-size: 12px;
         font-weight: bold;
         cursor: help;
-        margin-left: 5px;
+        margin-right: 5px;
         position: relative;
         vertical-align: middle;
+        line-height: 1;
+    }
+    
+    /* 确保问号图标和后面的文本对齐 */
+    .js-script-hook-tips-icon + span {
+        vertical-align: middle;
+        display: inline-flex;
+        align-items: center;
+        line-height: normal;
+        height: 100%;
     }
     
     /* 工具提示样式 */

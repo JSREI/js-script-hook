@@ -26,7 +26,7 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
                         ${language.debugger_config.enableTips}
                     </div>
                 </div>
-                <span>${language.debugger_config.enable} </span>
+                <span>${language.debugger_config.enable}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-enable-checkbox-container">
                 <!-- 复选框组件将在render方法中添加 -->
@@ -40,7 +40,7 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
                         ${language.debugger_config.urlPatternTips}
                     </div>
                 </div>
-                <span>${language.debugger_config.urlPattern} </span>
+                <span>${language.debugger_config.urlPattern}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-url-pattern-type-container">
                 <!-- URL匹配方式选择器将在render方法中添加 -->
@@ -54,7 +54,7 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
                         ${language.debugger_config.urlPatternTextTips}
                     </div>
                 </div>
-                <span>${language.debugger_config.urlPattern} </span>
+                <span>${language.debugger_config.urlPatternKeyword}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-url-pattern-input-container">
                 <!-- URL匹配输入框将在render方法中添加 -->
@@ -68,7 +68,7 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
                         ${language.debugger_config.urlPatternTestTips}
                     </div>
                 </div>
-                <span>${language.debugger_config.urlPatternTest} </span>
+                <span>${language.debugger_config.urlPatternTest}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-url-pattern-test-container">
                 <!-- URL测试按钮将在render方法中添加 -->
@@ -82,7 +82,7 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
                         ${language.debugger_config.enableRequestDebuggerTips}
                     </div>
                 </div>
-                <span>${language.debugger_config.enableRequestDebugger} </span>
+                <span>${language.debugger_config.enableRequestDebugger}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-enable-request-debugger-container">
                 <!-- 请求断点复选框将在render方法中添加 -->
@@ -96,7 +96,7 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
                         ${language.debugger_config.enableResponseDebuggerTips}
                     </div>
                 </div>
-                <span>${language.debugger_config.enableResponseDebugger} </span>
+                <span>${language.debugger_config.enableResponseDebugger}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-enable-response-debugger-container">
                 <!-- 响应断点复选框将在render方法中添加 -->
@@ -110,7 +110,7 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
                         ${language.debugger_config.callbackFunctionParamNameTips}
                     </div>
                 </div>
-                <span>${language.debugger_config.callbackFunctionParamName} </span>
+                <span>${language.debugger_config.callbackFunctionParamName}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-callback-function-param-name-container">
                 <!-- 回调函数参数名输入框将在render方法中添加 -->
@@ -124,7 +124,7 @@ export function createDebuggerTemplate(language: Language, debuggerConfig: Debug
                         ${language.debugger_config.commentTips}
                     </div>
                 </div>
-                <span>${language.debugger_config.comment} </span>
+                <span>${language.debugger_config.comment}</span>
             </td>
             <td align="left" id="${debuggerConfig.id}-comment-container">
                 <!-- 备注输入框将在render方法中添加 -->

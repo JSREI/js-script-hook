@@ -54,21 +54,33 @@ export const debuggerStyles = `
 .debugger-component-table {
     width: 100%;
     border-spacing: 0;
+    border-collapse: separate;
+}
+
+.debugger-component-table tr {
+    height: 40px; /* 设置固定的行高 */
 }
 
 .debugger-component-table td {
     padding: 8px;
     vertical-align: middle;
+    line-height: normal;
 }
 
 .debugger-component-table td[align="right"] {
     width: 200px;
     text-align: right;
     padding-right: 15px;
+    white-space: nowrap; /* 防止文本换行 */
 }
 
 .debugger-component-table td[align="left"] {
     text-align: left;
     padding-left: 15px;
+}
+
+/* 确保按钮和输入框在同一行内垂直居中 */
+.debugger-component-table td > * {
+    vertical-align: middle;
 }
 `; 
