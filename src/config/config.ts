@@ -1,5 +1,5 @@
 import { DebuggerTester } from "../debugger/debugger-tester";
-import { Debugger } from "../debugger/debugger";
+import { Debugger, UrlPatternType } from "../debugger/debugger";
 import { ScriptContext } from "../context/script/script-context";
 
 declare const GM_getValue: (key: string) => string | undefined;
@@ -19,7 +19,6 @@ export class Config {
     public hookType: HookType;
     public isIgnoreJsSuffixRequest: boolean;
     public isIgnoreNotJsonpRequest: boolean;
-    public autoJumpProjectSiteOnConfiguraion: boolean;
     public debuggers: Debugger[];
 
     constructor() {
@@ -32,8 +31,6 @@ export class Config {
         this.isIgnoreJsSuffixRequest = false;
         // 是否忽略不是jsonp的请求
         this.isIgnoreNotJsonpRequest = false;
-        // 在打开配置页面的时候自动跳转到项目主页
-        this.autoJumpProjectSiteOnConfiguraion = true;
         // 所有的断点
         this.debuggers = [];
     }
@@ -67,7 +64,6 @@ export class Config {
         this.hookType = o.hookType;
         this.isIgnoreJsSuffixRequest = o.isIgnoreJsSuffixRequest;
         this.isIgnoreNotJsonpRequest = o.isIgnoreNotJsonpRequest;
-        this.autoJumpProjectSiteOnConfiguraion = o.autoJumpProjectSiteOnConfiguraion;
         this.debuggers = [];
         for (const debuggerInformationObject of o.debuggers) {
             const debuggerInformation = new Debugger();
