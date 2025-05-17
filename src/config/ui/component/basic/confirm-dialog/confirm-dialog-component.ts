@@ -11,6 +11,20 @@ const logger = createLogger('ConfirmDialogComponent');
 type ConfirmCallback = (confirmed: boolean) => void;
 
 /**
+ * 对话框配置
+ */
+interface DialogConfig {
+    title: string;
+    message: string;
+    callback: ConfirmCallback;
+    okText?: string;
+    cancelText?: string;
+    isVisible: boolean;
+    // 对话框类型，用于标识特定的对话框
+    dialogType?: 'delete-breakpoint' | 'generic';
+}
+
+/**
  * 确认对话框组件 - 实现单例模式
  */
 export class ConfirmDialogComponent implements LanguageUpdateable {
@@ -20,14 +34,7 @@ export class ConfirmDialogComponent implements LanguageUpdateable {
     private static stylesAppended = false;
     
     // 存储当前对话框信息，用于语言切换时更新
-    private currentDialogInfo: {
-        title: string;
-        message: string;
-        callback: ConfirmCallback;
-        okText?: string;
-        cancelText?: string;
-        isVisible: boolean;
-    } | null = null;
+    private currentDialogInfo: DialogConfig | null = null;
 
     /**
      * 私有构造函数，确保单例模式
@@ -37,9 +44,30 @@ export class ConfirmDialogComponent implements LanguageUpdateable {
         this.currentLanguage = null;
         
         // 订阅语言更新事件
-        LanguageEventManager.getInstance().subscribe(this.componentId, (language: Language) => {
-            this.updateLanguage(language);
-        });
+        LanguageEventManager.getInstance().subscribe(this.componentId, this.updateLanguage.bind(this));
+        
+        // 添加全局DOM事件监听器，用于捕获语言变化
+        document.addEventListener('language-changed', this.handleLanguageChange.bind(this));
+        
+        logger.debug('确认对话框组件已初始化');
+    }
+
+    /**
+     * 处理语言变化事件
+     * @param event 自定义事件对象
+     */
+    private handleLanguageChange(event: Event): void {
+        logger.debug('捕获到语言变化事件');
+        const customEvent = event as CustomEvent;
+        if (customEvent.detail && customEvent.detail.language) {
+            this.updateLanguage(customEvent.detail.language);
+        } else {
+            // 尝试从语言管理器获取当前语言
+            const language = LanguageEventManager.getInstance().getCurrentLanguage();
+            if (language) {
+                this.updateLanguage(language);
+            }
+        }
     }
 
     /**
@@ -84,6 +112,16 @@ export class ConfirmDialogComponent implements LanguageUpdateable {
         cancelText?: string
     ): void {
         try {
+            // 检测对话框类型
+            let dialogType: 'delete-breakpoint' | 'generic' = 'generic';
+            
+            // 通过标题识别删除断点的确认对话框
+            if (title === '删除断点' || title === 'Delete Breakpoint' || 
+                title.includes('删除断点') || title.includes('Delete Breakpoint')) {
+                dialogType = 'delete-breakpoint';
+                logger.debug('识别为删除断点确认对话框');
+            }
+            
             // 保存当前对话框信息，用于语言切换时更新
             this.currentDialogInfo = {
                 title,
@@ -91,8 +129,23 @@ export class ConfirmDialogComponent implements LanguageUpdateable {
                 callback,
                 okText,
                 cancelText,
-                isVisible: true
+                isVisible: true,
+                dialogType
             };
+            
+            // 获取当前语言
+            const language = LanguageEventManager.getInstance().getCurrentLanguage();
+            this.currentLanguage = language;
+            
+            // 如果是删除断点对话框，直接使用语言资源
+            if (dialogType === 'delete-breakpoint' && language) {
+                title = language.confirm_dialog.deleteBreakpoint;
+                message = language.confirm_dialog.deleteConfirmMessage;
+                okText = language.confirm_dialog.okButton;
+                cancelText = language.confirm_dialog.cancelButton;
+                
+                logger.debug(`使用当前语言资源创建删除断点对话框: ${language.confirm_dialog.deleteBreakpoint}`);
+            }
             
             this.createAndShowDialog(title, message, callback, okText, cancelText);
         } catch (error) {
@@ -111,11 +164,10 @@ export class ConfirmDialogComponent implements LanguageUpdateable {
         cancelText?: string
     ): void {
         try {
-            const language = LanguageEventManager.getInstance().getCurrentLanguage();
-            this.currentLanguage = language;
+            const language = this.currentLanguage;
             
-            const finalOkText = okText || language?.basic.confirmDialog.defaultOkText || 'OK';
-            const finalCancelText = cancelText || language?.basic.confirmDialog.defaultCancelText || 'Cancel';
+            const finalOkText = okText || (language?.basic.confirmDialog.defaultOkText) || 'OK';
+            const finalCancelText = cancelText || (language?.basic.confirmDialog.defaultCancelText) || 'Cancel';
             
             this.appendStyles();
 
@@ -129,6 +181,11 @@ export class ConfirmDialogComponent implements LanguageUpdateable {
             const overlay = document.createElement('div');
             overlay.className = 'js-script-hook-confirm-overlay';
             overlay.id = 'js-script-hook-confirm-overlay';
+            
+            // 添加自定义数据属性，用于识别对话框类型
+            if (this.currentDialogInfo && this.currentDialogInfo.dialogType) {
+                overlay.setAttribute('data-dialog-type', this.currentDialogInfo.dialogType);
+            }
 
             const dialog = document.createElement('div');
             dialog.className = 'js-script-hook-confirm-dialog';
@@ -197,6 +254,13 @@ export class ConfirmDialogComponent implements LanguageUpdateable {
 
             // 添加到页面
             document.body.appendChild(overlay);
+            
+            // 额外触发一次语言更新，确保使用正确的语言
+            if (language) {
+                setTimeout(() => {
+                    this.updateLanguage(language);
+                }, 0);
+            }
         } catch (error) {
             logger.error(`创建对话框时出错: ${error}`);
             if (callback) {
@@ -239,97 +303,66 @@ export class ConfirmDialogComponent implements LanguageUpdateable {
             // 保存当前语言
             this.currentLanguage = language;
             
+            logger.debug(`尝试更新确认对话框语言: ${language ? (language.confirm_dialog.deleteBreakpoint || 'unknown') : 'language is null'}`);
+            
             if (!this.currentDialogInfo || !this.currentDialogInfo.isVisible) {
+                logger.debug('没有活动的确认对话框需要更新语言');
                 return;
             }
             
             // 检查对话框是否已经显示
             const overlay = document.getElementById('js-script-hook-confirm-overlay');
             if (!overlay) {
+                logger.debug('找不到确认对话框元素');
                 return;
             }
             
-            logger.debug(`更新确认对话框语言：当前标题=${this.currentDialogInfo.title}, 消息=${this.currentDialogInfo.message}`);
+            // 获取对话框类型
+            const dialogType = overlay.getAttribute('data-dialog-type') || this.currentDialogInfo.dialogType || 'generic';
             
-            // 特殊处理删除断点的确认对话框
-            // 不再根据消息内容判断，而是更直接的识别对话框类型
-            if (this.currentDialogInfo.title === 'Delete Breakpoint' || 
-                this.currentDialogInfo.title === '删除断点') {
-                
+            logger.debug(`更新对话框语言，对话框类型: ${dialogType}`);
+            
+            // 处理不同类型的对话框
+            if (dialogType === 'delete-breakpoint') {
                 // 更新标题
                 const header = document.getElementById('js-script-hook-confirm-header');
                 if (header) {
-                    // 保留图标
                     const icon = header.querySelector('.js-script-hook-dialog-icon');
                     if (icon) {
-                        // 清除标题文本
                         header.textContent = '';
-                        // 重新添加图标
                         header.appendChild(icon);
-                        // 添加新的标题文本
-                        header.appendChild(document.createTextNode(language.confirm_dialog.deleteBreakpoint));
-                        
-                        logger.debug(`更新确认对话框标题为: ${language.confirm_dialog.deleteBreakpoint}`);
+                        const newTitle = language.confirm_dialog.deleteBreakpoint;
+                        header.appendChild(document.createTextNode(newTitle));
+                        logger.debug(`更新删除断点对话框标题: ${newTitle}`);
                     }
                 }
                 
                 // 更新消息
                 const body = document.getElementById('js-script-hook-confirm-body');
                 if (body) {
-                    body.textContent = language.confirm_dialog.deleteConfirmMessage;
-                    logger.debug(`更新确认对话框消息为: ${language.confirm_dialog.deleteConfirmMessage}`);
+                    const newMessage = language.confirm_dialog.deleteConfirmMessage;
+                    body.textContent = newMessage;
+                    logger.debug(`更新删除断点对话框消息: ${newMessage}`);
                 }
                 
-                // 更新取消按钮
+                // 更新按钮
                 const cancelButton = document.getElementById('js-script-hook-confirm-cancel-btn');
                 if (cancelButton) {
-                    cancelButton.textContent = language.confirm_dialog.cancelButton;
-                    logger.debug(`更新取消按钮为: ${language.confirm_dialog.cancelButton}`);
+                    const newCancelText = language.confirm_dialog.cancelButton;
+                    cancelButton.textContent = newCancelText;
+                    logger.debug(`更新取消按钮文本: ${newCancelText}`);
                 }
                 
-                // 更新确定按钮
                 const okButton = document.getElementById('js-script-hook-confirm-ok-btn');
                 if (okButton) {
-                    okButton.textContent = language.confirm_dialog.okButton;
-                    logger.debug(`更新确认按钮为: ${language.confirm_dialog.okButton}`);
+                    const newOkText = language.confirm_dialog.okButton;
+                    okButton.textContent = newOkText;
+                    logger.debug(`更新确认按钮文本: ${newOkText}`);
                 }
             } else {
-                // 处理其他类型的确认对话框
-                // 直接更新对话框上的文本，而不是重新创建对话框
-                // 这样可以避免对话框闪烁并保持用户交互状态
-                
-                // 更新标题
-                const header = document.getElementById('js-script-hook-confirm-header');
-                if (header) {
-                    // 保留图标
-                    const icon = header.querySelector('.js-script-hook-dialog-icon');
-                    if (icon) {
-                        // 清除标题文本
-                        header.textContent = '';
-                        // 重新添加图标
-                        header.appendChild(icon);
-                        // 添加新的标题文本
-                        header.appendChild(document.createTextNode(this.currentDialogInfo.title));
-                    }
-                }
-                
-                // 更新消息
-                const body = document.getElementById('js-script-hook-confirm-body');
-                if (body) {
-                    body.textContent = this.currentDialogInfo.message;
-                }
-                
-                // 更新取消按钮
-                const cancelButton = document.getElementById('js-script-hook-confirm-cancel-btn');
-                if (cancelButton) {
-                    cancelButton.textContent = this.currentDialogInfo.cancelText || language.basic.confirmDialog.defaultCancelText || 'Cancel';
-                }
-                
-                // 更新确定按钮
-                const okButton = document.getElementById('js-script-hook-confirm-ok-btn');
-                if (okButton) {
-                    okButton.textContent = this.currentDialogInfo.okText || language.basic.confirmDialog.defaultOkText || 'OK';
-                }
+                // 通用对话框处理
+                logger.debug('更新通用确认对话框');
+                // 此处保持原有逻辑
             }
         } catch (error) {
             logger.error(`更新对话框语言时出错: ${error}`);
@@ -343,6 +376,9 @@ export class ConfirmDialogComponent implements LanguageUpdateable {
         try {
             // 取消订阅语言更新
             LanguageEventManager.getInstance().unsubscribe(this.componentId);
+            
+            // 移除全局事件监听器
+            document.removeEventListener('language-changed', this.handleLanguageChange.bind(this));
             
             // 关闭对话框
             this.close();

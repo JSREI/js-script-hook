@@ -41,6 +41,18 @@ export function switchLanguage(language: string): void {
         
         // 通知所有订阅者语言已更新
         LanguageEventManager.getInstance().notifyLanguageUpdate(newLanguage);
+        
+        // 触发全局DOM事件，确保所有组件都能收到通知
+        const event = new CustomEvent('language-changed', {
+            detail: {
+                language: newLanguage,
+                languageCode: language
+            },
+            bubbles: true
+        });
+        document.dispatchEvent(event);
+        
+        menuLogger.info(`语言已切换为: ${language}`);
     } catch (error) {
         menuLogger.error(`切换语言时出错: ${error}`);
     }

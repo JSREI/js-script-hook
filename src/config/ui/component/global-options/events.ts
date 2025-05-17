@@ -27,7 +27,17 @@ export async function handleLanguageSelect(value: string, config: Config): Promi
                 // 通知所有组件更新语言
                 await LanguageEventManager.getInstance().notifyLanguageUpdate(newLanguage);
                 
-                globalOptionsEventsLogger.info('语言切换完成');
+                // 触发全局DOM事件，确保所有组件都能收到通知
+                const event = new CustomEvent('language-changed', {
+                    detail: {
+                        language: newLanguage,
+                        languageCode: value
+                    },
+                    bubbles: true
+                });
+                document.dispatchEvent(event);
+                
+                globalOptionsEventsLogger.info(`语言切换完成: ${value}`);
             } catch (error) {
                 globalOptionsEventsLogger.error(`语言切换失败: ${error}`);
             }
