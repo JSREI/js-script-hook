@@ -48,7 +48,7 @@ export function bindDebuggerEvents(
         removeButton.addEventListener('click', () => {
             const confirmDialog = ConfirmDialogComponent.getInstance();
             confirmDialog.show(
-                language.basic.deleteButton,
+                language.confirm_dialog.deleteBreakpoint,
                 language.confirm_dialog.deleteConfirmMessage,
                 (confirmed: boolean) => {
                     if (confirmed) {
@@ -60,8 +60,8 @@ export function bindDebuggerEvents(
                         destroy();
                     }
                 },
-                language.basic.confirmButton,
-                language.basic.cancelButton
+                language.confirm_dialog.okButton,
+                language.confirm_dialog.cancelButton
             );
         });
     }
