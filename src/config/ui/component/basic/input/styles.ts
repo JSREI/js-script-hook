@@ -4,18 +4,23 @@
 export const inputStyles = `
 .js-script-hook-input-container {
     position: relative;
-    margin: 8px 0;
+    margin: 0;
     width: 100%;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .js-script-hook-input-field {
     width: 100%;
-    padding: 8px 10px;
+    height: 30px;
+    padding: 0 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
     font-size: 14px;
     background-color: white;
+    line-height: 28px;
+    vertical-align: middle;
 }
 
 .js-script-hook-input-field:focus {
@@ -29,5 +34,14 @@ export const inputStyles = `
     color: #666;
     margin-bottom: 4px;
     display: block;
+}
+
+/* 确保输入框在表格中与其他元素对齐 */
+.debugger-component-table .js-script-hook-input-container {
+    margin: 0;
+}
+
+.debugger-component-table .js-script-hook-input-field {
+    vertical-align: middle;
 }
 `; 

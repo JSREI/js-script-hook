@@ -55,14 +55,16 @@ export const debuggerStyles = `
     width: 100%;
     border-spacing: 0;
     border-collapse: separate;
+    table-layout: fixed; /* 固定表格布局，减少重排 */
 }
 
 .debugger-component-table tr {
-    height: 40px; /* 设置固定的行高 */
+    height: 42px; /* 略微增加行高，给UI元素更多呼吸空间 */
+    line-height: 42px; /* 行高与高度保持一致 */
 }
 
 .debugger-component-table td {
-    padding: 8px;
+    padding: 6px 8px;
     vertical-align: middle;
     line-height: normal;
 }
@@ -72,6 +74,7 @@ export const debuggerStyles = `
     text-align: right;
     padding-right: 15px;
     white-space: nowrap; /* 防止文本换行 */
+    overflow: visible; /* 确保提示图标不被截断 */
 }
 
 .debugger-component-table td[align="left"] {
@@ -82,5 +85,26 @@ export const debuggerStyles = `
 /* 确保按钮和输入框在同一行内垂直居中 */
 .debugger-component-table td > * {
     vertical-align: middle;
+}
+
+/* 修正输入框与问号图标的对齐 */
+.js-script-hook-input-container {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* 确保测试按钮与问号图标对齐 */
+.js-script-hook-button-container {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+}
+
+/* 调整输入框的高度，使其与行高匹配 */
+.js-script-hook-input-field {
+    box-sizing: border-box;
+    height: 30px;
+    line-height: 28px;
+    padding: 0 10px;
 }
 `; 

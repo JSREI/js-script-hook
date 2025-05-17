@@ -9,6 +9,8 @@ export const tipsStyles = `
         justify-content: center;
         width: 16px;
         height: 16px;
+        min-width: 16px;
+        min-height: 16px;
         border-radius: 50%;
         background-color: #007bff;
         color: white;
@@ -19,6 +21,7 @@ export const tipsStyles = `
         position: relative;
         vertical-align: middle;
         line-height: 1;
+        top: -1px; /* 微调图标位置，使其更好地与文本对齐 */
     }
     
     /* 确保问号图标和后面的文本对齐 */
@@ -28,6 +31,17 @@ export const tipsStyles = `
         align-items: center;
         line-height: normal;
         height: 100%;
+    }
+    
+    /* 创建一个包装器，确保问号图标与文本在水平和垂直方向上对齐 */
+    td[align="right"] {
+        white-space: nowrap;
+    }
+    
+    td[align="right"] .js-script-hook-tips-icon,
+    td[align="right"] span {
+        display: inline-block;
+        vertical-align: middle;
     }
     
     /* 工具提示样式 */
