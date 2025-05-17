@@ -28,6 +28,7 @@ export class TextareaComponent implements LanguageUpdateable {
      * @param onChange 值变更回调
      * @param maxLength 最大长度限制
      * @param showCounter 是否显示计数器
+     * @param showLabel 是否显示标签，默认为false
      */
     constructor(
         id: string,
@@ -36,7 +37,8 @@ export class TextareaComponent implements LanguageUpdateable {
         value: string,
         onChange: (value: string) => void,
         maxLength?: number,
-        showCounter: boolean = true
+        showCounter: boolean = true,
+        showLabel: boolean = false
     ) {
         this.componentId = `textarea-${id}-${Math.floor(Math.random() * 1000000)}`;
         this.currentLabel = name;
@@ -52,7 +54,7 @@ export class TextareaComponent implements LanguageUpdateable {
         this.containerElement.className = 'js-script-hook-textarea-container';
         this.containerElement.id = this.componentId;
         
-        this.render(value, onChange);
+        this.render(value, onChange, showLabel);
         
         // 订阅语言更新事件
         LanguageEventManager.getInstance().subscribe(this.componentId, (language: Language) => {
@@ -78,13 +80,16 @@ export class TextareaComponent implements LanguageUpdateable {
      * 渲染组件
      * @param value 初始值
      * @param onChange 值变更回调
+     * @param showLabel 是否显示标签
      */
-    private render(value: string, onChange: (value: string) => void): void {
+    private render(value: string, onChange: (value: string) => void, showLabel: boolean): void {
         // 创建标签
-        const label = document.createElement('label');
-        label.className = 'js-script-hook-textarea-label';
-        label.textContent = this.currentLabel;
-        this.containerElement.appendChild(label);
+        if (showLabel) {
+            const label = document.createElement('label');
+            label.className = 'js-script-hook-textarea-label';
+            label.textContent = this.currentLabel;
+            this.containerElement.appendChild(label);
+        }
 
         // 创建文本域
         this.textareaElement = document.createElement('textarea');

@@ -255,7 +255,8 @@ export function bindDebuggerEvents(
                 }
             },
             undefined,
-            true
+            true,
+            false  // 不显示标签，因为表格行已经有标签
         );
         commentContainer.appendChild(commentTextarea.getDomElement());
     }
