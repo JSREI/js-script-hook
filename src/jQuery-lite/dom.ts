@@ -79,20 +79,40 @@ export function parseHTML(html: string): Node[] {
  * @param html HTML内容
  */
 export function safeInnerHTML(element: Element, html: string): void {
+  domLogger.debug(`开始执行safeInnerHTML, 目标元素: ${element.tagName}`);
+  domLogger.debug(`HTML内容(前100字符): ${html.substring(0, 100)}${html.length > 100 ? '...' : ''}`);
+  
   try {
-    element.innerHTML = createTrustedHTML(html);
+    const trusted = createTrustedHTML(html);
+    domLogger.debug(`创建的trusted对象类型: ${typeof trusted}`);
+    
+    // 尝试直接设置innerHTML
+    try {
+      element.innerHTML = trusted;
+      domLogger.debug('直接设置innerHTML成功');
+    } catch (innerError) {
+      domLogger.error(`直接设置innerHTML失败: ${innerError}`);
+      
+      // 回退方案：清空元素并逐个添加节点
+      domLogger.debug('使用回退方案');
+      while (element.firstChild) {
+        element.removeChild(element.firstChild);
+      }
+      
+      const nodes = parseHTML(html);
+      domLogger.debug(`解析得到节点数量: ${nodes.length}`);
+      nodes.forEach(node => {
+        try {
+          element.appendChild(node);
+          domLogger.debug(`添加节点成功: ${node.nodeName}`);
+        } catch (appendError) {
+          domLogger.error(`添加节点失败: ${appendError}`);
+        }
+      });
+    }
   } catch (error) {
     domLogger.error(`设置innerHTML失败: ${error}`);
-    
-    // 回退方案：清空元素并逐个添加节点
-    while (element.firstChild) {
-      element.removeChild(element.firstChild);
-    }
-    
-    const nodes = parseHTML(html);
-    nodes.forEach(node => {
-      element.appendChild(node);
-    });
+    domLogger.error(`错误堆栈: ${error.stack}`);
   }
 }
 
