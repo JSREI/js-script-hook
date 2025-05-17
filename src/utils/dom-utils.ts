@@ -4,7 +4,8 @@
  * 这个文件是为了保持向后兼容性，将新的jQuery-lite库的DOM相关功能重新导出
  */
 
-import $, { $safe } from '../jQuery-lite';
+import $ from '../jQuery-lite';
+import { safeInnerHTML } from '../jQuery-lite';
 import { parseHTML } from '../jQuery-lite/dom';
 import { createLogger } from '../logger';
 
@@ -16,12 +17,7 @@ const domUtilsLogger = createLogger('dom-utils');
  */
 export function createElementSafely(html: string): DocumentFragment {
   const template = document.createElement('template');
-  const elements = $safe(html);
-  if (elements.length > 0) {
-    elements.each((_, el) => {
-      template.content.appendChild(el);
-    });
-  }
+  safeInnerHTML(template, html);
   return template.content;
 }
 
@@ -31,10 +27,21 @@ export function createElementSafely(html: string): DocumentFragment {
  * @returns 创建的元素
  */
 export function safeCreateElementFromHTML(html: string): Element {
-  const elements = $safe(html);
-  if (elements.length > 0) {
-    return elements[0];
+  try {
+    domUtilsLogger.debug('创建元素: 使用template解析HTML');
+    const template = document.createElement('template');
+    safeInnerHTML(template, html);
+    
+    if (template.content.firstElementChild) {
+      domUtilsLogger.debug(`成功创建元素: ${template.content.firstElementChild.tagName}`);
+      return template.content.firstElementChild;
+    } else {
+      domUtilsLogger.warn('HTML解析后没有元素节点，返回空div');
+    }
+  } catch (error) {
+    domUtilsLogger.error(`创建元素失败: ${error}`);
   }
+  
   // 如果没有创建成功，返回一个空的div
   return document.createElement('div');
 }
@@ -43,7 +50,7 @@ export function safeCreateElementFromHTML(html: string): Element {
  * 安全地设置元素内容
  */
 export function setElementContentSafely(element: Element, html: string): void {
-  $(element).html(html);
+  safeInnerHTML(element, html);
 }
 
 /**
@@ -56,31 +63,13 @@ export function safeSetInnerHTML(element: HTMLElement, html: string): void {
   domUtilsLogger.debug(`开始执行safeSetInnerHTML, 目标元素: ${element.tagName}`);
   domUtilsLogger.debug(`HTML内容(前100字符): ${html.substring(0, 100)}${html.length > 100 ? '...' : ''}`);
   
-  // 尝试用jQuery包装
+  // 直接使用我们的安全函数
   try {
-    domUtilsLogger.debug('尝试用jQuery包装元素');
-    const $element = $(element);
-    
-    try {
-      domUtilsLogger.debug('尝试用jQuery的html方法设置内容');
-      $element.html(html);
-      domUtilsLogger.debug('jQuery设置HTML成功');
-      return;
-    } catch (jqueryError) {
-      domUtilsLogger.error(`jQuery设置HTML失败: ${jqueryError}`);
-      // 继续尝试其他方法
-    }
-  } catch (jqWrapError) {
-    domUtilsLogger.error(`jQuery包装元素失败: ${jqWrapError}`);
-  }
-
-  // 尝试直接设置innerHTML
-  try {
-    domUtilsLogger.debug('尝试直接设置innerHTML');
-    element.innerHTML = html;
-    domUtilsLogger.debug('直接设置innerHTML成功');
-  } catch (innerHtmlError) {
-    domUtilsLogger.error(`直接设置innerHTML失败: ${innerHtmlError}`);
+    domUtilsLogger.debug('使用safeInnerHTML函数设置内容');
+    safeInnerHTML(element, html);
+    domUtilsLogger.debug('设置HTML成功');
+  } catch (error) {
+    domUtilsLogger.error(`设置HTML失败: ${error}`);
     
     // 回退到textContent（这会丢失HTML格式）
     try {
@@ -97,8 +86,13 @@ export function safeSetInnerHTML(element: HTMLElement, html: string): void {
  * 安全地添加元素
  */
 export function appendElementSafely(parent: Element, html: string): void {
-  $(parent).append(html);
+  try {
+    const fragment = createElementSafely(html);
+    parent.appendChild(fragment);
+  } catch (error) {
+    domUtilsLogger.error(`安全添加元素失败: ${error}`);
+  }
 }
 
 // 重新导出jQuery-lite的DOM相关功能
-export { parseHTML, $safe }; 
+export { parseHTML, safeInnerHTML }; 
