@@ -49,7 +49,7 @@ export class InputComponent implements LanguageUpdateable {
      * @param onChange 值变化回调
      * @returns HTMLElement
      */
-    render(id: string, placeholder?: string, value?: string, label?: string, onChange?: (value: string) => void): HTMLElement {
+    render(id: string, value?: string, placeholder?: string, label?: string, onChange?: (value: string) => void): HTMLElement {
         this.currentPlaceholder = placeholder;
         this.currentLabel = label;
 
@@ -78,15 +78,31 @@ export class InputComponent implements LanguageUpdateable {
         // 为输入框设置特殊类名，用于识别真正为空的输入框
         input.classList.add('js-script-hook-empty-input');
         
+        // 先设置placeholder, 这样可以在后续逻辑中进行比较
         if (placeholder) {
             input.placeholder = placeholder;
         }
         
-        // 只有当value是有效值时，才设置value并移除空输入框标记
-        if (value !== undefined && value !== null && value !== '') {
-            input.value = value;
-            input.classList.remove('js-script-hook-empty-input');
-        }
+        // 当焦点进入时，清除可能被错误填充的placeholder文本
+        input.addEventListener('focus', function() {
+            // 如果输入框的值与placeholder相同，或者被标记为空，则清空值
+            const currentPlaceholder = this.placeholder || '';
+            if ((this.value === currentPlaceholder && this.value !== '') || 
+                (this.classList.contains('js-script-hook-empty-input') && this.value !== '')) {
+                // 清空并保持聚焦
+                this.value = '';
+                inputLogger.debug(`焦点事件: 清空了输入框 ${id} 的值，可能是placeholder错误设置为了值`);
+            }
+        });
+
+        // 当失去焦点时的处理
+        input.addEventListener('blur', function() {
+            // 如果输入框为空，确保添加空输入框标记
+            if (this.value === '') {
+                this.classList.add('js-script-hook-empty-input');
+                inputLogger.debug(`失焦事件: 输入框 ${id} 为空，添加空输入标记`);
+            }
+        });
         
         // 添加事件处理
         if (onChange) {
@@ -104,14 +120,14 @@ export class InputComponent implements LanguageUpdateable {
             });
         }
         
-        // 当焦点进入时，清除可能被错误填充的placeholder文本
-        input.addEventListener('focus', function() {
-            // 如果输入框标记为空但有显示的值，说明可能是placeholder被错误地作为值
-            if (this.classList.contains('js-script-hook-empty-input') && this.value !== '') {
-                // 清空并聚焦
-                this.value = '';
-            }
-        });
+        // 只有当value是有效值时，才设置value并移除空输入框标记
+        if (value !== undefined && value !== null && value !== '') {
+            input.value = value;
+            input.classList.remove('js-script-hook-empty-input');
+            inputLogger.debug(`设置输入框 ${id} 的值为: ${value}`);
+        } else {
+            inputLogger.debug(`输入框 ${id} 没有设置初始值，保持为空`);
+        }
         
         this.containerElement.appendChild(input);
         

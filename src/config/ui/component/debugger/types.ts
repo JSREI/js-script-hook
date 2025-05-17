@@ -20,5 +20,5 @@ export interface DebuggerConfig {
     enableRequestDebugger: boolean;
     enableResponseDebugger: boolean;
     comment: string;
-    callbackFunctionName: string;
+    callbackFunctionName: string | null;
 } 

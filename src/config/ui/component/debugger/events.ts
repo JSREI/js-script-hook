@@ -204,10 +204,17 @@ export function bindDebuggerEvents(
     // 为callback函数名绑定事件
     const callbackFunctionParamNameContainer = element.querySelector(`#${debuggerInformation.id}-callback-function-param-name-container`);
     if (callbackFunctionParamNameContainer) {
+        // 添加调试输出
+        console.log(`[DEBUG] callbackFunctionName value: ${debuggerInformation.callbackFunctionName}, type: ${typeof debuggerInformation.callbackFunctionName}`);
+        
+        // 确保空字符串和null都作为有效的空值传递给render
+        const value = debuggerInformation.callbackFunctionName === null || debuggerInformation.callbackFunctionName === '' ? 
+            null : debuggerInformation.callbackFunctionName;
+        
         callbackFunctionParamNameContainer.appendChild(
             inputComponent.render(
                 `${debuggerInformation.id}-callback-function-param-name-text`,
-                debuggerInformation.callbackFunctionName,
+                value,
                 language.debugger_config.callbackFunctionParamNamePlaceholder,
                 undefined,
                 (value: string) => {

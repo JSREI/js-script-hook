@@ -182,8 +182,8 @@ export class GlobalOptionsComponent implements LanguageUpdateable {
         
         const prefixInput = this.inputComponent.render(
             'js-script-hook-global-config-prefix',
-            language.global_settings.flagPrefixPlaceholder,
             oldConfig.prefix,
+            language.global_settings.flagPrefixPlaceholder,
             undefined,
             (value: string) => {
                 handlePrefixInput(value, oldConfig);
