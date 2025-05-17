@@ -3,10 +3,11 @@ import { getGlobalConfig } from "../../config";
 import { Config } from "../../config";
 // 导入语言相关的函数和接口
 import { getLanguage, getLanguageByGlobalConfig, type Language } from "./language";
-import { TipsComponent, CheckboxComponent, SelectComponent, SelectOption, InputComponent } from './basic';
+import { TipsComponent, CheckboxComponent, SelectComponent, SelectOption, InputComponent, TabComponent, TabItem } from './basic';
 // 导入show函数用于重新加载配置界面
 import { show } from "../../ui/menu";
 import { loadValue } from "../../../utils/storage-util";
+import { ConfigurationComponent } from './configuration-component';
 
 type HookType = "use-proxy-function" | "use-redeclare-function";
 
@@ -284,22 +285,74 @@ export class GlobalOptionsComponent {
                     if (savedConfig) {
                         console.log('[语言切换] 验证保存的语言设置:', config.language);
                         console.log('[语言切换] 保存是否成功:', savedConfig);
+                        
+                        // 更新当前窗口内容，而不是关闭并重新打开
+                        console.log('[语言切换] 正在更新界面应用新语言');
+                        const modalWindow = $("#jsrei-js-script-hook-configuration-modal-window");
+                        if (modalWindow.length) {
+                            // 仅更新内容区域，不关闭整个窗口
+                            const contentDiv = $("#js-script-hook-configuration-content");
+                            if (contentDiv.length) {
+                                // 保存当前激活的选项卡
+                                const activeTabId = $(".js-script-hook-tab-header.active").attr("data-tab-id");
+                                console.log('[语言切换] 当前激活的选项卡:', activeTabId);
+                                
+                                // 清空内容
+                                contentDiv.empty();
+                                
+                                // 创建新的配置组件并获取更新的内容
+                                const configComponent = new ConfigurationComponent();
+                                
+                                // 更新关闭按钮文本
+                                const newLanguage = getLanguage(config.language);
+                                $("#jsrei-js-script-hook-configuration-close-btn").attr("title", newLanguage.confirm_dialog.closeWindow);
+                                
+                                // 获取和渲染新的选项卡组件
+                                const tabItems: TabItem[] = [
+                                    {
+                                        id: 'debugger-list-tab',
+                                        title: newLanguage.tabs.debuggerListTab,
+                                        content: configComponent.createDebuggerListTab(newLanguage),
+                                        active: activeTabId === 'debugger-list-tab',
+                                        icon: configComponent.getDebuggerListIcon()
+                                    },
+                                    {
+                                        id: 'global-settings-tab',
+                                        title: newLanguage.tabs.globalSettingsTab,
+                                        content: configComponent.createGlobalSettingsTab(newLanguage),
+                                        active: activeTabId === 'global-settings-tab',
+                                        icon: configComponent.getGlobalSettingsIcon()
+                                    },
+                                    {
+                                        id: 'about-tab',
+                                        title: newLanguage.tabs.aboutTab,
+                                        content: configComponent.createAboutTab(newLanguage),
+                                        active: activeTabId === 'about-tab',
+                                        icon: configComponent.getAboutIcon()
+                                    }
+                                ];
+                                
+                                // 如果没有找到活动选项卡，默认激活第一个
+                                if (!activeTabId || !tabItems.some(item => item.active)) {
+                                    tabItems[0].active = true;
+                                }
+                                
+                                // 渲染新的选项卡
+                                const tabComponent = new TabComponent();
+                                contentDiv.append(tabComponent.render(tabItems));
+                                
+                                // 轻微闪动效果，提示用户语言已更改
+                                modalWindow.find('.js-script-hook-scrollable-div').css('box-shadow', '0 0 15px rgba(40,167,69,0.8)');
+                                setTimeout(() => {
+                                    modalWindow.find('.js-script-hook-scrollable-div').css('box-shadow', '0 6px 16px rgba(0,0,0,0.2)');
+                                }, 300);
+                            }
+                        }
                     } else {
                         console.error('[语言切换] 无法读取保存的配置!');
                     }
                 } catch (error) {
                     console.error('[语言切换] 保存配置时出错:', error);
-                }
-                
-                // 关闭并重新打开配置界面以应用新的语言设置
-                console.log('[语言切换] 正在刷新界面应用新语言');
-                const modalWindow = $("#jsrei-js-script-hook-configuration-modal-window");
-                if (modalWindow.length) {
-                    modalWindow.remove();
-                    setTimeout(() => {
-                        // 重新打开配置界面
-                        show();
-                    }, 100);
                 }
             }
         });

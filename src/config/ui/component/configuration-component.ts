@@ -14,8 +14,35 @@ export class ConfigurationComponent {
     private readonly styleCSS: string;
     private tabComponent: TabComponent;
 
+    // 添加图标字段
+    private readonly debuggerListIcon: string;
+    private readonly globalSettingsIcon: string;
+    private readonly aboutIcon: string;
+
     constructor() {
         this.tabComponent = new TabComponent();
+        
+        // 初始化图标
+        this.debuggerListIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 4H3"/>
+            <path d="M21 8H3"/>
+            <path d="M21 12H3"/>
+            <path d="M21 16H3"/>
+            <path d="M21 20H3"/>
+            <circle cx="7" cy="8" r="2.5" fill="#ff5252" stroke="none"/>
+        </svg>`;
+        
+        this.globalSettingsIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>`;
+        
+        this.aboutIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 16v-4"></path>
+            <path d="M12 8h.01"></path>
+        </svg>`;
+
         this.styleCSS = `
         /* 配置窗口基本样式 */
         #jsrei-js-script-hook-configuration-modal-window {
@@ -116,6 +143,25 @@ export class ConfigurationComponent {
      * 展示配置界面
      */
     public show(): void {
+        // 检查是否已经存在配置窗口
+        const existingModal = document.getElementById("jsrei-js-script-hook-configuration-modal-window");
+        if (existingModal) {
+            console.log('[配置窗口] 配置窗口已经打开，不再创建新窗口');
+            // 如果窗口已存在但不可见，则显示它
+            if ($(existingModal).css('display') === 'none') {
+                $(existingModal).show();
+                console.log('[配置窗口] 重新显示已存在的窗口');
+            }
+            
+            // 使窗口有一个轻微闪动效果，引导用户注意
+            $(existingModal).find('.js-script-hook-scrollable-div').css('box-shadow', '0 0 15px rgba(0,123,255,0.8)');
+            setTimeout(() => {
+                $(existingModal).find('.js-script-hook-scrollable-div').css('box-shadow', '0 6px 16px rgba(0,0,0,0.2)');
+            }, 300);
+            
+            return;
+        }
+        
         // 添加样式
         this.appendStyles();
         
@@ -125,29 +171,6 @@ export class ConfigurationComponent {
         // 将模态框添加到body元素中
         $(document.body).append($(this.modalHTML.replace('关闭', language.confirm_dialog.closeWindow)));
 
-        // 断点列表图标
-        const debuggerListIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 4H3"/>
-            <path d="M21 8H3"/>
-            <path d="M21 12H3"/>
-            <path d="M21 16H3"/>
-            <path d="M21 20H3"/>
-            <circle cx="7" cy="8" r="2.5" fill="#ff5252" stroke="none"/>
-        </svg>`;
-        
-        // 全局设置图标
-        const globalSettingsIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-        </svg>`;
-        
-        // 关于图标
-        const aboutIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M12 16v-4"></path>
-            <path d="M12 8h.01"></path>
-        </svg>`;
-
         // 创建Tab页内容
         const tabItems: TabItem[] = [
             {
@@ -155,19 +178,19 @@ export class ConfigurationComponent {
                 title: language.tabs.debuggerListTab,
                 content: this.createDebuggerListTab(language),
                 active: true,
-                icon: debuggerListIcon
+                icon: this.debuggerListIcon
             },
             {
                 id: 'global-settings-tab',
                 title: language.tabs.globalSettingsTab,
                 content: this.createGlobalSettingsTab(language),
-                icon: globalSettingsIcon
+                icon: this.globalSettingsIcon
             },
             {
                 id: 'about-tab',
                 title: language.tabs.aboutTab,
                 content: this.createAboutTab(language),
-                icon: aboutIcon
+                icon: this.aboutIcon
             }
         ];
 
@@ -183,11 +206,35 @@ export class ConfigurationComponent {
     }
 
     /**
+     * 获取断点列表图标
+     * @returns 断点列表图标SVG字符串
+     */
+    public getDebuggerListIcon(): string {
+        return this.debuggerListIcon;
+    }
+    
+    /**
+     * 获取全局设置图标
+     * @returns 全局设置图标SVG字符串
+     */
+    public getGlobalSettingsIcon(): string {
+        return this.globalSettingsIcon;
+    }
+    
+    /**
+     * 获取关于图标
+     * @returns 关于图标SVG字符串
+     */
+    public getAboutIcon(): string {
+        return this.aboutIcon;
+    }
+
+    /**
      * 创建断点列表Tab页内容
      * @param language 语言配置
      * @returns 断点列表jQuery对象
      */
-    private createDebuggerListTab(language: Language): JQuery<HTMLElement> {
+    public createDebuggerListTab(language: Language): JQuery<HTMLElement> {
         const debuggerManager = new DebuggerManagerComponent();
         return debuggerManager.render(language, getGlobalConfig().debuggers);
     }
@@ -197,7 +244,7 @@ export class ConfigurationComponent {
      * @param language 语言配置
      * @returns 全局设置jQuery对象
      */
-    private createGlobalSettingsTab(language: Language): JQuery<HTMLElement> {
+    public createGlobalSettingsTab(language: Language): JQuery<HTMLElement> {
         const globalOptionsComponent = new GlobalOptionsComponent();
         return globalOptionsComponent.render(language, getGlobalConfig());
     }
@@ -207,7 +254,7 @@ export class ConfigurationComponent {
      * @param language 语言配置
      * @returns 关于页面jQuery对象
      */
-    private createAboutTab(language: Language): JQuery<HTMLElement> {
+    public createAboutTab(language: Language): JQuery<HTMLElement> {
         const aboutComponent = new AboutComponent();
         return aboutComponent.render(language);
     }
