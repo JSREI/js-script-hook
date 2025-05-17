@@ -41,23 +41,54 @@ export class ConfigurationComponent implements LanguageUpdateable {
         // 检查是否已经存在配置窗口
         const existingModal = document.getElementById("jsrei-js-script-hook-configuration-modal-window");
         if (existingModal) {
-            configUILogger.debug('配置窗口已经打开，不再创建新窗口');
+            configUILogger.debug('配置窗口已经存在于DOM中');
             
             // 如果窗口已存在但不可见，则显示它
             if (existingModal.style.display === 'none') {
                 configUILogger.debug('窗口存在但不可见，将其显示');
                 existingModal.style.display = 'block';
-                configUILogger.debug('重新显示已存在的窗口');
+                
+                // 重新验证内容容器是否存在
+                const contentContainer = document.getElementById('js-script-hook-configuration-content');
+                if (!contentContainer) {
+                    configUILogger.error('无法找到内容容器元素，尝试重新创建整个配置界面');
+                    // 如果内容容器不存在，我们需要先删除现有的模态框，然后重建
+                    existingModal.remove();
+                    // 清除modal-root并重新创建
+                    const modalRoot = document.getElementById('js-script-hook-modal-root');
+                    if (modalRoot) {
+                        modalRoot.remove();
+                    }
+                    // 继续执行后面的创建逻辑
+                } else {
+                    configUILogger.debug('重新显示已存在的窗口，内容容器正常');
+                    
+                    // 使窗口有一个轻微闪动效果，引导用户注意
+                    const scrollableDiv = existingModal.querySelector('.js-script-hook-scrollable-div') as HTMLElement;
+                    if (scrollableDiv) {
+                        scrollableDiv.style.setProperty('box-shadow', '0 0 15px rgba(0,123,255,0.8)');
+                        setTimeout(() => {
+                            scrollableDiv.style.setProperty('box-shadow', '0 6px 16px rgba(0,0,0,0.2)');
+                        }, 300);
+                    }
+                    
+                    return;
+                }
+            } else {
+                // 窗口已经可见，只做闪动效果
+                configUILogger.debug('窗口已经可见，不再创建新窗口');
+                
+                // 使窗口有一个轻微闪动效果，引导用户注意
+                const scrollableDiv = existingModal.querySelector('.js-script-hook-scrollable-div') as HTMLElement;
+                if (scrollableDiv) {
+                    scrollableDiv.style.setProperty('box-shadow', '0 0 15px rgba(0,123,255,0.8)');
+                    setTimeout(() => {
+                        scrollableDiv.style.setProperty('box-shadow', '0 6px 16px rgba(0,0,0,0.2)');
+                    }, 300);
+                }
+                
+                return;
             }
-            
-            // 使窗口有一个轻微闪动效果，引导用户注意
-            const scrollableDiv = existingModal.querySelector('.js-script-hook-scrollable-div') as HTMLElement;
-            scrollableDiv.style.setProperty('box-shadow', '0 0 15px rgba(0,123,255,0.8)');
-            setTimeout(() => {
-                scrollableDiv.style.setProperty('box-shadow', '0 6px 16px rgba(0,0,0,0.2)');
-            }, 300);
-            
-            return;
         }
         
         // 添加样式
@@ -237,8 +268,12 @@ export class ConfigurationComponent implements LanguageUpdateable {
      */
     private closeModalWindow(): void {
         const element = document.getElementById("jsrei-js-script-hook-configuration-modal-window");
-        if (element && element.parentNode) {
-            element.parentNode.removeChild(element);
+        if (element) {
+            // 不再从DOM中移除元素，而是仅仅隐藏它
+            element.style.display = 'none';
+            configUILogger.debug('配置窗口已隐藏，但保留在DOM中以便稍后重用');
+        } else {
+            configUILogger.warn('尝试关闭模态窗口但未找到元素');
         }
     }
 
@@ -389,24 +424,40 @@ export class ConfigurationComponent implements LanguageUpdateable {
      * 销毁组件
      */
     public destroy(): void {
+        configUILogger.debug('开始销毁配置组件...');
+        
         // 取消语言更新订阅
         LanguageEventManager.getInstance().unsubscribe(this.componentId);
+        configUILogger.debug('已取消语言更新订阅');
 
         // 销毁TabComponent
-        if ('destroy' in this.tabComponent) {
+        if (this.tabComponent && 'destroy' in this.tabComponent) {
             (this.tabComponent as unknown as LanguageUpdateable).destroy();
+            configUILogger.debug('已销毁标签页组件');
         }
 
         // 移除配置窗口
         const modalWindow = document.getElementById("jsrei-js-script-hook-configuration-modal-window");
         if (modalWindow) {
+            // 销毁时确实要从DOM中移除，而不仅仅是隐藏
             modalWindow.remove();
+            configUILogger.debug('已移除配置窗口');
+        }
+
+        // 移除根容器
+        const rootElement = document.getElementById('js-script-hook-modal-root');
+        if (rootElement) {
+            rootElement.remove();
+            configUILogger.debug('已移除根容器');
         }
 
         // 移除样式
-        const style = document.getElementById("js-script-hook-configuration-style");
+        const style = document.getElementById("configuration-component-style");
         if (style) {
             style.remove();
+            configUILogger.debug('已移除样式');
         }
+        
+        configUILogger.debug('配置组件销毁完成');
     }
 } 
