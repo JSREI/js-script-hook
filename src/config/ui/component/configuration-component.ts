@@ -401,9 +401,23 @@ export class ConfigurationComponent {
             
             // 安全地将HTML内容设置到根元素
             configUILogger.debug('开始使用safeSetInnerHTML设置根元素内容');
+            configUILogger.debug(`HTML内容长度: ${fragmentContainer.innerHTML.length}`);
+            
             try {
-                safeSetInnerHTML(rootElement, fragmentContainer.innerHTML);
-                configUILogger.debug('成功设置根元素内容');
+                try {
+                    // 首先尝试使用jQuery设置内容
+                    configUILogger.debug('尝试使用jQuery方式设置内容');
+                    const $rootElement = $(rootElement);
+                    $rootElement.html(fragmentContainer.innerHTML);
+                    configUILogger.debug('使用jQuery成功设置内容');
+                } catch (jqueryError) {
+                    configUILogger.error(`使用jQuery设置内容失败: ${jqueryError}`);
+                    
+                    // 如果jQuery设置失败，尝试safeSetInnerHTML
+                    configUILogger.debug('回退到safeSetInnerHTML方法');
+                    safeSetInnerHTML(rootElement, fragmentContainer.innerHTML);
+                    configUILogger.debug('使用safeSetInnerHTML设置内容成功');
+                }
             } catch (innerHTMLError) {
                 configUILogger.error(`设置根元素内容时失败: ${innerHTMLError}`);
                 
@@ -412,6 +426,45 @@ export class ConfigurationComponent {
                     configUILogger.error(`错误名称: ${innerHTMLError.name}`);
                     configUILogger.error(`错误消息: ${innerHTMLError.message}`);
                     configUILogger.error(`错误堆栈: ${innerHTMLError.stack}`);
+                }
+                
+                // 最后的回退方案：直接使用DOM API
+                configUILogger.debug('尝试使用原生DOM API作为最终回退方案');
+                try {
+                    // 清空root元素
+                    while (rootElement.firstChild) {
+                        rootElement.removeChild(rootElement.firstChild);
+                    }
+                    
+                    // 创建一个简化版的模态框结构
+                    const basicModalWindow = document.createElement('div');
+                    basicModalWindow.id = 'jsrei-js-script-hook-configuration-modal-window';
+                    basicModalWindow.style.cssText = 'display:block;position:fixed;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.85);z-index:2147483646;';
+                    
+                    const scrollableDiv = document.createElement('div');
+                    scrollableDiv.className = 'js-script-hook-scrollable-div';
+                    scrollableDiv.style.cssText = 'width:auto;max-width:80%;padding:20px;margin:10px auto;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:white;border-radius:8px;';
+                    
+                    const closeBtn = document.createElement('button');
+                    closeBtn.id = 'jsrei-js-script-hook-configuration-close-btn';
+                    closeBtn.textContent = 'X';
+                    closeBtn.style.cssText = 'position:absolute;right:10px;top:10px;cursor:pointer;';
+                    closeBtn.addEventListener('click', () => {
+                        this.closeModalWindow();
+                    });
+                    
+                    const contentDiv = document.createElement('div');
+                    contentDiv.id = 'js-script-hook-configuration-content';
+                    contentDiv.textContent = '配置界面加载中...';
+                    
+                    scrollableDiv.appendChild(closeBtn);
+                    scrollableDiv.appendChild(contentDiv);
+                    basicModalWindow.appendChild(scrollableDiv);
+                    rootElement.appendChild(basicModalWindow);
+                    
+                    configUILogger.debug('使用DOM API创建的简化版模态框添加成功');
+                } catch (domError) {
+                    configUILogger.error(`DOM API回退方案失败: ${domError}`);
                 }
             }
             
