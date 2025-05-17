@@ -45,7 +45,7 @@ export class Debugger {
         this.id = id || '';
         this.enable = enable || false;
         this.urlPatternType = urlPatternType || 'match-all';
-        this.urlPattern = urlPattern || '';
+        this.urlPattern = urlPattern === undefined ? '' : urlPattern;
         this.enableRequestDebugger = enableRequestDebugger;
         this.enableResponseDebugger = enableResponseDebugger;
         this.callbackFunctionName = callbackFunctionName;

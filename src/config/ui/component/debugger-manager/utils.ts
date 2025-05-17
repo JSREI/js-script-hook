@@ -8,11 +8,11 @@ export function createNewDebuggerConfig(): Debugger {
     const newDebuggerConfig = new Debugger();
     newDebuggerConfig.id = `debugger-${new Date().getTime()}`;
     newDebuggerConfig.enable = true;
-    newDebuggerConfig.urlPattern = null;
+    newDebuggerConfig.urlPattern = "";
     newDebuggerConfig.urlPatternType = "match-all";
     newDebuggerConfig.enableRequestDebugger = true;
     newDebuggerConfig.enableResponseDebugger = true;
-    newDebuggerConfig.callbackFunctionName = null;
+    newDebuggerConfig.callbackFunctionName = "";
     newDebuggerConfig.comment = "";
     return newDebuggerConfig;
 } 

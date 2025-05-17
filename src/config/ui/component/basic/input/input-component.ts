@@ -77,7 +77,7 @@ export class InputComponent implements LanguageUpdateable {
         if (placeholder) {
             input.placeholder = placeholder;
         }
-        if (value !== undefined && value !== null) {
+        if (value !== undefined && value !== null && value !== '') {
             input.value = value;
         }
         
