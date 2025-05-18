@@ -1,0 +1,43 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # 当推送到main分支时触发
+  # 允许手动触发工作流
+  workflow_dispatch:
+
+# 权限设置
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js 🔧
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: './script-hook-website/package-lock.json'
+          
+      - name: Install Dependencies 📦
+        run: |
+          cd script-hook-website
+          npm ci
+          
+      - name: Build 🏗️
+        run: |
+          cd script-hook-website
+          npm run build
+          
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: script-hook-website/dist # 要部署的文件夹
+          branch: gh-pages # 部署到的分支
+          clean: true # 在部署前清理目标分支 

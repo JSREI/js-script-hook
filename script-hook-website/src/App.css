@@ -1,0 +1,39 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  contain: layout style;
+  will-change: contents;
+} 
+
+/* 防止滚动闪烁 */
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+  overflow-anchor: none;
+}
+
+body {
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+/* 确保图片和其他元素在加载前预留空间 */
+img, iframe, video {
+  height: auto;
+  max-width: 100%;
+}
+
+/* 确保主要区域有最小高度，防止布局跳跃 */
+.container {
+  min-height: 50vh;
+  /* 减少布局计算 */
+  contain: layout style;
+}
+
+/* 优化滚动体验 */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+} 

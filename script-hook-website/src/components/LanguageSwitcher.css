@@ -1,0 +1,139 @@
+.language-switcher {
+  position: relative;
+  display: inline-block;
+  margin-left: 20px;
+  transition: opacity 0.3s ease;
+}
+
+/* 切换语言时的视觉反馈 */
+.language-switcher.switching {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.language-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  min-width: 110px;
+}
+
+.language-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.language-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.current-language {
+  margin-right: 8px;
+  font-weight: 500;
+}
+
+.arrow-down {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+/* 箭头动画 */
+.arrow-down.open {
+  transform: rotate(180deg);
+}
+
+.language-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  overflow: hidden;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+/* 淡入动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.language-option {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  transition: background-color 0.2s;
+}
+
+.language-option:hover:not(:disabled) {
+  background-color: #f5f5f5;
+}
+
+.language-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.language-option.active {
+  background-color: #f0f0f0;
+  font-weight: 500;
+  cursor: default;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .language-switcher {
+    margin-left: 0;
+    margin-top: 15px;
+    width: 100%;
+  }
+  
+  .language-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .language-dropdown {
+    position: static;
+    margin-top: 5px;
+    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+  
+  .language-option {
+    color: #fff;
+    text-align: center;
+  }
+  
+  .language-option:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .language-option.active {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+} 

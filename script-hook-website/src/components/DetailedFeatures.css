@@ -1,0 +1,164 @@
+.detailed-features {
+  padding: 80px 0;
+  background-color: #ffffff;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin: 40px auto 30px;
+  gap: 10px;
+  max-width: 600px;
+}
+
+.tabs button {
+  padding: 12px 24px;
+  background-color: transparent;
+  border: 2px solid #e0e0e0;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #546e7a;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.tabs button:hover {
+  border-color: #1976d2;
+  color: #1976d2;
+}
+
+.tabs button.active {
+  background-color: #1976d2;
+  border-color: #1976d2;
+  color: white;
+}
+
+.detailed-content {
+  animation: fadeIn 0.5s ease;
+}
+
+.content-container {
+  display: flex;
+  gap: 50px;
+  align-items: flex-start;
+}
+
+.content-text {
+  flex: 1;
+}
+
+.content-text h3 {
+  font-size: 28px;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.content-description {
+  font-size: 18px;
+  line-height: 1.6;
+  color: #546e7a;
+  margin-bottom: 30px;
+}
+
+.feature-item {
+  margin-bottom: 30px;
+}
+
+.feature-item h4 {
+  font-size: 20px;
+  color: #1976d2;
+  margin-bottom: 15px;
+  position: relative;
+  padding-left: 20px;
+}
+
+.feature-item h4::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  background-color: #1976d2;
+  border-radius: 50%;
+}
+
+.feature-item ul {
+  padding-left: 25px;
+}
+
+.feature-item li {
+  font-size: 16px;
+  color: #546e7a;
+  line-height: 1.7;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.feature-item li::before {
+  content: '•';
+  color: #1976d2;
+  font-weight: bold;
+  display: inline-block;
+  width: 1em;
+  margin-left: -1em;
+}
+
+.content-image {
+  flex: 1;
+  max-width: 500px;
+}
+
+.content-image img {
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.content-image img:hover {
+  transform: scale(1.02);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 992px) {
+  .content-container {
+    flex-direction: column-reverse;
+  }
+  
+  .content-image {
+    margin-bottom: 40px;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .tabs {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .tabs button {
+    width: 100%;
+  }
+  
+  .content-text h3 {
+    font-size: 24px;
+  }
+  
+  .feature-item h4 {
+    font-size: 18px;
+  }
+} 

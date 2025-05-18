@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta id="meta-description" name="description" content="JS Script Hook - 高级JavaScript脚本钩子工具" />
+    
+    <!-- 社交媒体元数据 -->
+    <meta property="og:title" id="og-title" content="JS Script Hook - 官方网站" />
+    <meta property="og:description" id="og-description" content="JS Script Hook - 高级JavaScript脚本钩子工具" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://jsrei.github.io/js-script-hook/" />
+    <meta property="og:image" content="https://jsrei.github.io/js-script-hook/images/logo.png" />
+    
+    <!-- Twitter卡片元数据 -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" id="twitter-title" content="JS Script Hook - 官方网站" />
+    <meta name="twitter:description" id="twitter-description" content="JS Script Hook - 高级JavaScript脚本钩子工具" />
+    <meta name="twitter:image" content="https://jsrei.github.io/js-script-hook/images/logo.png" />
+    
+    <!-- 其他SEO元数据 -->
+    <meta name="keywords" content="JS Script Hook, Javascript, JSONP, 脚本钩子, 网络拦截, Web逆向, Reverse Engineering" />
+    <meta name="author" content="JSREI" />
+    <meta name="application-name" content="JS Script Hook" />
+    
+    <!-- 网站图标 -->
+    <link rel="icon" href="./images/favicon.ico" />
+    <link rel="apple-touch-icon" href="./images/logo192.png" />
+    
+    <title id="page-title">JS Script Hook - 官方网站</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- 初始化语言设置 -->
+    <script type="text/javascript">
+      (function() {
+        try {
+          // 尝试获取用户语言偏好
+          var userLang = localStorage.getItem('language') || 
+                        (navigator.language || navigator.userLanguage).split('-')[0];
+          
+          // 只支持zh和en，如果获取到其他语言，默认使用英文
+          if (userLang !== 'zh' && userLang !== 'en') {
+            userLang = 'en'; 
+          }
+          
+          // 设置HTML的lang属性
+          document.documentElement.setAttribute('lang', userLang);
+          
+          // 根据语言设置页面标题、描述和noscript
+          var translations = {
+            'zh': {
+              title: 'JS Script Hook - 官方网站',
+              description: 'JS Script Hook - 高级JavaScript脚本钩子工具',
+              noscript: '您需要启用JavaScript才能运行此应用。',
+              keywords: 'JS Script Hook, Javascript, JSONP, 脚本钩子, 网络拦截, Web逆向'
+            },
+            'en': {
+              title: 'JS Script Hook - Official Website',
+              description: 'JS Script Hook - Advanced JavaScript Script Hooking Tool',
+              noscript: 'You need to enable JavaScript to run this app.',
+              keywords: 'JS Script Hook, Javascript, JSONP, Script Hook, Web Interception, Reverse Engineering'
+            }
+          };
+          
+          // 应用翻译
+          var t = translations[userLang];
+          document.getElementById('page-title').textContent = t.title;
+          document.getElementById('meta-description').setAttribute('content', t.description);
+          
+          // 更新社交媒体元数据
+          document.getElementById('og-title').setAttribute('content', t.title);
+          document.getElementById('og-description').setAttribute('content', t.description);
+          document.getElementById('twitter-title').setAttribute('content', t.title);
+          document.getElementById('twitter-description').setAttribute('content', t.description);
+          
+          // 更新关键词
+          document.querySelector('meta[name="keywords"]').setAttribute('content', t.keywords);
+          
+          var noscriptElem = document.getElementById('noscript-message');
+          if (noscriptElem) {
+            noscriptElem.textContent = t.noscript;
+          }
+          
+          // 记录初始语言以便React接管后能保持一致
+          if (!localStorage.getItem('language')) {
+            localStorage.setItem('language', userLang);
+          }
+        } catch (e) {
+          // 出错时不影响页面加载
+          console.error('Language initialization error:', e);
+        }
+      })();
+    </script>
+    
+    <!-- GitHub Pages Redirect Script -->
+    <script type="text/javascript">
+      // Handle parameters if redirected from 404.html
+      (function(l) {
+        if (l.search[1] === '/' ) {
+          var decoded = l.search.slice(1).split('&').map(function(s) { 
+            return s.replace(/~and~/g, '&')
+          }).join('?');
+          window.history.replaceState(null, null,
+              l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      }(window.location))
+    </script>
+  </head>
+  <body>
+    <noscript id="noscript-message">您需要启用JavaScript才能运行此应用。</noscript>
+    <div id="root"></div>
+  </body>
+</html> 
