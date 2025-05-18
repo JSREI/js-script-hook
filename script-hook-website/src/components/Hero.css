@@ -1,0 +1,138 @@
+.hero {
+  padding: 160px 0 100px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.hero .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+}
+
+.hero-content {
+  max-width: 500px;
+}
+
+h1 {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.subtitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1976d2;
+  margin-bottom: 20px;
+}
+
+/* 徽章样式 */
+.hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.hero-badges img {
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+.hero-badges img:hover {
+  transform: translateY(-2px);
+}
+
+.description {
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  color: #546e7a;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background-color: #1976d2;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0d47a1;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 2px solid #1976d2;
+  color: #1976d2;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(25, 118, 210, 0.1);
+}
+
+/* 视频按钮样式 */
+.btn-video {
+  display: inline-flex;
+  align-items: center;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  gap: 8px;
+}
+
+.btn-video:hover {
+  background-color: #e53e3e;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.video-icon {
+  margin-right: 4px;
+}
+
+.hero-image {
+  flex: 1;
+  max-width: 600px;
+}
+
+@media (max-width: 992px) {
+  .hero .container {
+    flex-direction: column;
+  }
+  
+  .hero-content {
+    max-width: 100%;
+    text-align: center;
+  }
+  
+  .hero-buttons {
+    justify-content: center;
+  }
+
+  .hero-badges {
+    justify-content: center;
+  }
+  
+  .hero-image {
+    margin-top: 40px;
+    max-width: 100%;
+  }
+} 
