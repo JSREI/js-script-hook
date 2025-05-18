@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import './Installation.css';
 
 const Installation: React.FC = () => {
@@ -7,6 +9,15 @@ const Installation: React.FC = () => {
   
   // 源码编译的包管理器选择
   const [packageManager, setPackageManager] = useState<'npm' | 'yarn'>('npm');
+  
+  // 复制成功提示状态
+  const [copySuccess, setCopySuccess] = useState<number | null>(null);
+
+  const handleCopy = (text: string, index: number) => {
+    navigator.clipboard.writeText(text);
+    setCopySuccess(index);
+    setTimeout(() => setCopySuccess(null), 2000);
+  };
 
   const installationGuide = {
     npm: {
@@ -107,17 +118,12 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
           <div className="userscript-installation">
             <div className="installation-steps">
               <h3>步骤 1：安装用户脚本管理器</h3>
-              <p>首先，您需要在浏览器中安装一个用户脚本管理器扩展，如：</p>
+              <p>首先，您需要在浏览器中安装一个用户脚本管理器扩展：</p>
               <ul>
                 <li>
                   <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener noreferrer">
                     Tampermonkey
                   </a>（推荐，支持 Chrome、Firefox、Edge、Safari 等）
-                </li>
-                <li>
-                  <a href="https://violentmonkey.github.io/" target="_blank" rel="noopener noreferrer">
-                    Violentmonkey
-                  </a>
                 </li>
               </ul>
               
@@ -170,61 +176,194 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
             
             <div className="installation-steps">
               <h3>步骤 1：克隆仓库</h3>
-              <div className="command-container">
-                <pre>
-                  <code>git clone https://github.com/JSREI/js-script-hook.git</code>
-                </pre>
+              <div className="code-block-container">
+                <SyntaxHighlighter 
+                  language="bash"
+                  style={vscDarkPlus}
+                  customStyle={{
+                    borderRadius: '6px',
+                    margin: '0',
+                    padding: '15px 15px',
+                    minWidth: '100%',
+                    boxSizing: 'border-box',
+                    overflow: 'auto',
+                    backgroundColor: '#1e1e1e'
+                  }}
+                  wrapLines={true}
+                  showLineNumbers={false}
+                  codeTagProps={{
+                    style: { whiteSpace: 'pre-wrap' }
+                  }}
+                >
+                  {"git clone https://github.com/JSREI/js-script-hook.git"}
+                </SyntaxHighlighter>
                 <button 
                   className="copy-btn" 
-                  onClick={() => navigator.clipboard.writeText('git clone https://github.com/JSREI/js-script-hook.git')}
+                  onClick={() => handleCopy('git clone https://github.com/JSREI/js-script-hook.git', 1)}
                 >
-                  复制
+                  {copySuccess === 1 ? (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '4px'}}>
+                        <path d="M20 6L9 17l-5-5"></path>
+                      </svg>
+                      已复制
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '4px'}}>
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                      复制
+                    </>
+                  )}
                 </button>
               </div>
 
-              <h3>步骤 2：安装依赖</h3>
-              <div className="command-container">
-                <pre>
-                  <code>
-                    {packageManager === 'npm' 
-                      ? 'cd js-script-hook\nnpm install' 
-                      : 'cd js-script-hook\nyarn'}
-                  </code>
-                </pre>
+              <h3>步骤 2：进入项目目录</h3>
+              <div className="code-block-container">
+                <SyntaxHighlighter 
+                  language="bash"
+                  style={vscDarkPlus}
+                  customStyle={{
+                    borderRadius: '6px',
+                    margin: '0',
+                    padding: '15px 15px',
+                    minWidth: '100%',
+                    boxSizing: 'border-box',
+                    overflow: 'auto',
+                    backgroundColor: '#1e1e1e'
+                  }}
+                  wrapLines={true}
+                  showLineNumbers={false}
+                  codeTagProps={{
+                    style: { whiteSpace: 'pre-wrap' }
+                  }}
+                >
+                  {"cd js-script-hook"}
+                </SyntaxHighlighter>
                 <button 
                   className="copy-btn" 
-                  onClick={() => navigator.clipboard.writeText(
-                    packageManager === 'npm' 
-                      ? 'cd js-script-hook\nnpm install' 
-                      : 'cd js-script-hook\nyarn'
+                  onClick={() => handleCopy('cd js-script-hook', 2)}
+                >
+                  {copySuccess === 2 ? (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '4px'}}>
+                        <path d="M20 6L9 17l-5-5"></path>
+                      </svg>
+                      已复制
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '4px'}}>
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                      复制
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <h3>步骤 3：安装依赖</h3>
+              <div className="code-block-container">
+                <SyntaxHighlighter 
+                  language="bash"
+                  style={vscDarkPlus}
+                  customStyle={{
+                    borderRadius: '6px',
+                    margin: '0',
+                    padding: '15px 15px',
+                    minWidth: '100%',
+                    boxSizing: 'border-box',
+                    overflow: 'auto',
+                    backgroundColor: '#1e1e1e'
+                  }}
+                  wrapLines={true}
+                  showLineNumbers={false}
+                  codeTagProps={{
+                    style: { whiteSpace: 'pre-wrap' }
+                  }}
+                >
+                  {packageManager === 'npm' ? "npm install" : "yarn"}
+                </SyntaxHighlighter>
+                <button 
+                  className="copy-btn" 
+                  onClick={() => handleCopy(
+                    packageManager === 'npm' ? 'npm install' : 'yarn',
+                    3
                   )}
                 >
-                  复制
+                  {copySuccess === 3 ? (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '4px'}}>
+                        <path d="M20 6L9 17l-5-5"></path>
+                      </svg>
+                      已复制
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '4px'}}>
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                      复制
+                    </>
+                  )}
                 </button>
               </div>
 
-              <h3>步骤 3：构建项目</h3>
-              <div className="command-container">
-                <pre>
-                  <code>
-                    {packageManager === 'npm' 
-                      ? 'npm run build' 
-                      : 'yarn build'}
-                  </code>
-                </pre>
+              <h3>步骤 4：构建项目</h3>
+              <div className="code-block-container">
+                <SyntaxHighlighter 
+                  language="bash"
+                  style={vscDarkPlus}
+                  customStyle={{
+                    borderRadius: '6px',
+                    margin: '0',
+                    padding: '15px 15px',
+                    minWidth: '100%',
+                    boxSizing: 'border-box',
+                    overflow: 'auto',
+                    backgroundColor: '#1e1e1e'
+                  }}
+                  wrapLines={true}
+                  showLineNumbers={false}
+                  codeTagProps={{
+                    style: { whiteSpace: 'pre-wrap' }
+                  }}
+                >
+                  {packageManager === 'npm' ? 'npm run build' : 'yarn build'}
+                </SyntaxHighlighter>
                 <button 
                   className="copy-btn" 
-                  onClick={() => navigator.clipboard.writeText(
+                  onClick={() => handleCopy(
                     packageManager === 'npm' 
                       ? 'npm run build' 
-                      : 'yarn build'
+                      : 'yarn build',
+                    4
                   )}
                 >
-                  复制
+                  {copySuccess === 4 ? (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '4px'}}>
+                        <path d="M20 6L9 17l-5-5"></path>
+                      </svg>
+                      已复制
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '4px'}}>
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                      复制
+                    </>
+                  )}
                 </button>
               </div>
 
-              <h3>步骤 4：安装到油猴</h3>
+              <h3>步骤 5：安装到油猴</h3>
               <p>构建完成后，您将在 <code>dist</code> 目录中找到 <code>script-hook.user.js</code> 文件。</p>
               <ol>
                 <li>打开您的油猴扩展程序</li>
@@ -232,12 +371,6 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
                 <li>将 <code>script-hook.user.js</code> 文件的内容复制粘贴到编辑器中</li>
                 <li>保存脚本</li>
               </ol>
-
-              <div className="note-box">
-                <h4>高级配置：</h4>
-                <p>您可以在源码中修改 <code>src/config/config.ts</code> 文件来自定义默认配置。</p>
-                <p>构建后，还可以在浏览器控制台中使用 <code>getGlobalConfig()</code> 函数来动态调整配置。</p>
-              </div>
             </div>
           </div>
         )}

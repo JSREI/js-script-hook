@@ -67,43 +67,87 @@
   color: white;
 }
 
-/* 命令容器样式 */
-.command-container {
+/* 代码块容器样式 */
+.code-block-container {
   position: relative;
   margin-bottom: 25px;
-  background-color: #282c34;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: #1e1e1e !important;
 }
 
-.command-container pre {
-  padding: 20px;
-  margin: 0;
-  overflow-x: auto;
+.code-block-container pre {
+  margin: 0 !important;
+  border-radius: 6px !important;
+  overflow-x: auto !important;
+  min-height: 50px !important;
+  max-height: 300px !important;
+  background-color: #1e1e1e !important;
 }
 
-.command-container code {
-  color: #e6e6e6;
-  font-family: 'Fira Code', monospace;
-  line-height: 1.5;
+.code-block-container code {
+  font-family: 'Consolas', 'Courier New', monospace !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  width: 100%;
+  white-space: pre !important;
 }
 
+.code-block-container code span {
+  display: inline-block !important;
+}
+
+/* 复制按钮样式 */
 .copy-btn {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: rgba(255, 255, 255, 0.1);
+  top: 8px;
+  right: 8px;
+  background-color: rgba(45, 45, 45, 0.9) !important;
   color: white;
-  border: none;
-  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 6px 12px;
   border-radius: 4px;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
+  z-index: 100;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  opacity: 0.9;
+  visibility: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+}
+
+/* 成功复制状态 */
+.copy-btn:has(path[d="M20 6L9 17l-5-5"]) {
+  background-color: #28a745 !important;
+  border-color: #28a745;
 }
 
 .copy-btn:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(50, 50, 50, 1) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  opacity: 1;
+}
+
+.copy-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* 确保代码不会被复制按钮遮挡 */
+.code-block-container pre > code {
+  padding-right: 90px !important;
+  display: inline-block;
+  min-width: 100%;
+  box-sizing: border-box;
 }
 
 /* 安装步骤样式 */
@@ -210,4 +254,13 @@
   .installation-steps {
     padding: 20px;
   }
+}
+
+/* 强制应用深色背景 */
+.code-block-container pre, 
+.code-block-container code, 
+.code-block-container pre > code,
+.code-block-container .prism-code,
+.react-syntax-highlighter-line-number {
+  background-color: #1e1e1e !important;
 } 
