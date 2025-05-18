@@ -41,27 +41,6 @@ const Support: React.FC = () => {
             </div>
           </div>
 
-          {/* 交流群 */}
-          <div className="support-card">
-            <div className="card-header">
-              <h3>交流群</h3>
-              <svg className="icon" viewBox="0 0 24 24" width="24" height="24">
-                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z" fill="currentColor" />
-              </svg>
-            </div>
-            <p>加入我们的逆向技术交流群，与其他开发者分享经验、解决问题。</p>
-            <div className="qrcode-container">
-              <div className="qrcode-item">
-                <img src="https://github.com/JSREI/.github/raw/main/profile/README.assets/image-20241016230653669.png" alt="微信群二维码" />
-                <p>微信群</p>
-              </div>
-              <div className="qrcode-item">
-                <img src="https://github.com/JSREI/.github/raw/main/profile/README.assets/image-20241016231143315.png" alt="Telegram群二维码" />
-                <p>Telegram群</p>
-              </div>
-            </div>
-          </div>
-
           {/* Star历史 */}
           <div className="support-card">
             <div className="card-header">

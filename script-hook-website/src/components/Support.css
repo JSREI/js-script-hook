@@ -5,7 +5,7 @@
 
 .support-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 30px;
   margin-top: 50px;
 }
@@ -131,14 +131,9 @@
 }
 
 /* 响应式设计 */
-@media (max-width: 992px) {
+@media (max-width: 1200px) {
   .support-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .qrcode-container {
-    flex-wrap: wrap;
-    gap: 20px;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -149,5 +144,14 @@
   
   .card-header h3 {
     font-size: 20px;
+  }
+  
+  .support-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .qrcode-container {
+    flex-wrap: wrap;
+    gap: 20px;
   }
 } 
