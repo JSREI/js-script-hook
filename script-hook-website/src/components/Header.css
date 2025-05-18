@@ -3,23 +3,24 @@
   top: 0;
   left: 0;
   right: 0;
-  background-color: transparent;
+  background-color: #ffffff;
   padding: 20px 0;
   transition: all 0.3s ease;
   z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .header.scrolled {
-  background-color: #ffffff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 12px 0;
 }
 
 .header-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding-right: 80px;
+  justify-content: flex-start;
+  padding: 0 15px;
+  position: relative;
+  width: 100%;
 }
 
 .logo a {
@@ -35,6 +36,8 @@
   height: 36px;
   margin-right: 10px;
   transition: all 0.3s ease;
+  background-color: transparent;
+  mix-blend-mode: multiply;
 }
 
 .header.scrolled .site-logo {
@@ -51,10 +54,18 @@
   font-size: 20px;
 }
 
+.main-nav {
+  width: 100%;
+  padding-left: 10px;
+}
+
 .main-nav ul {
   display: flex;
   list-style: none;
   gap: 30px;
+  justify-content: flex-start;
+  padding: 0;
+  margin: 0;
 }
 
 .main-nav a {
@@ -98,7 +109,8 @@
 
 @media (max-width: 768px) {
   .header-container {
-    padding-right: 50px;
+    justify-content: flex-end;
+    padding-right: 15px;
   }
   
   .site-logo {
@@ -111,6 +123,7 @@
   
   .mobile-menu-button {
     display: flex;
+    margin-left: 0;
   }
 
   .mobile-menu-button.active div:first-child {
@@ -135,6 +148,8 @@
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease;
+    width: 100%;
+    padding-left: 0;
   }
 
   .main-nav.open {
@@ -146,4 +161,21 @@
     padding: 20px;
     gap: 15px;
   }
+}
+
+/* 透明背景类 */
+.transparent-bg {
+  background-color: transparent !important;
+  filter: drop-shadow(0 0 0 transparent);
+}
+
+/* 以下几个样式不再需要，因为导航栏始终为白色背景 */
+/* 在深色背景上保持logo文字可见 */
+.header:not(.scrolled) .site-name {
+  color: #1976d2; /* 统一使用默认的品牌色 */
+}
+
+/* 在深色背景上适应导航链接 */
+.header:not(.scrolled) .main-nav a {
+  color: #333; /* 使用适合白色背景的深色文本 */
 } 

@@ -17,13 +17,6 @@ const Header: React.FC = () => {
   return (
     <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container header-container">
-        <div className="logo">
-          <a href="/">
-            <img src="/images/logo.png" alt="JS Script Hook Logo" className="site-logo" />
-            <span className="site-name">JS Script Hook</span>
-          </a>
-        </div>
-        
         <div className={`mobile-menu-button ${isMobileMenuOpen ? 'active' : ''}`} onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
           <div></div>
           <div></div>
@@ -35,6 +28,8 @@ const Header: React.FC = () => {
             <li><a href="#features">功能</a></li>
             <li><a href="#installation">安装</a></li>
             <li><a href="#examples">示例</a></li>
+            <li><a href="#support">支持</a></li>
+            <li><a href="#community">交流群</a></li>
           </ul>
         </nav>
       </div>
