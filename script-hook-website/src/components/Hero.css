@@ -1,6 +1,8 @@
 .hero {
   padding: 160px 0 100px;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  position: relative;
+  overflow: hidden;
 }
 
 .hero .container {
@@ -8,10 +10,13 @@
   justify-content: space-between;
   align-items: center;
   gap: 40px;
+  position: relative;
 }
 
 .hero-content {
   max-width: 500px;
+  position: relative;
+  z-index: 5;
 }
 
 h1 {
@@ -111,16 +116,24 @@ h1 {
 .hero-image {
   flex: 1;
   max-width: 600px;
+  position: relative;
+  z-index: 1;
 }
 
 @media (max-width: 992px) {
+  .hero {
+    padding: 120px 0 80px;
+  }
+  
   .hero .container {
     flex-direction: column;
+    gap: 60px;
   }
   
   .hero-content {
     max-width: 100%;
     text-align: center;
+    z-index: 5;
   }
   
   .hero-buttons {
@@ -132,7 +145,22 @@ h1 {
   }
   
   .hero-image {
-    margin-top: 40px;
+    margin-top: 20px;
     max-width: 100%;
+  }
+}
+
+/* 针对特定尺寸屏幕的优化 */
+@media (min-width: 993px) and (max-width: 1200px) {
+  .hero .container {
+    gap: 30px;
+  }
+  
+  .hero-content {
+    max-width: 45%;
+  }
+  
+  .hero-image {
+    max-width: 50%;
   }
 } 

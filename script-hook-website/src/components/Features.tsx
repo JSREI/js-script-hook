@@ -21,33 +21,33 @@ const Features: React.FC = () => {
   const features = [
     {
       icon: '🔌',
-      title: 'Script钩子',
-      description: '自动拦截和监控页面中的Script元素，跟踪脚本加载和执行过程。'
+      title: 'Script请求拦截',
+      description: '精准拦截网页中所有动态加载的script元素，协助逆向分析数据交互流程。'
     },
     {
       icon: '⚡',
-      title: 'JSONP分析',
-      description: '特别针对JSONP请求进行分析，自动检测和监控回调函数的执行。'
+      title: 'JSONP逆向解析',
+      description: '专为逆向分析JSONP请求设计，自动捕获回调函数及参数，揭示接口数据结构。'
     },
     {
       icon: '🛠️',
-      title: '动态断点',
-      description: '根据配置的URL模式和条件，在特定的JSONP回调处自动设置断点。'
+      title: '精确断点控制',
+      description: '根据URL特征智能设置断点，定位关键请求和回调函数，简化逆向分析流程。'
     },
     {
       icon: '🔍',
-      title: '调试增强',
-      description: '提供请求和响应的详细分析，帮助理解网站API交互和数据流。'
+      title: '接口数据提取',
+      description: '实时监控并分析请求和响应数据，轻松获取接口参数结构，提升逆向效率。'
     },
     {
       icon: '🧩',
-      title: '灵活配置',
-      description: '支持两种钩子实现方式：代理函数和重声明函数，适应不同场景需求。'
+      title: '多样Hook策略',
+      description: '支持代理函数与重声明函数两种钩子实现，灵活应对各类反调试场景。'
     },
     {
       icon: '📦',
-      title: '性能优化',
-      description: '智能日志系统，仅在必要时输出信息，最小化对网站性能的影响。'
+      title: '隐蔽监控模式',
+      description: '智能过滤和精确日志，最小化工具特征，有效规避网站的反逆向检测机制。'
     }
   ];
 
@@ -56,7 +56,7 @@ const Features: React.FC = () => {
       <div className="container">
         <div className="section-header">
           <h2>主要功能</h2>
-          <p>JS Script Hook提供了多种强大的功能，帮助您分析和调试复杂的Web应用</p>
+          <p>JS Script Hook专为Web逆向分析设计，帮助您高效识别与提取关键请求数据</p>
         </div>
         <div className="features-grid">
           {features.map((feature, index) => (

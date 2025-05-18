@@ -4,6 +4,7 @@
   max-width: 550px;
   margin: 0 auto;
   perspective: 1200px;
+  z-index: 1; /* 确保不会覆盖重要文本内容 */
 }
 
 .simple-monitor {
@@ -11,6 +12,7 @@
   transform: perspective(1000px) rotateY(-3deg);
   transition: all 0.4s ease;
   margin-bottom: 80px;
+  overflow: hidden; /* 防止内容溢出 */
 }
 
 .simple-monitor:hover {
@@ -33,11 +35,12 @@
 /* 屏幕 */
 .monitor-screen {
   background-color: #000;
-  overflow: hidden;
+  overflow: hidden; /* 确保内容不会溢出 */
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
   transition: background-color 0.3s ease;
+  max-width: 100%; /* 限制最大宽度 */
 }
 
 /* 屏幕电源状态 */
@@ -95,6 +98,7 @@
   width: 100%;
   height: auto;
   vertical-align: bottom;
+  max-width: 100%; /* 确保图片不会超出容器 */
 }
 
 /* 隐藏但不影响布局的元素 */
@@ -188,7 +192,7 @@
 .power-button {
   position: absolute;
   right: 15px;
-  bottom: 5px;
+  bottom: 8px;
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -242,5 +246,21 @@
 
   .monitor-wrapper {
     max-width: 90%;
+  }
+  
+  .hero-content {
+    z-index: 2; /* 确保在小屏幕上文字内容位于顶部 */
+  }
+} 
+
+/* 修复在特定视口宽度下的布局问题 */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .hero .container {
+    align-items: flex-start; /* 避免垂直居中导致的重叠 */
+    gap: 60px; /* 增加间距 */
+  }
+  
+  .hero-content {
+    padding-top: 40px; /* 添加顶部内边距 */
   }
 } 

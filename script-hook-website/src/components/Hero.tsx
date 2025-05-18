@@ -8,16 +8,15 @@ const Hero: React.FC = () => {
       <div className="container">
         <div className="hero-content">
           <h1>JS Script Hook</h1>
-          <p className="subtitle">强大的JavaScript函数拦截与钩子工具</p>
+          <p className="subtitle">专为Web逆向分析设计的JavaScript请求拦截工具</p>
           <div className="hero-badges">
             <img src="https://img.shields.io/greasyfork/dt/419533" alt="Greasy Fork Downloads" />
             <img src="https://img.shields.io/greasyfork/rating-count/419533" alt="Greasy Fork Rating" />
-            <img src="https://img.shields.io/github/stars/JSREI/js-script-hook" alt="GitHub Stars" />
             <img src="https://img.shields.io/github/license/JSREI/js-script-hook" alt="License" />
             <img src="https://img.shields.io/github/v/release/JSREI/js-script-hook" alt="GitHub Release" />
           </div>
           <p className="description">
-            一个轻量级、高性能的JavaScript库，使您能够拦截和监控脚本加载和JSONP调用，实现诸如调试、网络请求分析、动态断点等高级功能。
+            一个专注于辅助Web逆向工程的轻量级JavaScript库，精准拦截和分析script请求与JSONP调用，帮助您快速定位关键接口，简化逆向分析流程，提升调试效率。
           </p>
           <div className="hero-buttons">
             <a href="#installation" className="btn btn-primary">快速开始</a>
