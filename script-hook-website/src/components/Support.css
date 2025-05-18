@@ -5,7 +5,7 @@
 
 .support-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 30px;
   margin-top: 50px;
 }
@@ -78,56 +78,58 @@
   transform: translateY(-2px);
 }
 
-/* 贡献者墙 */
-.contributors-wall {
-  overflow: hidden;
-  border-radius: 8px;
-  width: 100%;
-}
-
-.contributors-wall img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-/* 二维码容器 */
-.qrcode-container {
+/* 贡献者头像 */
+.contributors-avatars {
   display: flex;
-  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
   margin-top: auto;
 }
 
-.qrcode-item {
-  text-align: center;
-}
-
-.qrcode-item img {
-  width: 120px;
-  height: 120px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-}
-
-.qrcode-item p {
-  margin: 5px 0 0;
-  font-size: 14px;
-  color: #666;
-  text-align: center;
-}
-
-/* Star历史图表 */
-.star-history {
-  overflow: hidden;
-  border-radius: 8px;
-  width: 100%;
-}
-
-.star-history img {
-  width: 100%;
-  height: auto;
+.contributor-link {
   display: block;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.contributor-link:hover {
+  transform: translateY(-5px);
+}
+
+.contributor-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.contributor-link:hover .contributor-avatar {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border-color: #1976d2;
+}
+
+.contributor-link::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.contributor-link:hover::after {
+  opacity: 1;
 }
 
 /* 响应式设计 */
@@ -150,8 +152,54 @@
     grid-template-columns: 1fr;
   }
   
-  .qrcode-container {
-    flex-wrap: wrap;
-    gap: 20px;
+  .contributor-avatar {
+    width: 70px;
+    height: 70px;
   }
+}
+
+/* 加载状态样式 */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  margin-top: 10px;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #1976d2;
+  width: 36px;
+  height: 36px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner p {
+  color: #546e7a;
+  margin: 0;
+  font-size: 14px;
+}
+
+/* 错误信息样式 */
+.error-message {
+  background-color: #ffebee;
+  border-left: 4px solid #f44336;
+  padding: 12px 15px;
+  margin: 15px 0;
+  border-radius: 4px;
+  color: #d32f2f;
+}
+
+.error-message p {
+  margin: 0;
+  font-size: 14px;
 } 

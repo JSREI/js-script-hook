@@ -1,0 +1,98 @@
+.star-history-section {
+  padding: 80px 0;
+  background-color: #f8f9fa;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.section-header h2 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.section-header p {
+  font-size: 1.2rem;
+  color: #666;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.star-history-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.star-chart {
+  width: 100%;
+  margin-bottom: 30px;
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.star-chart-image {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+}
+
+.star-action {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.star-action p {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.star-button {
+  display: inline-flex;
+  align-items: center;
+  background-color: #1976d2;
+  color: white;
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.star-button:hover {
+  background-color: #1565c0;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(25, 118, 210, 0.3);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .star-history-section {
+    padding: 60px 0;
+  }
+  
+  .section-header h2 {
+    font-size: 2.2rem;
+  }
+  
+  .section-header p {
+    font-size: 1.1rem;
+  }
+  
+  .star-action p {
+    font-size: 1rem;
+  }
+  
+  .star-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+} 

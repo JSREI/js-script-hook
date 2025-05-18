@@ -1,7 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Support.css';
 
+interface Contributor {
+  username: string;
+  avatarUrl: string;
+  profileUrl: string;
+  contributions: number;
+}
+
 const Support: React.FC = () => {
+  const [contributors, setContributors] = useState<Contributor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchContributors = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('https://api.github.com/repos/JSREI/js-script-hook/contributors');
+        
+        if (!response.ok) {
+          throw new Error(`GitHub API 请求失败: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // 转换数据为我们需要的格式
+        const formattedContributors = data.map((contributor: any) => ({
+          username: contributor.login,
+          avatarUrl: contributor.avatar_url,
+          profileUrl: contributor.html_url,
+          contributions: contributor.contributions
+        }));
+        
+        setContributors(formattedContributors);
+        setLoading(false);
+      } catch (err) {
+        console.error('获取贡献者数据失败:', err);
+        setError('无法加载贡献者数据');
+        setLoading(false);
+      }
+    };
+
+    fetchContributors();
+  }, []);
+
   return (
     <section id="support" className="support">
       <div className="container">
@@ -36,23 +79,36 @@ const Support: React.FC = () => {
               </svg>
             </div>
             <p>感谢所有为项目做出贡献的开发者。欢迎提交PR，提升产品功能。</p>
-            <div className="contributors-wall">
-              <img src="https://contrib.nn.ci/api?repo=JSREI/js-script-hook" alt="Contributors" />
-            </div>
-          </div>
-
-          {/* Star历史 */}
-          <div className="support-card">
-            <div className="card-header">
-              <h3>Star历史</h3>
-              <svg className="icon" viewBox="0 0 24 24" width="24" height="24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="currentColor" />
-              </svg>
-            </div>
-            <p>项目自创建以来的GitHub星标增长趋势。感谢社区的持续支持！</p>
-            <div className="star-history">
-              <img src="https://starchart.cc/JSREI/js-script-hook.svg" alt="Star History Chart" />
-            </div>
+            
+            {loading ? (
+              <div className="loading-spinner">
+                <div className="spinner"></div>
+                <p>正在加载贡献者数据...</p>
+              </div>
+            ) : error ? (
+              <div className="error-message">
+                <p>{error}</p>
+              </div>
+            ) : (
+              <div className="contributors-avatars">
+                {contributors.map((contributor, index) => (
+                  <a 
+                    key={index} 
+                    href={contributor.profileUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="contributor-link"
+                    title={`${contributor.username} - ${contributor.contributions} 次提交`}
+                  >
+                    <img 
+                      src={contributor.avatarUrl} 
+                      alt={`${contributor.username}的头像`} 
+                      className="contributor-avatar"
+                    />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
