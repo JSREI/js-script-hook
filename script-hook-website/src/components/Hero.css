@@ -1,5 +1,5 @@
 .hero {
-  padding-top: 90px;
+  padding-top: 150px;
   padding-bottom: 80px;
   margin-top: 0;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -20,7 +20,7 @@
   max-width: 500px;
   position: relative;
   z-index: 5;
-  padding-top: 20px;
+  padding-top: 30px;
 }
 
 h1 {
@@ -126,7 +126,7 @@ h1 {
 
 @media (max-width: 992px) {
   .hero {
-    padding-top: 80px;
+    padding-top: 130px;
     padding-bottom: 60px;
     margin-top: 0;
   }

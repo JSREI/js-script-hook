@@ -4,8 +4,8 @@
   left: 0;
   right: 0;
   background-color: #ffffff;
-  padding: 5px 0;
-  height: 50px;
+  padding: 8px 0;
+  height: 60px;
   display: flex;
   align-items: center;
   transition: all 0.3s ease;
@@ -14,8 +14,8 @@
 }
 
 .header.scrolled {
-  padding: 3px 0;
-  height: 40px;
+  padding: 5px 0;
+  height: 50px;
 }
 
 .header-container {
@@ -39,7 +39,7 @@
 }
 
 .site-logo {
-  height: 30px;
+  height: 36px;
   margin-right: 8px;
   transition: all 0.3s ease;
   background-color: transparent;
@@ -47,7 +47,7 @@
 }
 
 .header.scrolled .site-logo {
-  height: 24px;
+  height: 30px;
 }
 
 .site-name {
@@ -72,16 +72,20 @@
   justify-content: flex-start;
   padding: 0;
   margin: 0;
+  height: 100%;
+  align-items: center;
 }
 
 .main-nav a {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   position: relative;
-  padding-bottom: 3px;
+  padding-bottom: 5px;
   color: #333;
   text-decoration: none;
   transition: color 0.3s;
+  line-height: 36px;
+  display: inline-block;
 }
 
 .main-nav a:after {
