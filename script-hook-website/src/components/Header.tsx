@@ -17,6 +17,12 @@ const Header: React.FC = () => {
   return (
     <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container header-container">
+        <div className="logo">
+          <a href="/">
+            <img src="/images/logo.png" alt="JS Script Hook Logo" className="site-logo transparent-bg" />
+          </a>
+        </div>
+        
         <div className={`mobile-menu-button ${isMobileMenuOpen ? 'active' : ''}`} onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
           <div></div>
           <div></div>

@@ -17,17 +17,18 @@
 .header-container {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   padding: 0 15px;
   position: relative;
   width: 100%;
 }
 
+.logo {
+  flex: 0 0 auto;
+  margin-right: 20px;
+}
+
 .logo a {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1976d2;
-  text-decoration: none;
   display: flex;
   align-items: center;
 }
@@ -55,8 +56,8 @@
 }
 
 .main-nav {
-  width: 100%;
-  padding-left: 10px;
+  flex: 1;
+  padding-left: 0;
 }
 
 .main-nav ul {
@@ -109,7 +110,7 @@
 
 @media (max-width: 768px) {
   .header-container {
-    justify-content: flex-end;
+    justify-content: space-between;
     padding-right: 15px;
   }
   
@@ -124,18 +125,11 @@
   .mobile-menu-button {
     display: flex;
     margin-left: 0;
+    order: 2;
   }
 
-  .mobile-menu-button.active div:first-child {
-    transform: translateY(9px) rotate(45deg);
-  }
-
-  .mobile-menu-button.active div:nth-child(2) {
-    opacity: 0;
-  }
-
-  .mobile-menu-button.active div:last-child {
-    transform: translateY(-9px) rotate(-45deg);
+  .logo {
+    order: 1;
   }
 
   .main-nav {
@@ -150,6 +144,7 @@
     transition: max-height 0.3s ease;
     width: 100%;
     padding-left: 0;
+    order: 3;
   }
 
   .main-nav.open {
@@ -160,6 +155,19 @@
     flex-direction: column;
     padding: 20px;
     gap: 15px;
+  }
+
+  /* 移动端菜单按钮交互效果 */
+  .mobile-menu-button.active div:first-child {
+    transform: translateY(9px) rotate(45deg);
+  }
+
+  .mobile-menu-button.active div:nth-child(2) {
+    opacity: 0;
+  }
+
+  .mobile-menu-button.active div:last-child {
+    transform: translateY(-9px) rotate(-45deg);
   }
 }
 
