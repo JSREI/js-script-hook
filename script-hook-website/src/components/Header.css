@@ -63,6 +63,9 @@
 .main-nav {
   flex: 1;
   padding-left: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
 .main-nav ul {
@@ -84,14 +87,15 @@
   color: #333;
   text-decoration: none;
   transition: color 0.3s;
-  line-height: 36px;
+  line-height: 1;
   display: inline-block;
+  vertical-align: middle;
 }
 
 .main-nav a:after {
   content: "";
   position: absolute;
-  bottom: 0;
+  bottom: -4px;
   left: 0;
   width: 0;
   height: 2px;
