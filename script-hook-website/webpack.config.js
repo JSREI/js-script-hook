@@ -8,8 +8,9 @@ module.exports = (env, argv) => {
     entry: './src/index.tsx',
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: 'bundle.js',
+      filename: '[name].[contenthash:8].js',
       publicPath: isProduction ? './' : '/',
+      clean: true,
     },
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.jsx'],
@@ -57,6 +58,13 @@ module.exports = (env, argv) => {
       runtimeChunk: 'single',
       splitChunks: {
         chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          },
+        },
       },
     },
   };

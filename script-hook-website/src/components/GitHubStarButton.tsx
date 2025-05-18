@@ -1,11 +1,14 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import './GitHubStarButton.css';
 
 const GitHubStarButton: React.FC = () => {
+  const { t } = useTranslation();
+  
   return (
     <a href="https://github.com/JSREI/js-script-hook" 
        className="github-corner" 
-       aria-label="View on GitHub"
+       aria-label={t('github.viewOnGithub')}
        target="_blank" 
        rel="noopener noreferrer">
       <svg width="80" height="80" viewBox="0 0 250 250" style={{

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import './Installation.css';
 
 const Installation: React.FC = () => {
+  const { t } = useTranslation();
   // 主安装方式切换（油猴安装 vs 源码编译安装）
   const [installMethod, setInstallMethod] = useState<'userscript' | 'source'>('userscript');
   
@@ -93,8 +95,8 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
     <section id="installation" className="installation">
       <div className="container">
         <div className="section-header">
-          <h2>安装与使用</h2>
-          <p>JS Script Hook 提供两种安装方式，选择最适合您的方式</p>
+          <h2>{t('installation.title')}</h2>
+          <p>{t('installation.description')}</p>
         </div>
 
         {/* 主安装方式选择 */}
@@ -103,13 +105,13 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
             className={installMethod === 'userscript' ? 'active' : ''} 
             onClick={() => setInstallMethod('userscript')}
           >
-            油猴脚本安装
+            {t('installation.methods.userscript')}
           </button>
           <button 
             className={installMethod === 'source' ? 'active' : ''} 
             onClick={() => setInstallMethod('source')}
           >
-            源码编译安装
+            {t('installation.methods.source')}
           </button>
         </div>
 
@@ -117,18 +119,18 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
         {installMethod === 'userscript' && (
           <div className="userscript-installation">
             <div className="installation-steps">
-              <h3>步骤 1：安装用户脚本管理器</h3>
-              <p>首先，您需要在浏览器中安装一个用户脚本管理器扩展：</p>
+              <h3>{t('installation.userscript.step1.title')}</h3>
+              <p>{t('installation.userscript.step1.description')}</p>
               <ul>
                 <li>
                   <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener noreferrer">
                     Tampermonkey
-                  </a>（推荐，支持 Chrome、Firefox、Edge、Safari 等）
+                  </a>{t('installation.userscript.step1.recommended')}
                 </li>
               </ul>
               
-              <h3>步骤 2：安装 JS Script Hook 脚本</h3>
-              <p>安装好用户脚本管理器后，点击下方按钮访问 Greasy Fork，然后点击"安装此脚本"：</p>
+              <h3>{t('installation.userscript.step2.title')}</h3>
+              <p>{t('installation.userscript.step2.description')}</p>
               
               <a 
                 href="https://greasyfork.org/zh-CN/scripts/419533-js-script-hook" 
@@ -141,15 +143,15 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
                   <path d="M13 3.59l7.41 7.41a1 1 0 0 1 0 1.41l-7.41 7.41"></path>
                   <path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"></path>
                 </svg>
-                前往 Greasy Fork 安装脚本
+                {t('installation.userscript.step2.button')}
               </a>
               
               <div className="note-box">
-                <h4>注意事项：</h4>
+                <h4>{t('installation.userscript.notes.title')}</h4>
                 <ul>
-                  <li>安装后脚本会自动运行并开始拦截匹配规则的脚本请求</li>
-                  <li>脚本已在 Chrome 87+ 版本测试通过</li>
-                  <li>其他浏览器可能需要额外配置</li>
+                  {(t('installation.userscript.notes.items', { returnObjects: true }) as string[]).map((note: string, index: number) => (
+                    <li key={index}>{note}</li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -164,18 +166,18 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
                 className={packageManager === 'npm' ? 'active' : ''} 
                 onClick={() => setPackageManager('npm')}
               >
-                使用 NPM
+                {t('installation.source.tabs.npm')}
               </button>
               <button 
                 className={packageManager === 'yarn' ? 'active' : ''} 
                 onClick={() => setPackageManager('yarn')}
               >
-                使用 Yarn
+                {t('installation.source.tabs.yarn')}
               </button>
             </div>
             
             <div className="installation-steps">
-              <h3>步骤 1：克隆仓库</h3>
+              <h3>{t('installation.source.step1.title')}</h3>
               <div className="code-block-container">
                 <SyntaxHighlighter 
                   language="bash"
@@ -195,18 +197,18 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
                     style: { whiteSpace: 'pre-wrap' }
                   }}
                 >
-                  {"git clone https://github.com/JSREI/js-script-hook.git"}
+                  {t('installation.source.step1.command')}
                 </SyntaxHighlighter>
                 <button 
                   className="copy-btn" 
-                  onClick={() => handleCopy('git clone https://github.com/JSREI/js-script-hook.git', 1)}
+                  onClick={() => handleCopy(t('installation.source.step1.command'), 1)}
                 >
                   {copySuccess === 1 ? (
                     <>
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '4px'}}>
                         <path d="M20 6L9 17l-5-5"></path>
                       </svg>
-                      已复制
+                      {t('installation.source.copied')}
                     </>
                   ) : (
                     <>
@@ -214,13 +216,13 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                       </svg>
-                      复制
+                      {t('installation.source.copy')}
                     </>
                   )}
                 </button>
               </div>
 
-              <h3>步骤 2：进入项目目录</h3>
+              <h3>{t('installation.source.step2.title')}</h3>
               <div className="code-block-container">
                 <SyntaxHighlighter 
                   language="bash"
@@ -240,18 +242,18 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
                     style: { whiteSpace: 'pre-wrap' }
                   }}
                 >
-                  {"cd js-script-hook"}
+                  {t('installation.source.step2.command')}
                 </SyntaxHighlighter>
                 <button 
                   className="copy-btn" 
-                  onClick={() => handleCopy('cd js-script-hook', 2)}
+                  onClick={() => handleCopy(t('installation.source.step2.command'), 2)}
                 >
                   {copySuccess === 2 ? (
                     <>
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '4px'}}>
                         <path d="M20 6L9 17l-5-5"></path>
                       </svg>
-                      已复制
+                      {t('installation.source.copied')}
                     </>
                   ) : (
                     <>
@@ -259,13 +261,13 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                       </svg>
-                      复制
+                      {t('installation.source.copy')}
                     </>
                   )}
                 </button>
               </div>
 
-              <h3>步骤 3：安装依赖</h3>
+              <h3>{t('installation.source.step3.title')}</h3>
               <div className="code-block-container">
                 <SyntaxHighlighter 
                   language="bash"
@@ -285,12 +287,17 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
                     style: { whiteSpace: 'pre-wrap' }
                   }}
                 >
-                  {packageManager === 'npm' ? "npm install" : "yarn"}
+                  {packageManager === 'npm' 
+                    ? t('installation.source.step3.npmCommand')
+                    : t('installation.source.step3.yarnCommand')
+                  }
                 </SyntaxHighlighter>
                 <button 
                   className="copy-btn" 
                   onClick={() => handleCopy(
-                    packageManager === 'npm' ? 'npm install' : 'yarn',
+                    packageManager === 'npm' 
+                      ? t('installation.source.step3.npmCommand')
+                      : t('installation.source.step3.yarnCommand'), 
                     3
                   )}
                 >
@@ -299,7 +306,7 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '4px'}}>
                         <path d="M20 6L9 17l-5-5"></path>
                       </svg>
-                      已复制
+                      {t('installation.source.copied')}
                     </>
                   ) : (
                     <>
@@ -307,16 +314,18 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                       </svg>
-                      复制
+                      {t('installation.source.copy')}
                     </>
                   )}
                 </button>
               </div>
 
-              <h3>步骤 4：构建项目</h3>
+              <h3>{t('installation.source.usage.title')}</h3>
+              <p>{t('installation.source.usage.description')}</p>
+              
               <div className="code-block-container">
                 <SyntaxHighlighter 
-                  language="bash"
+                  language="javascript"
                   style={vscDarkPlus}
                   customStyle={{
                     borderRadius: '6px',
@@ -333,23 +342,18 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
                     style: { whiteSpace: 'pre-wrap' }
                   }}
                 >
-                  {packageManager === 'npm' ? 'npm run build' : 'yarn build'}
+                  {installationGuide[packageManager].usage}
                 </SyntaxHighlighter>
                 <button 
                   className="copy-btn" 
-                  onClick={() => handleCopy(
-                    packageManager === 'npm' 
-                      ? 'npm run build' 
-                      : 'yarn build',
-                    4
-                  )}
+                  onClick={() => handleCopy(installationGuide[packageManager].usage, 4)}
                 >
                   {copySuccess === 4 ? (
                     <>
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '4px'}}>
                         <path d="M20 6L9 17l-5-5"></path>
                       </svg>
-                      已复制
+                      {t('installation.source.copied')}
                     </>
                   ) : (
                     <>
@@ -357,20 +361,11 @@ getGlobalConfig().hookType = "use-proxy-function"; // 或 "use-redeclare-functio
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                       </svg>
-                      复制
+                      {t('installation.source.copy')}
                     </>
                   )}
                 </button>
               </div>
-
-              <h3>步骤 5：安装到油猴</h3>
-              <p>构建完成后，您将在 <code>dist</code> 目录中找到 <code>script-hook.user.js</code> 文件。</p>
-              <ol>
-                <li>打开您的油猴扩展程序</li>
-                <li>点击"添加新脚本"或"创建新脚本"</li>
-                <li>将 <code>script-hook.user.js</code> 文件的内容复制粘贴到编辑器中</li>
-                <li>保存脚本</li>
-              </ol>
             </div>
           </div>
         )}

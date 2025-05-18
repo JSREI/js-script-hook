@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactFlow, { 
   MiniMap, 
   Controls, 
@@ -40,6 +41,7 @@ const nodeTypes = {
 };
 
 const FlowDiagram: React.FC = () => {
+  const { t } = useTranslation();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [windowSize, setWindowSize] = useState({
@@ -70,7 +72,7 @@ const FlowDiagram: React.FC = () => {
         id: 'jsrei',
         position: { x: windowSize.width / 2 - 100, y: 350 },
         data: { 
-          label: 'JSREI Script Hook',
+          label: t('featureTree.nodes.main'),
           nodeType: 'main' as const
         },
         type: 'custom'
@@ -81,7 +83,7 @@ const FlowDiagram: React.FC = () => {
         id: 'hook',
         position: { x: windowSize.width / 2 - 300, y: 150 },
         data: { 
-          label: 'Hook',
+          label: t('featureTree.nodes.hook.title'),
           nodeType: 'primary' as const
         },
         type: 'custom'
@@ -91,8 +93,8 @@ const FlowDiagram: React.FC = () => {
         id: 'request-hook',
         position: { x: windowSize.width / 2 - 500, y: 80 },
         data: { 
-          label: '请求之前拦截',
-          description: '用于分析请求参数中有的回调参数',
+          label: t('featureTree.nodes.hook.requestHook.title'),
+          description: t('featureTree.nodes.hook.requestHook.description'),
           nodeType: 'secondary' as const
         },
         type: 'custom'
@@ -101,8 +103,8 @@ const FlowDiagram: React.FC = () => {
         id: 'response-hook',
         position: { x: windowSize.width / 2 - 500, y: 180 },
         data: { 
-          label: '响应之后拦截',
-          description: '用于分析jsonp响应中有的内容',
+          label: t('featureTree.nodes.hook.responseHook.title'),
+          description: t('featureTree.nodes.hook.responseHook.description'),
           nodeType: 'secondary' as const
         },
         type: 'custom'
@@ -113,7 +115,7 @@ const FlowDiagram: React.FC = () => {
         id: 'analyzer',
         position: { x: windowSize.width / 2 - 300, y: 350 },
         data: { 
-          label: '分析器',
+          label: t('featureTree.nodes.analyzer.title'),
           nodeType: 'primary' as const
         },
         type: 'custom'
@@ -123,7 +125,7 @@ const FlowDiagram: React.FC = () => {
         id: 'request-analyzer',
         position: { x: windowSize.width / 2 - 500, y: 290 },
         data: { 
-          label: '请求分析器',
+          label: t('featureTree.nodes.analyzer.requestAnalyzer.title'),
           nodeType: 'secondary' as const
         },
         type: 'custom'
@@ -132,7 +134,7 @@ const FlowDiagram: React.FC = () => {
         id: 'response-analyzer',
         position: { x: windowSize.width / 2 - 500, y: 410 },
         data: { 
-          label: '响应分析器',
+          label: t('featureTree.nodes.analyzer.responseAnalyzer.title'),
           nodeType: 'secondary' as const
         },
         type: 'custom'
@@ -142,7 +144,7 @@ const FlowDiagram: React.FC = () => {
         id: 'callback-detect',
         position: { x: windowSize.width / 2 - 700, y: 250 },
         data: { 
-          label: '内置算法自动探测jsonp的callback参数',
+          label: t('featureTree.nodes.analyzer.requestAnalyzer.callbackDetect'),
           nodeType: 'tertiary' as const
         },
         type: 'custom'
@@ -151,8 +153,8 @@ const FlowDiagram: React.FC = () => {
         id: 'auto-breakpoint',
         position: { x: windowSize.width / 2 - 700, y: 330 },
         data: { 
-          label: '自动给新参数可能的回调方式断点',
-          description: '(beta)',
+          label: t('featureTree.nodes.analyzer.requestAnalyzer.autoBreakpoint.title'),
+          description: t('featureTree.nodes.analyzer.requestAnalyzer.autoBreakpoint.description'),
           nodeType: 'tertiary' as const
         },
         type: 'custom'
@@ -162,7 +164,7 @@ const FlowDiagram: React.FC = () => {
         id: 'static-analyze',
         position: { x: windowSize.width / 2 - 700, y: 410 },
         data: { 
-          label: '暂未实现，目前采取已经足够',
+          label: t('featureTree.nodes.analyzer.responseAnalyzer.staticAnalyze'),
           nodeType: 'tertiary' as const
         },
         type: 'custom'
@@ -173,7 +175,7 @@ const FlowDiagram: React.FC = () => {
         id: 'settings',
         position: { x: windowSize.width / 2 + 150, y: 200 },
         data: { 
-          label: '全局设置',
+          label: t('featureTree.nodes.settings.title'),
           nodeType: 'primary' as const
         },
         type: 'custom'
@@ -183,8 +185,8 @@ const FlowDiagram: React.FC = () => {
         id: 'ui-language',
         position: { x: windowSize.width / 2 + 350, y: 100 },
         data: { 
-          label: '国际化多语言',
-          description: '(仅提供简体中文)',
+          label: t('featureTree.nodes.settings.language.title'),
+          description: t('featureTree.nodes.settings.language.description'),
           nodeType: 'secondary' as const
         },
         type: 'custom'
@@ -193,7 +195,7 @@ const FlowDiagram: React.FC = () => {
         id: 'hook-method',
         position: { x: windowSize.width / 2 + 350, y: 200 },
         data: { 
-          label: '两种脚本Hook方式',
+          label: t('featureTree.nodes.settings.hookMethod.title'),
           nodeType: 'secondary' as const
         },
         type: 'custom'
@@ -202,7 +204,7 @@ const FlowDiagram: React.FC = () => {
         id: 'flag-options',
         position: { x: windowSize.width / 2 + 350, y: 300 },
         data: { 
-          label: 'Hook Flag选项',
+          label: t('featureTree.nodes.settings.flagOptions'),
           nodeType: 'secondary' as const
         },
         type: 'custom'
@@ -212,7 +214,7 @@ const FlowDiagram: React.FC = () => {
         id: 'proxy-method',
         position: { x: windowSize.width / 2 + 580, y: 160 },
         data: { 
-          label: '使用代理函数方式拦Hook',
+          label: t('featureTree.nodes.settings.hookMethod.proxyMethod'),
           nodeType: 'tertiary' as const
         },
         type: 'custom'
@@ -221,7 +223,7 @@ const FlowDiagram: React.FC = () => {
         id: 'redeclare-method',
         position: { x: windowSize.width / 2 + 580, y: 240 },
         data: { 
-          label: '修改原函数代码覆盖定义',
+          label: t('featureTree.nodes.settings.hookMethod.redeclareMethod'),
           nodeType: 'tertiary' as const
         },
         type: 'custom'
@@ -232,7 +234,7 @@ const FlowDiagram: React.FC = () => {
         id: 'ui',
         position: { x: windowSize.width / 2 + 150, y: 500 },
         data: { 
-          label: 'UI界面', 
+          label: t('featureTree.nodes.ui.title'), 
           nodeType: 'primary' as const
         },
         type: 'custom'
@@ -242,8 +244,8 @@ const FlowDiagram: React.FC = () => {
         id: 'new-url-config',
         position: { x: windowSize.width / 2 + 350, y: 400 },
         data: { 
-          label: '新的URL配置界面',
-          description: '(可同时配置多个规则)',
+          label: t('featureTree.nodes.ui.urlConfig.title'),
+          description: t('featureTree.nodes.ui.urlConfig.description'),
           nodeType: 'secondary' as const
         },
         type: 'custom'
@@ -252,7 +254,7 @@ const FlowDiagram: React.FC = () => {
         id: 'breakpoint-setting',
         position: { x: windowSize.width / 2 + 350, y: 500 },
         data: { 
-          label: '是否开启请求断点',
+          label: t('featureTree.nodes.ui.breakpointSetting'),
           nodeType: 'secondary' as const
         },
         type: 'custom'
@@ -261,7 +263,7 @@ const FlowDiagram: React.FC = () => {
         id: 'response-breakpoint',
         position: { x: windowSize.width / 2 + 350, y: 600 },
         data: { 
-          label: '是否开启响应断点',
+          label: t('featureTree.nodes.ui.responseBreakpoint'),
           nodeType: 'secondary' as const
         },
         type: 'custom'
@@ -272,7 +274,7 @@ const FlowDiagram: React.FC = () => {
         id: 'console',
         position: { x: windowSize.width / 2 - 300, y: 550 },
         data: { 
-          label: '控制台',
+          label: t('featureTree.nodes.console.title'),
           nodeType: 'primary' as const
         },
         type: 'custom'
@@ -282,7 +284,7 @@ const FlowDiagram: React.FC = () => {
         id: 'print-style',
         position: { x: windowSize.width / 2 - 500, y: 550 },
         data: { 
-          label: '表格形式打印',
+          label: t('featureTree.nodes.console.printStyle'),
           nodeType: 'secondary' as const
         },
         type: 'custom'
@@ -333,7 +335,7 @@ const FlowDiagram: React.FC = () => {
 
     setNodes(initialNodes);
     setEdges(initialEdges);
-  }, [windowSize.width, setNodes, setEdges]);
+  }, [windowSize.width, setNodes, setEdges, t]);
 
   return (
     <ReactFlow
@@ -367,12 +369,14 @@ const FlowDiagram: React.FC = () => {
 
 // 主组件，添加ReactFlowProvider
 const FeatureTree: React.FC = () => {
+  const { t } = useTranslation();
+  
   return (
     <section id="feature-tree" className="feature-tree">
       <div className="container">
         <div className="section-header">
-          <h2>功能结构图</h2>
-          <p>JS Script Hook 提供的完整功能体系</p>
+          <h2>{t('featureTree.title')}</h2>
+          <p>{t('featureTree.description')}</p>
         </div>
         <div className="feature-tree-container">
           <ReactFlowProvider>
@@ -381,23 +385,23 @@ const FeatureTree: React.FC = () => {
           <div className="feature-tree-legend">
             <div className="legend-item">
               <div className="legend-color main"></div>
-              <span>核心功能</span>
+              <span>{t('featureTree.legend.core')}</span>
             </div>
             <div className="legend-item">
               <div className="legend-color primary"></div>
-              <span>主要模块</span>
+              <span>{t('featureTree.legend.mainModule')}</span>
             </div>
             <div className="legend-item">
               <div className="legend-color secondary"></div>
-              <span>子功能</span>
+              <span>{t('featureTree.legend.subFeature')}</span>
             </div>
             <div className="legend-item">
               <div className="legend-color tertiary"></div>
-              <span>实现细节</span>
+              <span>{t('featureTree.legend.implementation')}</span>
             </div>
           </div>
           <div className="feature-tree-instructions">
-            <p>提示: 可拖动、缩放查看完整功能树，使用小地图快速导航</p>
+            <p>{t('featureTree.instructions')}</p>
           </div>
         </div>
       </div>

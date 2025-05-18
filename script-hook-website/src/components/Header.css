@@ -61,22 +61,20 @@
 }
 
 .main-nav {
-  flex: 1;
-  padding-left: 0;
   display: flex;
   align-items: center;
-  height: 100%;
+  flex: 1;
+  justify-content: space-between;
 }
 
 .main-nav ul {
   display: flex;
   list-style: none;
-  gap: 30px;
-  justify-content: flex-start;
-  padding: 0;
   margin: 0;
-  height: 100%;
+  padding: 0;
+  gap: 20px;
   align-items: center;
+  justify-content: flex-start;
 }
 
 .main-nav a {
@@ -110,6 +108,12 @@
 .main-nav a.active {
   color: #1976d2;
   font-weight: 600;
+}
+
+/* 确保语言切换器在导航栏中正确显示 */
+.main-nav .language-switcher {
+  display: flex;
+  margin-left: 20px;
 }
 
 .mobile-menu-button {
@@ -166,18 +170,43 @@
     width: 100%;
     padding-left: 0;
     order: 3;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .main-nav.open {
-    max-height: 300px;
+    max-height: 350px; /* 增加高度以适应语言切换器 */
+    padding-bottom: 10px;
   }
 
   .main-nav ul {
     flex-direction: column;
-    padding: 20px;
+    padding: 20px 20px 10px;
     gap: 15px;
+    width: 100%;
   }
-
+  
+  /* 移动端下的语言切换器样式 */
+  .language-switcher {
+    width: calc(100% - 40px);
+    margin: 0 20px 10px;
+    justify-content: flex-start;
+  }
+  
+  .language-button {
+    width: 100%;
+    max-width: 200px;
+    justify-content: space-between;
+    background-color: rgba(25, 118, 210, 0.15);
+  }
+  
+  .language-dropdown {
+    width: 100%;
+    max-width: 200px;
+    position: relative;
+    margin-top: 5px;
+  }
+  
   /* 移动端菜单按钮交互效果 */
   .mobile-menu-button.active div:first-child {
     transform: translateY(9px) rotate(45deg);
@@ -207,4 +236,101 @@
 /* 在深色背景上适应导航链接 */
 .header:not(.scrolled) .main-nav a {
   color: #333; /* 使用适合白色背景的深色文本 */
+}
+
+/* 语言切换器样式 - 增强可见性 */
+.language-switcher {
+  position: relative;
+  display: flex;
+  margin-left: 20px;
+  z-index: 1001; /* 确保dropdown在其他元素之上 */
+}
+
+.language-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(25, 118, 210, 0.1);
+  border: 1px solid rgba(25, 118, 210, 0.3);
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: #1976d2;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  min-width: 90px;
+}
+
+.language-button:hover {
+  background-color: rgba(25, 118, 210, 0.2);
+}
+
+.current-language {
+  margin-right: 8px;
+  font-weight: 500;
+}
+
+.arrow-down {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+.arrow-down.open {
+  transform: rotate(180deg);
+}
+
+.language-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  min-width: 120px;
+}
+
+.language-option {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  transition: background-color 0.2s;
+}
+
+.language-option:hover:not(:disabled) {
+  background-color: #f5f5f5;
+}
+
+.language-option.active {
+  background-color: #f0f0f0;
+  font-weight: 500;
+  cursor: default;
+}
+
+@media (max-width: 768px) {
+  /* ... existing mobile styles ... */
+
+  .language-switcher {
+    margin: 15px auto 5px;
+    width: 100%;
+    max-width: 200px;
+    justify-content: center;
+  }
+  
+  .language-button {
+    width: 100%;
+    justify-content: center;
+    background-color: rgba(25, 118, 210, 0.15);
+  }
+  
+  .language-dropdown {
+    width: 100%;
+    position: static;
+    margin-top: 5px;
+  }
 } 

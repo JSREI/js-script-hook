@@ -1,0 +1,362 @@
+{
+  "nav": {
+    "features": "Features",
+    "installation": "Installation",
+    "support": "Support",
+    "community": "Community"
+  },
+  "language": {
+    "zh": "简体中文",
+    "en": "English",
+    "switchLanguage": "Switch Language"
+  },
+  "hero": {
+    "subtitle": "JavaScript Request Interception Tool Designed for Web Reverse Engineering",
+    "description": "A lightweight JavaScript library focused on aiding web reverse engineering, precisely intercepting and analyzing script requests and JSONP calls, helping you quickly locate key interfaces, simplify reverse analysis processes, and improve debugging efficiency.",
+    "buttons": {
+      "quickStart": "Quick Start",
+      "github": "GitHub",
+      "watchDemo": "Watch Demo"
+    },
+    "monitor": {
+      "title": "Core Features Demo",
+      "imageAlt": "JS Script Hook Feature Demo"
+    },
+    "badges": {
+      "downloads": "Greasy Fork Downloads",
+      "rating": "Greasy Fork Rating",
+      "license": "License",
+      "release": "GitHub Release"
+    }
+  },
+  "features": {
+    "title": "Main Features",
+    "description": "JS Script Hook is designed for web reverse analysis, helping you efficiently identify and extract key request data",
+    "items": {
+      "scriptInterception": {
+        "title": "Script Request Interception",
+        "description": "Precisely intercept all dynamically loaded script elements in web pages, assisting in reverse analysis of data interaction processes."
+      },
+      "jsonpParsing": {
+        "title": "JSONP Reverse Analysis",
+        "description": "Designed for reverse analysis of JSONP requests, automatically capturing callback functions and parameters, revealing interface data structures."
+      },
+      "breakpointControl": {
+        "title": "Precise Breakpoint Control",
+        "description": "Intelligently set breakpoints based on URL characteristics, locate key requests and callback functions, simplifying reverse analysis processes."
+      },
+      "dataExtraction": {
+        "title": "Interface Data Extraction",
+        "description": "Monitor and analyze request and response data in real-time, easily obtain interface parameter structures, improving reverse engineering efficiency."
+      },
+      "hookStrategies": {
+        "title": "Various Hook Strategies",
+        "description": "Support proxy functions and redeclared functions, two hook implementations, flexibly coping with various anti-debugging scenarios."
+      },
+      "stealthMode": {
+        "title": "Stealth Monitoring Mode",
+        "description": "Intelligent filtering and precise logging, minimizing tool signatures, effectively avoiding website's anti-reverse detection mechanisms."
+      }
+    }
+  },
+  "workflow": {
+    "title": "How It Works",
+    "description": "How JS Script Hook intercepts and processes script request lifecycle",
+    "requestPoint": "Request Breakpoint",
+    "requestDescription": "Browser JS initiates request using script tag",
+    "serverProcess": "Server receives, processes request and returns response",
+    "responsePoint": "Response Breakpoint",
+    "responseDescription": "Browser receives server response, callback function processes response",
+    "optionalNote": "Optional, may not have callback function",
+    "lifecycleNote": "Lifecycle of a JSONP request"
+  },
+  "featureTree": {
+    "title": "Feature System",
+    "description": "Comprehensive feature system to meet reverse analysis needs in different scenarios",
+    "legend": {
+      "core": "Core Features",
+      "mainModule": "Main Modules",
+      "subFeature": "Sub-features",
+      "implementation": "Implementation Details"
+    },
+    "instructions": "Tip: Drag and zoom to view the complete feature tree, use the mini-map for quick navigation",
+    "nodes": {
+      "main": "JSREI Script Hook",
+      "hook": {
+        "title": "Hook",
+        "requestHook": {
+          "title": "Pre-request Interception",
+          "description": "For analyzing callback parameters in request parameters"
+        },
+        "responseHook": {
+          "title": "Post-response Interception",
+          "description": "For analyzing contents in JSONP responses"
+        }
+      },
+      "analyzer": {
+        "title": "Analyzer",
+        "requestAnalyzer": {
+          "title": "Request Analyzer",
+          "callbackDetect": "Built-in algorithm to automatically detect JSONP callback parameters",
+          "autoBreakpoint": {
+            "title": "Auto-set breakpoints for possible callback functions",
+            "description": "(beta)"
+          }
+        },
+        "responseAnalyzer": {
+          "title": "Response Analyzer",
+          "staticAnalyze": "Not yet implemented, current approach is sufficient"
+        }
+      },
+      "settings": {
+        "title": "Global Settings",
+        "language": {
+          "title": "Internationalization",
+          "description": "(Simplified Chinese only for now)"
+        },
+        "hookMethod": {
+          "title": "Two Script Hook Methods",
+          "proxyMethod": "Using proxy function method for hooking",
+          "redeclareMethod": "Modifying original function code for redefinition"
+        },
+        "flagOptions": "Hook Flag Options"
+      },
+      "ui": {
+        "title": "UI Interface",
+        "urlConfig": {
+          "title": "New URL Configuration Interface",
+          "description": "(Configure multiple rules simultaneously)"
+        },
+        "breakpointSetting": "Enable Request Breakpoints",
+        "responseBreakpoint": "Enable Response Breakpoints"
+      },
+      "console": {
+        "title": "Console",
+        "printStyle": "Table Format Printing"
+      }
+    }
+  },
+  "detailedFeatures": {
+    "title": "Reverse Engineering Toolkit",
+    "description": "Professional tools supporting web reverse engineering, simplifying interface analysis and data extraction",
+    "tabs": {
+      "interface": "Interface Settings",
+      "console": "Request Monitoring",
+      "breakpoint": "Reverse Breakpoints"
+    },
+    "interface": {
+      "title": "Interface Settings",
+      "description": "JS Script Hook offers an optimized configuration interface for web reverse engineering, with flexible interception strategies.",
+      "globalConfig": {
+        "title": "Global Configuration",
+        "points": [
+          "Interface language: Supports Simplified Chinese and English for different usage scenarios.",
+          "Hook strategy selection: Choose the most suitable interception method based on the target website's protection mechanism.",
+          "Custom Hook identifiers: Reduce feature recognition risk, avoiding anti-debugging detection.",
+          "Fine-grained request filtering: Targeted monitoring of specific requests, optimizing reverse analysis efficiency."
+        ]
+      },
+      "breakpointConfig": {
+        "title": "Breakpoint Configuration",
+        "points": [
+          "Intelligent breakpoint control: Quickly enable/disable breakpoints for specific URLs.",
+          "Multi-mode URL matching: Supports exact, prefix, suffix, regex, and other matching methods.",
+          "Bi-directional breakpoint mechanism: Intercept both request initiation and data return key points.",
+          "Automatic JSONP recognition: Built-in callback parameter inference engine for quick location of key functions."
+        ]
+      }
+    },
+    "console": {
+      "title": "Request Monitoring",
+      "description": "Comprehensive capture of script and JSONP requests, intuitive display of data flow for reverse analysis of API calls.",
+      "interfaceAnalysis": {
+        "title": "Interface Data Analysis",
+        "points": [
+          "Request URL parsing: Complete recording and analysis of interface addresses and parameter structures.",
+          "JSONP identification marker: Automatic distinction between regular scripts and JSONP requests.",
+          "Callback function extraction: Precise identification and display of data processing functions.",
+          "Request sequence recording: Analysis of logical relationships and call order between requests."
+        ]
+      },
+      "targetFilter": {
+        "title": "Target Request Filtering",
+        "points": [
+          "Intelligent filtering system: Focus on key requests, reducing interference information.",
+          "Static resource exclusion: Optionally ignore regular js files, focusing on data interfaces.",
+          "JSONP request focusing: Precise targeting of data communication channels.",
+          "Clear log display: Structured recording of interface information for easy tracking and analysis."
+        ]
+      }
+    },
+    "breakpoint": {
+      "title": "Reverse Breakpoints",
+      "description": "Precisely locate key interfaces and data processing functions, deeply analyze request parameters and response data structures.",
+      "requestAnalysis": {
+        "title": "Request Parameter Analysis",
+        "points": [
+          "Pre-request interception: Capture critical moments before script loading, analyzing parameter construction processes.",
+          "Context information access: Complete access to request environment and parameter generation logic.",
+          "Target precise positioning: Intelligently trigger breakpoints based on URL characteristics.",
+          "Parameter encryption analysis: Facilitates reverse analysis of parameter encryption algorithms and signature generation mechanisms."
+        ]
+      },
+      "responseExtraction": {
+        "title": "Response Data Extraction",
+        "points": [
+          "Callback function interception: Precise capture of JSONP data processing moments.",
+          "Response content parsing: Intuitive view of the complete data structure returned by the interface.",
+          "Dual-mode breakpoint support: Flexible response to different anti-debugging scenarios.",
+          "Data processing tracking: Analysis of the website's subsequent processing logic for returned data."
+        ]
+      }
+    }
+  },
+  "installation": {
+    "title": "Installation & Usage",
+    "description": "JS Script Hook offers two installation methods, choose the one that works best for you",
+    "methods": {
+      "userscript": "Userscript Installation",
+      "source": "Source Code Installation"
+    },
+    "userscript": {
+      "step1": {
+        "title": "Step 1: Install a Userscript Manager",
+        "description": "First, you need to install a userscript manager extension in your browser:",
+        "recommended": "(Recommended, supports Chrome, Firefox, Edge, Safari, etc.)"
+      },
+      "step2": {
+        "title": "Step 2: Install JS Script Hook Script",
+        "description": "After installing the userscript manager, click the button below to visit Greasy Fork, then click \"Install this script\":",
+        "button": "Go to Greasy Fork to Install Script"
+      },
+      "notes": {
+        "title": "Notes:",
+        "items": [
+          "After installation, the script will automatically run and start intercepting script requests matching the rules",
+          "Script has been tested on Chrome 87+ versions",
+          "Other browsers may require additional configuration"
+        ]
+      }
+    },
+    "source": {
+      "tabs": {
+        "npm": "Using NPM",
+        "yarn": "Using Yarn"
+      },
+      "step1": {
+        "title": "Step 1: Clone Repository",
+        "command": "git clone https://github.com/JSREI/js-script-hook.git"
+      },
+      "step2": {
+        "title": "Step 2: Enter Project Directory",
+        "command": "cd js-script-hook"
+      },
+      "step3": {
+        "title": "Step 3: Install Dependencies and Build",
+        "npmCommand": "npm install && npm run build",
+        "yarnCommand": "yarn install && yarn build"
+      },
+      "copy": "Copy",
+      "copied": "Copied",
+      "usage": {
+        "title": "Usage Example",
+        "description": "After building, you can use it in your project as follows:"
+      }
+    }
+  },
+  "support": {
+    "title": "Support & Contribution",
+    "description": "Join our community and help drive the project forward",
+    "error": {
+      "githubApiFailed": "GitHub API request failed",
+      "failedToLoad": "Failed to load contributor data",
+      "cannotLoadContributors": "Cannot load contributor data"
+    },
+    "feedback": {
+      "title": "Feedback",
+      "description": "When encountering issues, please provide feedback through GitHub Issues. This helps us track and resolve problems, and also makes it easier for other users to reference.",
+      "createIssue": "Create Issue"
+    },
+    "contributors": {
+      "title": "Contributors",
+      "description": "Thanks to all developers who have contributed to the project. Welcome to submit PRs to enhance product features.",
+      "loading": "Loading contributor data...",
+      "commits": "commits",
+      "avatarAlt": "{{username}}'s avatar"
+    }
+  },
+  "community": {
+    "title": "Reverse Engineering Community",
+    "description": "Join our community groups for the latest information and technical support",
+    "qrCode": "{{group}} QR Code",
+    "clickHere": "Click here",
+    "orScanCode": "or scan the QR code to join the Telegram group",
+    "groups": {
+      "wechat": {
+        "title": "WeChat Group",
+        "description": "Scan to join our reverse engineering WeChat group"
+      },
+      "personalWechat": {
+        "title": "Personal WeChat",
+        "description": "If group QR code expires, add this WeChat and send [Reverse Group]"
+      },
+      "telegram": {
+        "title": "Telegram Group",
+        "description": "Click or scan to join our Telegram group"
+      }
+    }
+  },
+  "footer": {
+    "description": "A tool for assisting with reverse engineering script requests, helping to analyze and debug script requests.",
+    "links": {
+      "title": "Links",
+      "issues": "Issues",
+      "license": "License"
+    },
+    "resources": {
+      "title": "Resources",
+      "installation": "Installation Guide",
+      "documentation": "Documentation"
+    },
+    "copyright": "All rights reserved.",
+    "developedBy": "Developed by",
+    "team": "team"
+  },
+  "github": {
+    "viewOnGithub": "View on GitHub"
+  },
+  "monitor": {
+    "defaultImageAlt": "Feature Demo",
+    "powerButton": {
+      "turnOn": "Turn On Monitor",
+      "turnOff": "Turn Off Monitor"
+    }
+  },
+  "html": {
+    "title": "JS Script Hook - Official Website",
+    "description": "JS Script Hook - Advanced JavaScript Script Hooking Tool",
+    "noscript": "You need to enable JavaScript to run this app."
+  },
+  "starHistory": {
+    "title": "Star History",
+    "description": "GitHub star growth trend since the project was created. Thanks for the continuous support from the community!",
+    "chartAlt": "Star History Chart",
+    "likeCta": "Like this project? Give us a star!",
+    "starButton": "Support with a Star"
+  },
+  "socialShare": {
+    "title": "Share with Friends",
+    "defaultTitle": "JS Script Hook - Advanced JavaScript Script Hooking Tool",
+    "defaultDescription": "A powerful JavaScript script hooking library with multiple interception methods and rich customization options",
+    "shareOn": "Share on {{platform}}",
+    "copiedToClipboard": "Link copied to clipboard",
+    "copyLink": "Copy Link"
+  },
+  "richText": {
+    "welcome": "Welcome to <strong>JS Script Hook</strong>, your reliable assistant for Web Reverse Engineering!",
+    "installGuide": "Installation is very simple, just <a href='{{installLink}}'>click here</a> to get the latest version.",
+    "apiUsage": "Check out the <a href='{{docsLink}}'>API documentation</a> for <span class='code'>JS Script Hook</span> to learn more about its usage.",
+    "news": "The latest version <strong>{{version}}</strong> has been released with many new features and improvements!",
+    "supportInfo": "If you encounter any issues while using it, feel free to provide feedback on <a href='{{issuesLink}}'>GitHub Issues</a>, or join our community for help."
+  }
+} 

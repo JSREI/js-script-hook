@@ -1,0 +1,362 @@
+{
+  "nav": {
+    "features": "功能",
+    "installation": "安装",
+    "support": "支持",
+    "community": "交流群"
+  },
+  "language": {
+    "zh": "简体中文",
+    "en": "English",
+    "switchLanguage": "切换语言"
+  },
+  "hero": {
+    "subtitle": "专为Web逆向分析设计的JavaScript请求拦截工具",
+    "description": "一个专注于辅助Web逆向工程的轻量级JavaScript库，精准拦截和分析script请求与JSONP调用，帮助您快速定位关键接口，简化逆向分析流程，提升调试效率。",
+    "buttons": {
+      "quickStart": "快速开始",
+      "github": "GitHub",
+      "watchDemo": "观看演示视频"
+    },
+    "monitor": {
+      "title": "核心功能演示",
+      "imageAlt": "JS Script Hook 功能演示"
+    },
+    "badges": {
+      "downloads": "Greasy Fork 下载量",
+      "rating": "Greasy Fork 评分",
+      "license": "许可证",
+      "release": "GitHub 发布版本"
+    }
+  },
+  "features": {
+    "title": "主要功能",
+    "description": "JS Script Hook专为Web逆向分析设计，帮助您高效识别与提取关键请求数据",
+    "items": {
+      "scriptInterception": {
+        "title": "Script请求拦截",
+        "description": "精准拦截网页中所有动态加载的script元素，协助逆向分析数据交互流程。"
+      },
+      "jsonpParsing": {
+        "title": "JSONP逆向解析",
+        "description": "专为逆向分析JSONP请求设计，自动捕获回调函数及参数，揭示接口数据结构。"
+      },
+      "breakpointControl": {
+        "title": "精确断点控制",
+        "description": "根据URL特征智能设置断点，定位关键请求和回调函数，简化逆向分析流程。"
+      },
+      "dataExtraction": {
+        "title": "接口数据提取",
+        "description": "实时监控并分析请求和响应数据，轻松获取接口参数结构，提升逆向效率。"
+      },
+      "hookStrategies": {
+        "title": "多样Hook策略",
+        "description": "支持代理函数与重声明函数两种钩子实现，灵活应对各类反调试场景。"
+      },
+      "stealthMode": {
+        "title": "隐蔽监控模式",
+        "description": "智能过滤和精确日志，最小化工具特征，有效规避网站的反逆向检测机制。"
+      }
+    }
+  },
+  "workflow": {
+    "title": "工作原理",
+    "description": "JS Script Hook 如何拦截和处理脚本请求的生命周期",
+    "requestPoint": "请求断点",
+    "requestDescription": "浏览器JS使用script标签发起请求",
+    "serverProcess": "服务器收到请求处理并返回响应",
+    "responsePoint": "响应断点",
+    "responseDescription": "浏览器收到服务器响应，回调callback函数处理响应",
+    "optionalNote": "可选，可能没有回调函数",
+    "lifecycleNote": "一次jsonp请求的生命周期"
+  },
+  "featureTree": {
+    "title": "功能体系",
+    "description": "全面的功能体系，满足不同场景的逆向分析需求",
+    "legend": {
+      "core": "核心功能",
+      "mainModule": "主要模块",
+      "subFeature": "子功能",
+      "implementation": "实现细节"
+    },
+    "instructions": "提示: 可拖动、缩放查看完整功能树，使用小地图快速导航",
+    "nodes": {
+      "main": "JSREI Script Hook",
+      "hook": {
+        "title": "Hook",
+        "requestHook": {
+          "title": "请求之前拦截",
+          "description": "用于分析请求参数中有的回调参数"
+        },
+        "responseHook": {
+          "title": "响应之后拦截",
+          "description": "用于分析jsonp响应中有的内容"
+        }
+      },
+      "analyzer": {
+        "title": "分析器",
+        "requestAnalyzer": {
+          "title": "请求分析器",
+          "callbackDetect": "内置算法自动探测jsonp的callback参数",
+          "autoBreakpoint": {
+            "title": "自动给新参数可能的回调方式断点",
+            "description": "(beta)"
+          }
+        },
+        "responseAnalyzer": {
+          "title": "响应分析器",
+          "staticAnalyze": "暂未实现，目前采取已经足够"
+        }
+      },
+      "settings": {
+        "title": "全局设置",
+        "language": {
+          "title": "国际化多语言",
+          "description": "(仅提供简体中文)"
+        },
+        "hookMethod": {
+          "title": "两种脚本Hook方式",
+          "proxyMethod": "使用代理函数方式拦Hook",
+          "redeclareMethod": "修改原函数代码覆盖定义"
+        },
+        "flagOptions": "Hook Flag选项"
+      },
+      "ui": {
+        "title": "UI界面",
+        "urlConfig": {
+          "title": "新的URL配置界面",
+          "description": "(可同时配置多个规则)"
+        },
+        "breakpointSetting": "是否开启请求断点",
+        "responseBreakpoint": "是否开启响应断点"
+      },
+      "console": {
+        "title": "控制台",
+        "printStyle": "表格形式打印"
+      }
+    }
+  },
+  "detailedFeatures": {
+    "title": "逆向分析工具箱",
+    "description": "全方位支持Web逆向工程的专业工具，简化接口分析与数据提取流程",
+    "tabs": {
+      "interface": "界面设置",
+      "console": "请求监控",
+      "breakpoint": "逆向断点"
+    },
+    "interface": {
+      "title": "界面设置",
+      "description": "JS Script Hook提供针对Web逆向工程优化的配置界面，灵活设置拦截策略。",
+      "globalConfig": {
+        "title": "全局配置",
+        "points": [
+          "界面语言：支持简体中文和English，适应不同使用场景。",
+          "Hook策略选择：根据目标网站的防护机制，选择最合适的拦截方式。",
+          "自定义Hook标识：减少特征识别风险，规避反调试检测。",
+          "精细请求过滤：针对性监控特定请求，优化逆向分析效率。"
+        ]
+      },
+      "breakpointConfig": {
+        "title": "断点配置",
+        "points": [
+          "智能断点控制：快速启用/禁用特定URL的断点。",
+          "多模式URL匹配：支持精确、前缀、后缀、正则等多种匹配方式。",
+          "双向断点机制：拦截请求发起和数据返回两个关键节点。",
+          "自动JSONP识别：内置回调参数推断引擎，快速定位关键函数。"
+        ]
+      }
+    },
+    "console": {
+      "title": "请求监控",
+      "description": "全方位捕获script和JSONP请求，直观展示数据流，便于逆向分析接口调用。",
+      "interfaceAnalysis": {
+        "title": "接口数据分析",
+        "points": [
+          "请求URL解析：完整记录并分析接口地址及参数结构。",
+          "JSONP识别标记：自动区分普通script和JSONP请求。",
+          "回调函数提取：精确识别并显示数据处理函数。",
+          "请求时序记录：分析请求间的逻辑关系和调用顺序。"
+        ]
+      },
+      "targetFilter": {
+        "title": "目标请求过滤",
+        "points": [
+          "智能过滤系统：聚焦关键请求，减少干扰信息。",
+          "静态资源排除：可选忽略普通js文件，专注数据接口。",
+          "JSONP请求聚焦：精准定位数据交互通道。",
+          "清晰日志展示：结构化记录接口信息，便于追踪分析。"
+        ]
+      }
+    },
+    "breakpoint": {
+      "title": "逆向断点",
+      "description": "精确定位关键接口和数据处理函数，深入分析请求参数和响应数据结构。",
+      "requestAnalysis": {
+        "title": "请求参数分析",
+        "points": [
+          "请求前拦截：捕获脚本加载前的关键时刻，分析参数构造过程。",
+          "上下文信息获取：完整访问请求环境和参数生成逻辑。",
+          "目标精准定位：根据URL特征智能触发断点。",
+          "参数加密分析：便于逆向分析参数加密算法和签名生成机制。"
+        ]
+      },
+      "responseExtraction": {
+        "title": "响应数据提取",
+        "points": [
+          "回调函数拦截：精确捕获JSONP数据处理时刻。",
+          "响应内容解析：直观查看接口返回的完整数据结构。",
+          "双模式断点支持：灵活应对不同反调试场景。",
+          "数据处理跟踪：分析网站对返回数据的后续处理逻辑。"
+        ]
+      }
+    }
+  },
+  "installation": {
+    "title": "安装与使用",
+    "description": "JS Script Hook 提供两种安装方式，选择最适合您的方式",
+    "methods": {
+      "userscript": "油猴脚本安装",
+      "source": "源码编译安装"
+    },
+    "userscript": {
+      "step1": {
+        "title": "步骤 1：安装用户脚本管理器",
+        "description": "首先，您需要在浏览器中安装一个用户脚本管理器扩展：",
+        "recommended": "（推荐，支持 Chrome、Firefox、Edge、Safari 等）"
+      },
+      "step2": {
+        "title": "步骤 2：安装 JS Script Hook 脚本",
+        "description": "安装好用户脚本管理器后，点击下方按钮访问 Greasy Fork，然后点击\"安装此脚本\"：",
+        "button": "前往 Greasy Fork 安装脚本"
+      },
+      "notes": {
+        "title": "注意事项：",
+        "items": [
+          "安装后脚本会自动运行并开始拦截匹配规则的脚本请求",
+          "脚本已在 Chrome 87+ 版本测试通过",
+          "其他浏览器可能需要额外配置"
+        ]
+      }
+    },
+    "source": {
+      "tabs": {
+        "npm": "使用 NPM",
+        "yarn": "使用 Yarn"
+      },
+      "step1": {
+        "title": "步骤 1：克隆仓库",
+        "command": "git clone https://github.com/JSREI/js-script-hook.git"
+      },
+      "step2": {
+        "title": "步骤 2：进入项目目录",
+        "command": "cd js-script-hook"
+      },
+      "step3": {
+        "title": "步骤 3：安装依赖并构建",
+        "npmCommand": "npm install && npm run build",
+        "yarnCommand": "yarn install && yarn build"
+      },
+      "copy": "复制",
+      "copied": "已复制",
+      "usage": {
+        "title": "使用示例",
+        "description": "构建完成后，可以通过以下方式在您的项目中使用："
+      }
+    }
+  },
+  "support": {
+    "title": "支持与贡献",
+    "description": "加入我们的社区，共同推动项目发展",
+    "error": {
+      "githubApiFailed": "GitHub API 请求失败",
+      "failedToLoad": "获取贡献者数据失败",
+      "cannotLoadContributors": "无法加载贡献者数据"
+    },
+    "feedback": {
+      "title": "问题反馈",
+      "description": "遇到问题时，请通过GitHub Issues进行反馈。这有助于我们追踪和解决问题，同时也方便其他用户查阅。",
+      "createIssue": "创建Issue"
+    },
+    "contributors": {
+      "title": "贡献者",
+      "description": "感谢所有为项目做出贡献的开发者。欢迎提交PR，提升产品功能。",
+      "loading": "正在加载贡献者数据...",
+      "commits": "次提交",
+      "avatarAlt": "{{username}}的头像"
+    }
+  },
+  "community": {
+    "title": "逆向技术交流群",
+    "description": "加入我们的交流群，获取最新信息与技术支持",
+    "qrCode": "{{group}}二维码",
+    "clickHere": "点此",
+    "orScanCode": "或扫码加入TG交流群",
+    "groups": {
+      "wechat": {
+        "title": "微信交流群",
+        "description": "扫码加入逆向技术微信交流群"
+      },
+      "personalWechat": {
+        "title": "个人微信",
+        "description": "群二维码过期，可加此微信发送【逆向群】"
+      },
+      "telegram": {
+        "title": "Telegram交流群",
+        "description": "点击或扫码加入TG交流群"
+      }
+    }
+  },
+  "footer": {
+    "description": "用于辅助逆向script类型请求的工具，帮助分析和调试脚本请求。",
+    "links": {
+      "title": "链接",
+      "issues": "问题反馈",
+      "license": "许可协议"
+    },
+    "resources": {
+      "title": "资源",
+      "installation": "安装指南",
+      "documentation": "文档"
+    },
+    "copyright": "保留所有权利。",
+    "developedBy": "由",
+    "team": "团队开发"
+  },
+  "github": {
+    "viewOnGithub": "在GitHub上查看"
+  },
+  "monitor": {
+    "defaultImageAlt": "功能演示",
+    "powerButton": {
+      "turnOn": "打开显示器",
+      "turnOff": "关闭显示器"
+    }
+  },
+  "html": {
+    "title": "JS Script Hook - 官方网站",
+    "description": "JS Script Hook - 高级JavaScript脚本钩子工具",
+    "noscript": "您需要启用JavaScript才能运行此应用。"
+  },
+  "starHistory": {
+    "title": "Star历史",
+    "description": "项目自创建以来的GitHub星标增长趋势，感谢社区的持续支持！",
+    "chartAlt": "Star历史图表",
+    "likeCta": "喜欢这个项目？给我们点个Star吧！",
+    "starButton": "Star支持一下"
+  },
+  "socialShare": {
+    "title": "分享给朋友",
+    "defaultTitle": "JS Script Hook - 高级JavaScript脚本钩子工具",
+    "defaultDescription": "一个功能强大的JavaScript脚本钩子库，支持多种拦截方式和丰富的自定义选项",
+    "shareOn": "分享到{{platform}}",
+    "copiedToClipboard": "链接已复制到剪贴板",
+    "copyLink": "复制链接"
+  },
+  "richText": {
+    "welcome": "欢迎使用 <strong>JS Script Hook</strong>，Web逆向工程的得力助手！",
+    "installGuide": "安装非常简单，只需要<a href='{{installLink}}'>点击这里</a>即可获取最新版本。",
+    "apiUsage": "查看 <span class='code'>JS Script Hook</span> 的 <a href='{{docsLink}}'>API文档</a> 了解更多用法。",
+    "news": "最新版本 <strong>{{version}}</strong> 已发布，包含许多新特性和改进！",
+    "supportInfo": "如果您在使用过程中遇到任何问题，欢迎在<a href='{{issuesLink}}'>GitHub Issues</a>上反馈，或加入我们的社区获取帮助。"
+  }
+} 

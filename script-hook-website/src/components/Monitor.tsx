@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import './Monitor.css';
 
 interface MonitorProps {
@@ -9,9 +10,10 @@ interface MonitorProps {
 
 const Monitor: React.FC<MonitorProps> = ({ 
   imageUrl, 
-  imageAlt = "功能演示", 
-  title = "核心功能演示" 
+  imageAlt,
+  title
 }) => {
+  const { t } = useTranslation();
   // 添加电源开关状态
   const [isPowerOn, setIsPowerOn] = useState(true);
   // 跟踪图片高度
@@ -58,7 +60,7 @@ const Monitor: React.FC<MonitorProps> = ({
             <img 
               ref={imageRef}
               src={imageUrl} 
-              alt={imageAlt} 
+              alt={imageAlt || t('monitor.defaultImageAlt')} 
               className={`demo-gif ${!isPowerOn ? 'invisible' : ''}`}
               style={{ display: isPowerOn ? 'block' : 'none' }}
             />
@@ -90,8 +92,8 @@ const Monitor: React.FC<MonitorProps> = ({
           <button 
             className={`power-button ${isPowerOn ? 'on' : 'off'}`}
             onClick={togglePower}
-            aria-label={isPowerOn ? "关闭显示器" : "打开显示器"}
-            title={isPowerOn ? "关闭显示器" : "打开显示器"}
+            aria-label={isPowerOn ? t('monitor.powerButton.turnOff') : t('monitor.powerButton.turnOn')}
+            title={isPowerOn ? t('monitor.powerButton.turnOff') : t('monitor.powerButton.turnOn')}
           >
             <span className="power-indicator"></span>
           </button>
