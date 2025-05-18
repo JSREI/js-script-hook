@@ -2,10 +2,13 @@
   "name": "script-hook-website",
   "version": "1.0.0",
   "description": "JS Script Hook官方网站",
+  "homepage": "https://jsrei.github.io/js-script-hook",
   "main": "index.js",
   "scripts": {
     "start": "webpack serve --mode development --port auto --open",
     "build": "webpack --mode production",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -19,10 +22,12 @@
   "dependencies": {
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "@types/react-router-dom": "^5.3.3",
     "d3": "^7.9.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-medium-image-zoom": "^5.2.14",
+    "react-router-dom": "^7.6.0",
     "react-syntax-highlighter": "^15.6.1",
     "reactflow": "^11.11.4",
     "typescript": "^5.0.0"
@@ -30,6 +35,7 @@
   "devDependencies": {
     "@types/react-syntax-highlighter": "^15.5.13",
     "css-loader": "^6.7.3",
+    "gh-pages": "^6.3.0",
     "html-webpack-plugin": "^5.5.1",
     "style-loader": "^3.3.2",
     "ts-loader": "^9.4.2",

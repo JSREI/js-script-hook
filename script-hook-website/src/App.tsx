@@ -1,4 +1,5 @@
 import React from 'react';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Features from './components/Features';
@@ -13,9 +14,10 @@ import Footer from './components/Footer';
 import GitHubStarButton from './components/GitHubStarButton';
 import './App.css';
 
-const App: React.FC = () => {
+// 封装主页面内容为一个组件
+const HomePage: React.FC = () => {
   return (
-    <div className="app">
+    <>
       <GitHubStarButton />
       <Header />
       <Hero />
@@ -25,10 +27,23 @@ const App: React.FC = () => {
       <DetailedFeatures />
       <Installation />
       <Support />
-      <StarHistory />
       <CommunityGroup />
       <Footer />
-    </div>
+    </>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <Router>
+      <div className="app">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          {/* 添加其他路由，如果未来需要子页面 */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </Router>
   );
 };
 
