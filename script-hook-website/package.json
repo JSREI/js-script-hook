@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@types/react-syntax-highlighter": "^15.5.13",
+    "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^6.7.3",
     "gh-pages": "^6.3.0",
     "html-webpack-plugin": "^5.5.1",

@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
@@ -40,6 +41,15 @@ module.exports = (env, argv) => {
           'Pragma': {'http-equiv': 'Pragma', 'content': 'no-cache'},
           'Expires': {'http-equiv': 'Expires', 'content': '0'}
         }
+      }),
+      new CopyWebpackPlugin({
+        patterns: [
+          { 
+            from: 'public/images', 
+            to: 'images' 
+          },
+          // 如果有其他静态资源也需要复制，可以在这里添加
+        ]
       }),
     ],
     devServer: {
