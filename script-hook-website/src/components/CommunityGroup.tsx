@@ -34,26 +34,34 @@ const CommunityGroup: React.FC = () => {
         <div className="community-groups">
           {groups.map((group, index) => (
             <div key={index} className="community-group-item">
-              <h3>{group.title}</h3>
-              <div className="qr-code-wrapper">
-                <Zoom>
-                  <img 
-                    src={group.image} 
-                    alt={`${group.title}二维码`} 
-                    className="qr-code-image"
-                  />
-                </Zoom>
+              <div className="group-header">
+                <h3>{group.title}</h3>
               </div>
-              <p className="group-description">
-                {group.link ? (
-                  <>
-                    <a href={group.link} target="_blank" rel="noopener noreferrer">点此</a>
-                    或扫码{group.description.split('点击或扫码')[1]}
-                  </>
-                ) : (
-                  group.description
-                )}
-              </p>
+              
+              <div className="group-content">
+                <div className="qr-code-wrapper">
+                  <Zoom>
+                    <img 
+                      src={group.image} 
+                      alt={`${group.title}二维码`} 
+                      className="qr-code-image"
+                    />
+                  </Zoom>
+                </div>
+              </div>
+              
+              <div className="group-footer">
+                <p className="group-description">
+                  {group.link ? (
+                    <>
+                      <a href={group.link} target="_blank" rel="noopener noreferrer">点此</a>
+                      或扫码{group.description.split('点击或扫码')[1]}
+                    </>
+                  ) : (
+                    group.description
+                  )}
+                </p>
+              </div>
             </div>
           ))}
         </div>
