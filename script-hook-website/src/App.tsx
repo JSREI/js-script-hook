@@ -7,6 +7,7 @@ import FeatureTree from './components/FeatureTree';
 import DetailedFeatures from './components/DetailedFeatures';
 import Installation from './components/Installation';
 import Support from './components/Support';
+import StarHistory from './components/StarHistory';
 import CommunityGroup from './components/CommunityGroup';
 import Footer from './components/Footer';
 import GitHubStarButton from './components/GitHubStarButton';
@@ -24,6 +25,7 @@ const App: React.FC = () => {
       <DetailedFeatures />
       <Installation />
       <Support />
+      <StarHistory />
       <CommunityGroup />
       <Footer />
     </div>

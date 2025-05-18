@@ -19,6 +19,18 @@
   color: #ffffff;
 }
 
+/* 标题链接样式 */
+.footer-title-link {
+  color: #ffffff !important; /* 使用与标题相同的白色 */
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-title-link:hover {
+  color: #64b5f6 !important; /* 悬停时变为蓝色 */
+  text-decoration: none;
+}
+
 .footer-section p {
   font-size: 16px;
   line-height: 1.6;

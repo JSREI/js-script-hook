@@ -74,6 +74,9 @@
   font-weight: 500;
   position: relative;
   padding-bottom: 5px;
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s;
 }
 
 .main-nav a:after {
@@ -87,8 +90,13 @@
   transition: width 0.3s;
 }
 
-.main-nav a:hover:after {
+.main-nav a:hover:after, .main-nav a.active:after {
   width: 100%;
+}
+
+.main-nav a.active {
+  color: #1976d2;
+  font-weight: 600;
 }
 
 .mobile-menu-button {
