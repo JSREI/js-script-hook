@@ -4,7 +4,6 @@
   max-width: 550px;
   margin: 0 auto;
   perspective: 1200px;
-  z-index: 1; /* 确保不会覆盖重要文本内容 */
 }
 
 .simple-monitor {
@@ -12,7 +11,6 @@
   transform: perspective(1000px) rotateY(-3deg);
   transition: all 0.4s ease;
   margin-bottom: 80px;
-  overflow: hidden; /* 防止内容溢出 */
 }
 
 .simple-monitor:hover {
@@ -35,12 +33,11 @@
 /* 屏幕 */
 .monitor-screen {
   background-color: #000;
-  overflow: hidden; /* 确保内容不会溢出 */
+  overflow: hidden;
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
   transition: background-color 0.3s ease;
-  max-width: 100%; /* 限制最大宽度 */
 }
 
 /* 屏幕电源状态 */
@@ -98,7 +95,6 @@
   width: 100%;
   height: auto;
   vertical-align: bottom;
-  max-width: 100%; /* 确保图片不会超出容器 */
 }
 
 /* 隐藏但不影响布局的元素 */
@@ -246,10 +242,6 @@
 
   .monitor-wrapper {
     max-width: 90%;
-  }
-  
-  .hero-content {
-    z-index: 2; /* 确保在小屏幕上文字内容位于顶部 */
   }
 } 
 
