@@ -15,7 +15,6 @@ const Header: React.FC = () => {
         'features',
         'installation',
         'support',
-        'star-history',
         'community'
       ];
       
@@ -45,7 +44,7 @@ const Header: React.FC = () => {
       <div className="container header-container">
         <div className="logo">
           <a href="/">
-            <img src="/images/logo.png" alt="JS Script Hook Logo" className="site-logo transparent-bg" />
+            <img src="./images/logo.png" alt="JS Script Hook Logo" className="site-logo transparent-bg" />
           </a>
         </div>
         
@@ -60,7 +59,6 @@ const Header: React.FC = () => {
             <li><a href="#features" className={activeSection === 'features' ? 'active' : ''}>功能</a></li>
             <li><a href="#installation" className={activeSection === 'installation' ? 'active' : ''}>安装</a></li>
             <li><a href="#support" className={activeSection === 'support' ? 'active' : ''}>支持</a></li>
-            <li><a href="#star-history" className={activeSection === 'star-history' ? 'active' : ''}>Star历史</a></li>
             <li><a href="#community" className={activeSection === 'community' ? 'active' : ''}>交流群</a></li>
           </ul>
         </nav>
